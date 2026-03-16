@@ -29,6 +29,8 @@ namespace MajorMiseries
             _lastProcessedHour = -1;
             _lastRefreshUnscaledTime = -999f;
 
+            StageGaugeLockVisuals.ResetRuntime();
+
             _applyingSevere = false;
             _pendingSevere = false;
             _severeWasActive = false;
