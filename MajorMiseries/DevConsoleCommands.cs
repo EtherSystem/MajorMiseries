@@ -19,25 +19,25 @@ namespace MajorMiseries
             uConsole.RegisterCommand("omen", new Action(() =>
             {
                 new OmenAffliction(AfflictionBodyArea.Head).Start();
-                DisplayStagePopup.ShowStagePopup(1, "GAMEPLAY_OmenName");
+                DisplayStagePopup.ShowStagePopup(1, "GAMEPLAY_Stage1Name");
             }));
 
             uConsole.RegisterCommand("dirge", new Action(() =>
             {
                 new DirgeAffliction(AfflictionBodyArea.Head).Start();
-                DisplayStagePopup.ShowStagePopup(2, "GAMEPLAY_DirgeName");
+                DisplayStagePopup.ShowStagePopup(2, "GAMEPLAY_Stage2Name");
             }));
 
             uConsole.RegisterCommand("knell", new Action(() =>
             {
                 new KnellAffliction(AfflictionBodyArea.Head).Start();
-                DisplayStagePopup.ShowStagePopup(3, "GAMEPLAY_KnellName");
+                DisplayStagePopup.ShowStagePopup(3, "GAMEPLAY_Stage3Name");
             }));
 
             uConsole.RegisterCommand("requiem", new Action(() =>
             {
                 new RequiemAffliction(AfflictionBodyArea.Head).Start();
-                DisplayStagePopup.ShowStagePopup(4, "GAMEPLAY_RequiemName");
+                DisplayStagePopup.ShowStagePopup(4, "GAMEPLAY_Stage4Name");
             }));
             // -----------------------------------------------------------------
 

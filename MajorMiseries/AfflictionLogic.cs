@@ -289,10 +289,10 @@ namespace MajorMiseries
         {
             return stage switch
             {
-                RequiemStage.Omen => "GAMEPLAY_OmenName",
-                RequiemStage.Dirge => "GAMEPLAY_DirgeName",
-                RequiemStage.Knell => "GAMEPLAY_KnellName",
-                RequiemStage.Requiem => "GAMEPLAY_RequiemName",
+                RequiemStage.Omen => "GAMEPLAY_Stage1Name",
+                RequiemStage.Dirge => "GAMEPLAY_Stage2Name",
+                RequiemStage.Knell => "GAMEPLAY_Stage3Name",
+                RequiemStage.Requiem => "GAMEPLAY_Stage4Name",
                 _ => null
             };
         }
