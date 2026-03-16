@@ -1,11 +1,12 @@
 ﻿using AfflictionComponent.Components;
+using MajorMiseries.Patches;
+using static MajorMiseries.Afflictions.BrokenArm;
+using static MajorMiseries.Afflictions.BrokenLeg;
 using static MajorMiseries.Afflictions.Dirge;
 using static MajorMiseries.Afflictions.Knell;
 using static MajorMiseries.Afflictions.Omen;
 using static MajorMiseries.Afflictions.Requiem;
 using static MajorMiseries.Afflictions.ScarredFlesh;
-using static MajorMiseries.Afflictions.BrokenLeg;
-using static MajorMiseries.Afflictions.BrokenArm;
 using Random = UnityEngine.Random;
 
 namespace MajorMiseries
@@ -18,21 +19,25 @@ namespace MajorMiseries
             uConsole.RegisterCommand("omen", new Action(() =>
             {
                 new OmenAffliction(AfflictionBodyArea.Head).Start();
+                DisplayStagePopup.ShowStagePopup(1, "GAMEPLAY_OmenName");
             }));
 
             uConsole.RegisterCommand("dirge", new Action(() =>
             {
                 new DirgeAffliction(AfflictionBodyArea.Head).Start();
+                DisplayStagePopup.ShowStagePopup(2, "GAMEPLAY_DirgeName");
             }));
 
             uConsole.RegisterCommand("knell", new Action(() =>
             {
                 new KnellAffliction(AfflictionBodyArea.Head).Start();
+                DisplayStagePopup.ShowStagePopup(3, "GAMEPLAY_KnellName");
             }));
 
             uConsole.RegisterCommand("requiem", new Action(() =>
             {
                 new RequiemAffliction(AfflictionBodyArea.Head).Start();
+                DisplayStagePopup.ShowStagePopup(4, "GAMEPLAY_RequiemName");
             }));
             // -----------------------------------------------------------------
 
@@ -82,6 +87,11 @@ namespace MajorMiseries
             uConsole.RegisterCommand("severeL_cure", new Action(() =>
             {
                 GameManager.GetSevereLacerations().Cure();
+            }));
+
+            uConsole.RegisterCommand("mm_testpopup", new Action(() =>
+            {
+                Patches.DisplayStagePopup.ShowStagePopup(1, "GAMEPLAY_OmenName");
             }));
         }
     }

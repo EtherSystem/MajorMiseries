@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using AfflictionComponent.Components;
+using MajorMiseries.Patches;
 using MajorMiseries.Persistence;
 using static MajorMiseries.Afflictions.BrokenArm;
 using static MajorMiseries.Afflictions.BrokenLeg;
@@ -104,6 +105,15 @@ namespace MajorMiseries
             CureAllStageAfflictions();
             ApplyStage(stage);
             ForceRefreshEffects();
+
+            if (stage != RequiemStage.None)
+            {
+                string? locId = GetPopupStageLocId(stage);
+                if (!string.IsNullOrEmpty(locId))
+                {
+                    DisplayStagePopup.ShowStagePopup(GetPopupStageNumber(stage), locId);
+                }
+            }
 
             Core.Log($"stage updated: {appliedStage} -> {stage}");
         }
@@ -261,6 +271,30 @@ namespace MajorMiseries
                     affliction.Cure();
                 }
             }
+        }
+
+        private static int GetPopupStageNumber(RequiemStage stage)
+        {
+            return stage switch
+            {
+                RequiemStage.Omen => 1,
+                RequiemStage.Dirge => 2,
+                RequiemStage.Knell => 3,
+                RequiemStage.Requiem => 4,
+                _ => 0
+            };
+        }
+
+        private static string? GetPopupStageLocId(RequiemStage stage)
+        {
+            return stage switch
+            {
+                RequiemStage.Omen => "GAMEPLAY_OmenName",
+                RequiemStage.Dirge => "GAMEPLAY_DirgeName",
+                RequiemStage.Knell => "GAMEPLAY_KnellName",
+                RequiemStage.Requiem => "GAMEPLAY_RequiemName",
+                _ => null
+            };
         }
 
         // =======================================================================================
