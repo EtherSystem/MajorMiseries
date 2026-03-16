@@ -1,0 +1,200 @@
+{
+    "GAMEPLAY_OmenName": {
+        "English": "Omen",
+        "French (France)": "Présage",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+    "GAMEPLAY_OmenCause": {
+        "English": "The end of the World",
+        "French (France)": "La fin du monde",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+    "GAMEPLAY_OmenDescription": {
+        "English": "A shadow looms over your fate. Something has begun deep within you, and nothing can stop it. This is the first sign heralding the end of days. Memento Mori.",
+        "French (France)": "Une ombre plane sur votre destin. Quelque chose a commencé au plus profond de vous, et rien ne pourra l'arrêter. Ceci est le premier signe annonciateur de la fin des temps. Memento Mori.",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+
+    "GAMEPLAY_DirgeName": {
+        "English": "Dirge",
+        "French (France)": "Complainte funèbre",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+    "GAMEPLAY_DirgeCause": {
+        "English": "The end of the World",
+        "French (France)": "La fin du monde",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+    "GAMEPLAY_DirgeDescription": {
+        "English": "Your body begins to falter. You were warned of the coming end of days, this is how it begins.",
+        "French (France)": "Votre corps commence à faiblir. Vous avez été averti de l'avènement de la fin des temps, ainsi est son commencement.",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+
+    "GAMEPLAY_KnellName": {
+        "English": "Knell",
+        "French (France)": "Glas",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+    "GAMEPLAY_KnellCause": {
+        "English": "The end of the World",
+        "French (France)": "La fin du monde",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+    "GAMEPLAY_KnellDescription": {
+        "English": "The bell tolls for you. Your strength fades and every mistake now carries a heavy price. The end of days draws near.",
+        "French (France)": "Le glas sonne pour vous. Vos forces déclinent et la moindre erreur se paiera désormais très cher. La fin des temps approche.",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+
+    "GAMEPLAY_RequiemName": {
+        "English": "Requiem",
+        "French (France)": "Requiem",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+    "GAMEPLAY_RequiemCause": {
+        "English": "The end of the World",
+        "French (France)": "La fin du monde",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+    "GAMEPLAY_RequiemDescription": {
+        "English": "A requiem now plays for you. Your body is broken and your fate is sealed. From now on, survival is nothing but borrowed time.",
+        "French (France)": "Un requiem se joue pour vous. Votre corps est brisé et votre destin est scellé. Désormais, survivre n'est plus que du temps emprunté.",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+
+    "GAMEPLAY_ScarredFleshName": {
+        "English": "Scarred Flesh",
+        "French (France)": "Chair marquée",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+    "GAMEPLAY_ScarredFleshCause": {
+        "English": "Severe Lacerations",
+        "French (France)": "Lacérations sévères",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+    "GAMEPLAY_ScarredFleshDescription": {
+        "English": "Severe lacerations have healed, leaving marks on your body. Your maximum health is slightly reduced.",
+        "French (France)": "De sévères lacérations ont cicatrisé, laissant des marques sur votre corps. Votre santé maximale est légèrement réduite.",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+
+    "GAMEPLAY_BrokenLegName": {
+        "English": "Broken Leg",
+        "French (France)": "Jambe cassée",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+    "GAMEPLAY_BrokenLegCause": {
+        "English": "Severe Trauma",
+        "French (France)": "Traumatisme grave",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+    "GAMEPLAY_BrokenLegCause_FallDamage": {
+        "English": "A severe fall",
+        "French (France)": "Une chute grave",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+    "GAMEPLAY_BrokenLegCause_BearAttack": {
+        "English": "A bear attack",
+        "French (France)": "Une d'ours",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+    "GAMEPLAY_BrokenLegCause_MooseAttack": {
+        "English": "A moose attack",
+        "French (France)": "Une attaque d'élan",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+    "GAMEPLAY_BrokenLegDescription": {
+        "English": "Your leg is broken.",
+        "French (France)": "Votre jambe est cassée.",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+
+    "GAMEPLAY_BrokenArmName": {
+        "English": "Broken Arm",
+        "French (France)": "Bras cassé",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+    "GAMEPLAY_BrokenArmCause": {
+        "English": "Predator Attack",
+        "French (France)": "Attaque de prédateur",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+    "GAMEPLAY_BrokenArmDescription": {
+        "English": "Your arm is broken.",
+        "French (France)": "Votre bras est cassé.",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    }
+}

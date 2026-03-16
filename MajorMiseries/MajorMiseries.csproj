@@ -1,0 +1,67 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<RootNamespace>MajorMiseries</RootNamespace>
+		<AssemblyName>MajorMiseries</AssemblyName>
+		<LangVersion>latest</LangVersion>
+		<IsPackable>false</IsPackable>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<FileVersion>1.0.0.0</FileVersion>
+		<NeutralLanguage>en-US</NeutralLanguage>
+		<Platforms>AnyCPU;x64</Platforms>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<TheLongDarkPath>D:\SteamLibrary\steamapps\common\TheLongDark</TheLongDarkPath>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Remove="Resources\Localization\Localization.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="Resources\Localization\Localization.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="AfflictionComponent">
+			<HintPath>$(TheLongDarkPath)\Mods\AfflictionComponent.dll</HintPath>
+		</Reference>
+		<Reference Include="ModSettings">
+			<HintPath>$(TheLongDarkPath)\Mods\ModSettings.dll</HintPath>
+		</Reference>
+		<Reference Include="ModComponent">
+			<HintPath>$(TheLongDarkPath)\Mods\ModComponent.dll</HintPath>
+		</Reference>
+		<Reference Include="ModData">
+			<HintPath>$(TheLongDarkPath)\Mods\ModData.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="STBlade.Modding.TLD.Il2CppAssemblies.Windows" Version="2.51.0" />
+		<PackageReference Include="STBlade.Modding.TLD.ModSettings" Version="1.9.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Using Include="System.Reflection" />
+		<Using Include="System.Diagnostics.CodeAnalysis" />
+		<Using Include="Il2Cpp" />
+		<Using Include="HarmonyLib" />
+		<Using Include="MelonLoader" />
+		<Using Include="UnityEngine" />
+		<Using Include="ModSettings" />
+		<Using Include="ModComponent" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Resources\Icons\" />
+	</ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="Build">
+		<Copy SourceFiles="$(TargetPath)" DestinationFolder="$(TheLongDarkPath)\Mods" SkipUnchangedFiles="true" />
+	</Target>
+</Project>
