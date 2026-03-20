@@ -1,6 +1,9 @@
-﻿using System.Text;
+﻿using System.Collections;
+using System.Text;
 using AfflictionComponent.Components;
 using Il2CppTLD.IntBackedUnit;
+using static MajorMiseries.Afflictions.Sepsis;
+using static MajorMiseries.Afflictions.SepsisRisk;
 
 namespace MajorMiseries.Patches
 {
@@ -203,6 +206,69 @@ namespace MajorMiseries.Patches
             private static void Postfix(ref ItemWeight __result)
             {
                 ApplyBrokenLegCarryMultiplier(ref __result);
+            }
+        }
+
+        [HarmonyPatch(typeof(Infection), nameof(Infection.InfectionStart))]
+        internal static class Infection_InfectionStart
+        {
+            private static void Postfix(Infection __instance, string causeLocID, int location, bool displayIcon, bool nofx)
+            {
+                if (__instance == null)
+                    return;
+
+                MelonCoroutines.Start(ApplySepsisRiskNextFrame((AfflictionBodyArea)location));
+            }
+
+            private static IEnumerator ApplySepsisRiskNextFrame(AfflictionBodyArea requestedBodyArea)
+            {
+                yield return null;
+
+                Infection infection = GameManager.GetInfectionComponent();
+                if (infection == null)
+                {
+                    Core.Log("InfectionStart -> infection component missing next frame, SepsisRisk not applied.");
+                    yield break;
+                }
+
+                int count = infection.GetAfflictionsCount();
+                if (count <= 0)
+                {
+                    Core.Log("InfectionStart -> no vanilla infection found next frame, SepsisRisk not applied.");
+                    yield break;
+                }
+
+                AfflictionBodyArea resolvedBodyArea = requestedBodyArea;
+                bool foundExact = false;
+
+                for (int i = 0; i < count; i++)
+                {
+                    AfflictionBodyArea vanillaArea = infection.GetLocation(i);
+                    if (vanillaArea == requestedBodyArea)
+                    {
+                        resolvedBodyArea = vanillaArea;
+                        foundExact = true;
+                        break;
+                    }
+                }
+
+                if (!foundExact)
+                {
+                    resolvedBodyArea = infection.GetLocation(count - 1);
+                    Core.Log($"InfectionStart -> requested area {requestedBodyArea}, resolved vanilla area {resolvedBodyArea}.");
+                }
+
+                new SepsisRiskAffliction(resolvedBodyArea).Start();
+                Core.Log($"Vanilla infection started on {resolvedBodyArea}, applying SepsisRisk.");
+            }
+        }
+
+        [HarmonyPatch(typeof(Condition), nameof(Condition.MaybeIncreaseConditionFromWillpower))]
+        internal static class Condition_MaybeIncreaseConditionFromWillpower
+        {
+            private static bool Prefix()
+            {
+                return !SepsisAffliction.IsActive;
             }
         }
     }

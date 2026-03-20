@@ -198,6 +198,47 @@
         "Russian": ""
     },
 
+    "GAMEPLAY_SepsisRiskName": {
+        "English": "Sepsis Risk",
+        "French (France)": "Risque de septicémie",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+    "GAMEPLAY_SepsisCause": {
+        "English": "Blood Infection",
+        "French (France)": "Infection du sang",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+    "GAMEPLAY_SepsisRiskDescription": {
+        "English": "Your infection is worsening. If it is not treated quickly, it will develop into sepsis.",
+        "French (France)": "Votre infection s'aggrave. Si elle n'est pas traitée rapidement, elle évoluera en septicémie.",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+    "GAMEPLAY_SepsisName": {
+        "English": "Sepsis",
+        "French (France)": "Septicémie",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+    "GAMEPLAY_SepsisDescription": {
+        "English": "The infection has spread through your bloodstream. Your condition is deteriorating rapidly, and only rigorous treatment may keep you alive.",
+        "French (France)": "L'infection s'est propagée dans votre sang. Votre état se détériore rapidement, et seul un traitement rigoureux peut vous maintenir en vie.",
+        "Spanish (Spain)": "",
+        "German": "",
+        "Turkish": "",
+        "Russian": ""
+    },
+
 
     "GAMEPLAY_Stage1Name": {
         "English": "Signs",

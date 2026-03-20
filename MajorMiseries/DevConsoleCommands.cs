@@ -7,6 +7,8 @@ using static MajorMiseries.Afflictions.Knell;
 using static MajorMiseries.Afflictions.Omen;
 using static MajorMiseries.Afflictions.Requiem;
 using static MajorMiseries.Afflictions.ScarredFlesh;
+using static MajorMiseries.Afflictions.SepsisRisk;
+using static MajorMiseries.Afflictions.Sepsis;
 using Random = UnityEngine.Random;
 
 namespace MajorMiseries
@@ -46,6 +48,16 @@ namespace MajorMiseries
                 new ScarredFleshAffliction(AfflictionBodyArea.Chest).Start();
             }));
 
+            uConsole.RegisterCommand("sepsisrisk", new Action(() =>
+            {
+                new SepsisRiskAffliction(AfflictionBodyArea.Chest).Start();
+            }));
+
+            uConsole.RegisterCommand("sepsis", new Action(() =>
+            {
+                new SepsisAffliction(AfflictionBodyArea.Chest).Start();
+            }));
+
             uConsole.RegisterCommand("brokenleg", new Action(() =>
             {
                 new BrokenLegAffliction(Random.Range(0, 2) == 0 ? AfflictionBodyArea.LegLeft : AfflictionBodyArea.LegRight, Settings.options.BrokenLimbDurationMode == 1 ? 201.6f : 2016f).Start();
@@ -72,7 +84,9 @@ namespace MajorMiseries
                         || a is RequiemAffliction
                         || a is ScarredFleshAffliction
                         || a is BrokenLegAffliction
-                        || a is BrokenArmAffliction)
+                        || a is BrokenArmAffliction
+                        || a is SepsisRiskAffliction
+                        || a is SepsisAffliction)
                     {
                         a.Cure();
                     }
@@ -87,6 +101,16 @@ namespace MajorMiseries
             uConsole.RegisterCommand("severeL_cure", new Action(() =>
             {
                 GameManager.GetSevereLacerations().Cure();
+            }));
+
+            uConsole.RegisterCommand("infection", new Action(() =>
+            {
+                GameManager.GetInfectionComponent().InfectionStart("debug", (int)AfflictionBodyArea.Chest, true, false);
+            }));
+
+            uConsole.RegisterCommand("infection_cure", new Action(() =>
+            {
+                GameManager.GetInfectionComponent().Cure();
             }));
 
             uConsole.RegisterCommand("mm_testpopup", new Action(() =>
