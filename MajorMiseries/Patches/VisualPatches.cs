@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using HarmonyLib;
-using Il2CppTLD.Gameplay;
-using UnityEngine;
+﻿using Il2CppTLD.Gameplay;
 
 namespace MajorMiseries.Patches
 {

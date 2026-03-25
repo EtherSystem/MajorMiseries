@@ -2,274 +2,273 @@
     "GAMEPLAY_OmenName": {
         "English": "Omen",
         "French (France)": "Présage",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Presagio",
+        "German": "Vorzeichen",
+        "Turkish": "Alamet",
+        "Russian": "Предзнаменование"
     },
     "GAMEPLAY_OmenCause": {
         "English": "End of Days",
         "French (France)": "Fin des temps",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Fin de los Días",
+        "German": "Ende der Tage",
+        "Turkish": "Ahir Zaman",
+        "Russian": "Конец света"
     },
     "GAMEPLAY_OmenDescription": {
         "English": "A shadow looms over your fate. Something has begun deep within you, and nothing can stop it. This is the first sign heralding the end of days. Memento Mori.",
         "French (France)": "Une ombre plane sur votre destin. Quelque chose a commencé au plus profond de vous, et rien ne pourra l'arrêter. Ceci est le premier signe annonciateur de la fin des temps. Memento Mori.",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Una sombra se cierne sobre tu destino. Algo ha comenzado en lo más profundo de ti, y nada podrá detenerlo. Esta es la primera señal que anuncia el fin de los días. Memento Mori.",
+        "German": "Ein Schatten liegt über deinem Schicksal. Tief in dir hat etwas begonnen, und nichts kann es mehr aufhalten. Dies ist das erste Zeichen, das das Ende der Tage ankündigt. Memento Mori.",
+        "Turkish": "Kaderinin üzerine bir gölge çöktü. İçinin derinliklerinde bir şey başladı ve artık hiçbir şey onu durduramaz. Bu, ahir zamanı haber veren ilk işarettir. Memento Mori.",
+        "Russian": "Тень нависла над вашей судьбой. Нечто зародилось глубоко внутри вас, и ничто уже не сможет это остановить. Это первый знак, предвещающий конец света. Memento Mori."
     },
 
     "GAMEPLAY_DirgeName": {
         "English": "Dirge",
         "French (France)": "Complainte funèbre",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Canto fúnebre",
+        "German": "Klagelied",
+        "Turkish": "Ağıt",
+        "Russian": "Погребальная песнь"
     },
     "GAMEPLAY_DirgeCause": {
         "English": "End of Days",
         "French (France)": "Fin des temps",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Fin de los Días",
+        "German": "Ende der Tage",
+        "Turkish": "Ahir Zaman",
+        "Russian": "Конец света"
     },
     "GAMEPLAY_DirgeDescription": {
         "English": "Your body begins to falter. You were warned of the coming end of days, this is how it begins.",
         "French (France)": "Votre corps commence à faiblir. Vous avez été averti de l'avènement de la fin des temps, ainsi est son commencement.",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Tu cuerpo empieza a fallar. Se te advirtió de la llegada del fin de los días; así es como comienza.",
+        "German": "Dein Körper beginnt zu versagen. Du wurdest vor dem nahenden Ende der Tage gewarnt — so beginnt es.",
+        "Turkish": "Bedenin çözülmeye başlıyor. Yaklaşan ahir zaman konusunda uyarılmıştın; her şey işte böyle başlar.",
+        "Russian": "Ваше тело начинает сдавать. Вас предупреждали о приближении конца света — именно так всё и начинается."
     },
 
     "GAMEPLAY_KnellName": {
         "English": "Knell",
         "French (France)": "Glas",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Tañido fúnebre",
+        "German": "Totengeläut",
+        "Turkish": "Ölüm Çanı",
+        "Russian": "Погребальный звон"
     },
     "GAMEPLAY_KnellCause": {
         "English": "End of Days",
         "French (France)": "Fin des temps",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Fin de los Días",
+        "German": "Ende der Tage",
+        "Turkish": "Ahir Zaman",
+        "Russian": "Конец света"
     },
     "GAMEPLAY_KnellDescription": {
         "English": "The bell tolls for you. Your strength fades and every mistake now carries a heavy price. The end of days draws near.",
         "French (France)": "Le glas sonne pour vous. Vos forces déclinent et la moindre erreur se paiera désormais très cher. La fin des temps approche.",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Las campanas doblan por ti. Tus fuerzas se desvanecen y cada error tiene ahora un precio muy alto. El fin de los días se acerca.",
+        "German": "Die Glocke läutet für dich. Deine Kräfte schwinden, und jeder Fehler hat nun einen hohen Preis. Das Ende der Tage rückt näher.",
+        "Turkish": "Çan senin için çalıyor. Gücün tükeniyor ve artık her hatanın ağır bir bedeli var. Ahir zaman yaklaşıyor.",
+        "Russian": "По вам звонит колокол. Силы покидают вас, и теперь за каждую ошибку придётся платить высокую цену. Конец света близится."
     },
 
     "GAMEPLAY_RequiemName": {
         "English": "Requiem",
         "French (France)": "Requiem",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Réquiem",
+        "German": "Requiem",
+        "Turkish": "Requiem",
+        "Russian": "Реквием"
     },
     "GAMEPLAY_RequiemCause": {
         "English": "End of Days",
         "French (France)": "Fin des temps",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Fin de los Días",
+        "German": "Ende der Tage",
+        "Turkish": "Ahir Zaman",
+        "Russian": "Конец света"
     },
     "GAMEPLAY_RequiemDescription": {
         "English": "A requiem now plays for you. Your body is broken and your fate is sealed. From now on, survival is nothing but borrowed time.",
         "French (France)": "Un requiem se joue pour vous. Votre corps est brisé et votre destin est scellé. Désormais, survivre n'est plus que du temps emprunté.",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Ahora suena un réquiem para ti. Tu cuerpo está destrozado y tu destino sellado. A partir de ahora, sobrevivir no es más que tiempo prestado.",
+        "German": "Nun erklingt ein Requiem für dich. Dein Körper ist gebrochen und dein Schicksal besiegelt. Von jetzt an ist Überleben nichts weiter als geborgte Zeit.",
+        "Turkish": "Artık senin için bir requiem çalıyor. Bedenin kırılmış, kaderin mühürlenmiş durumda. Bundan sonra hayatta kalmak, ödünç alınmış zamandan ibaret.",
+        "Russian": "По вам звучит реквием. Ваше тело сломлено, а судьба предрешена. Отныне выживание — не более чем отсрочка."
     },
 
     "GAMEPLAY_ScarredFleshName": {
         "English": "Scarred Flesh",
         "French (France)": "Chair marquée",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Carne marcada",
+        "German": "Vernarbtes Fleisch",
+        "Turkish": "Yara İzleri",
+        "Russian": "Изуродованная плоть"
     },
     "GAMEPLAY_ScarredFleshCause": {
         "English": "Severe Lacerations",
         "French (France)": "Lacérations sévères",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Laceraciones graves",
+        "German": "Schwere Fleischwunden",
+        "Turkish": "Ağır Yırtık Yaralar",
+        "Russian": "Тяжёлые рваные раны"
     },
     "GAMEPLAY_ScarredFleshDescription": {
         "English": "Severe lacerations have healed, leaving marks on your body. Your maximum health is slightly reduced.",
         "French (France)": "De sévères lacérations ont cicatrisé, laissant des marques sur votre corps. Votre santé maximale est légèrement réduite.",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Las laceraciones graves han cicatrizado, dejando marcas en tu cuerpo. Tu salud máxima se reduce ligeramente.",
+        "German": "Schwere Fleischwunden sind verheilt und haben Narben auf deinem Körper hinterlassen. Deine maximale Gesundheit ist leicht verringert.",
+        "Turkish": "Ağır yırtık yaralar iyileşti ama bedeninde izler bıraktı. Azami sağlığın biraz azaldı.",
+        "Russian": "Тяжёлые рваные раны зажили, оставив шрамы на вашем теле. Ваш максимум здоровья немного снижен."
     },
 
     "GAMEPLAY_BrokenLegName": {
         "English": "Broken Leg",
         "French (France)": "Jambe cassée",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Pierna rota",
+        "German": "Gebrochenes Bein",
+        "Turkish": "Kırık Bacak",
+        "Russian": "Сломанная нога"
     },
     "GAMEPLAY_BrokenLegCause": {
         "English": "Severe Trauma",
         "French (France)": "Traumatisme grave",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Traumatismo grave",
+        "German": "Schweres Trauma",
+        "Turkish": "Ağır Travma",
+        "Russian": "Тяжёлая травма"
     },
     "GAMEPLAY_BrokenLegCause_FallDamage": {
         "English": "A severe fall",
         "French (France)": "Une chute grave",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Una caída grave",
+        "German": "Ein schwerer Sturz",
+        "Turkish": "Ağır bir düşüş",
+        "Russian": "Тяжёлое падение"
     },
     "GAMEPLAY_BrokenLegCause_BearAttack": {
         "English": "A bear attack",
         "French (France)": "Une attaque d'ours",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Un ataque de oso",
+        "German": "Ein Bärenangriff",
+        "Turkish": "Bir ayı saldırısı",
+        "Russian": "Нападение медведя"
     },
     "GAMEPLAY_BrokenLegCause_MooseAttack": {
         "English": "A moose attack",
         "French (France)": "Une attaque d'élan",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Un ataque de alce",
+        "German": "Ein Elchangriff",
+        "Turkish": "Bir sığın saldırısı",
+        "Russian": "Нападение лося"
     },
     "GAMEPLAY_BrokenLegDescription": {
         "English": "Your leg is broken. You can no longer sprint or climb ropes. Movement is slower and more tiring, and carrying heavy loads is more difficult until it heals.",
         "French (France)": "Votre jambe est cassée. Vous ne pouvez plus ni sprinter ni grimper aux cordes. Vos déplacements sont plus lents et plus fatigants, et porter des charges lourdes devient plus difficile jusqu'à guérison.",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Tienes una pierna rota. Ya no puedes esprintar ni trepar cuerdas. Te mueves más despacio y te cansas más, y cargar peso se vuelve más difícil hasta que sane.",
+        "German": "Dein Bein ist gebrochen. Du kannst nicht mehr sprinten oder an Seilen klettern. Deine Bewegung ist langsamer und anstrengender, und schwer zu tragen fällt dir bis zur Heilung deutlich schwerer.",
+        "Turkish": "Bacağın kırıldı. Artık ne koşabilir ne de iplere tırmanabilirsin. Hareketlerin daha yavaş ve daha yorucu, ayrıca iyileşene kadar ağır yük taşımak çok daha zor.",
+        "Russian": "У вас сломана нога. Вы больше не можете бегать или взбираться по верёвкам. Передвижение стало медленнее и требует больше сил, а переносить тяжёлые грузы теперь сложнее, пока нога не срастётся."
     },
 
     "GAMEPLAY_BrokenArmName": {
         "English": "Broken Arm",
         "French (France)": "Bras cassé",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Brazo roto",
+        "German": "Gebrochener Arm",
+        "Turkish": "Kırık Kol",
+        "Russian": "Сломанная рука"
     },
     "GAMEPLAY_BrokenArmCause": {
         "English": "Predator Attack",
         "French (France)": "Attaque de prédateur",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Ataque de depredador",
+        "German": "Raubtierangriff",
+        "Turkish": "Yırtıcı Saldırısı",
+        "Russian": "Нападение хищника"
     },
     "GAMEPLAY_BrokenArmDescription": {
         "English": "Your arm is broken. You can no longer climb ropes. Crafting takes longer, and aiming weapons is more difficult until it heals.",
         "French (France)": "Votre bras est cassé. Vous ne pouvez plus grimper aux cordes. L'artisanat prend plus de temps, et viser avec une arme devient plus difficile jusqu'à guérison.",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Tienes un brazo roto. Ya no puedes trepar cuerdas. Fabricar lleva más tiempo y apuntar con armas es más difícil hasta que sane.",
+        "German": "Dein Arm ist gebrochen. Du kannst nicht mehr an Seilen klettern. Das Herstellen von Gegenständen dauert länger, und mit Waffen zu zielen ist bis zur Heilung deutlich schwieriger.",
+        "Turkish": "Kolun kırıldı. Artık iplere tırmanamazsın. Üretim daha uzun sürer ve iyileşene kadar silahla nişan almak daha zordur.",
+        "Russian": "У вас сломана рука. Вы больше не можете взбираться по верёвкам. Изготовление предметов занимает больше времени, а прицеливаться из оружия становится труднее, пока рука не срастётся."
     },
 
     "GAMEPLAY_SepsisRiskName": {
         "English": "Sepsis Risk",
         "French (France)": "Risque de septicémie",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Riesgo de sepsis",
+        "German": "Sepsisrisiko",
+        "Turkish": "Sepsis Riski",
+        "Russian": "Риск сепсиса"
     },
     "GAMEPLAY_SepsisCause": {
         "English": "Blood Infection",
         "French (France)": "Infection du sang",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Infección sanguínea",
+        "German": "Blutinfektion",
+        "Turkish": "Kan Enfeksiyonu",
+        "Russian": "Заражение крови"
     },
     "GAMEPLAY_SepsisRiskDescription": {
         "English": "Your infection is worsening. If it is not treated quickly, it will develop into sepsis.",
         "French (France)": "Votre infection s'aggrave. Si elle n'est pas traitée rapidement, elle évoluera en septicémie.",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Tu infección está empeorando. Si no se trata rápidamente, evolucionará a sepsis.",
+        "German": "Deine Infektion verschlimmert sich. Wenn sie nicht schnell behandelt wird, entwickelt sie sich zu einer Sepsis.",
+        "Turkish": "Enfeksiyonun kötüleşiyor. Hızla tedavi edilmezse sepsise dönüşecek.",
+        "Russian": "Инфекция усугубляется. Если её быстро не вылечить, она перерастёт в сепсис."
     },
     "GAMEPLAY_SepsisName": {
         "English": "Sepsis",
         "French (France)": "Septicémie",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Sepsis",
+        "German": "Sepsis",
+        "Turkish": "Sepsis",
+        "Russian": "Сепсис"
     },
     "GAMEPLAY_SepsisDescription": {
         "English": "The infection has spread through your bloodstream. Your condition is deteriorating rapidly, and only rigorous treatment may keep you alive.",
         "French (France)": "L'infection s'est propagée dans votre sang. Votre état se détériore rapidement, et seul un traitement rigoureux peut vous maintenir en vie.",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "La infección se ha propagado por tu torrente sanguíneo. Tu estado se deteriora rápidamente y solo un tratamiento riguroso podría mantenerte con vida.",
+        "German": "Die Infektion hat sich über deinen Blutkreislauf ausgebreitet. Dein Zustand verschlechtert sich rasch, und nur eine konsequente Behandlung kann dich am Leben halten.",
+        "Turkish": "Enfeksiyon kan dolaşımına yayıldı. Durumun hızla kötüleşiyor ve yalnızca sıkı bir tedavi seni hayatta tutabilir.",
+        "Russian": "Инфекция распространилась по вашему кровотоку. Ваше состояние стремительно ухудшается, и лишь интенсивное лечение может удержать вас в живых."
     },
-
 
     "GAMEPLAY_Stage1Name": {
         "English": "Signs",
         "French (France)": "Signes",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Señales",
+        "German": "Anzeichen",
+        "Turkish": "İşaretler",
+        "Russian": "Признаки"
     },
     "GAMEPLAY_Stage2Name": {
         "English": "Advent",
         "French (France)": "Avènement",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Advenimiento",
+        "German": "Anbruch",
+        "Turkish": "Geliş",
+        "Russian": "Пришествие"
     },
     "GAMEPLAY_Stage3Name": {
         "English": "Collapse",
         "French (France)": "Effondrement",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Colapso",
+        "German": "Zusammenbruch",
+        "Turkish": "Çöküş",
+        "Russian": "Крах"
     },
     "GAMEPLAY_Stage4Name": {
         "English": "End of Days",
         "French (France)": "Fin des temps",
-        "Spanish (Spain)": "",
-        "German": "",
-        "Turkish": "",
-        "Russian": ""
+        "Spanish (Spain)": "Fin de los Días",
+        "German": "Ende der Tage",
+        "Turkish": "Ahir Zaman",
+        "Russian": "Конец света"
     }
 }

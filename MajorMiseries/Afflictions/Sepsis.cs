@@ -130,7 +130,7 @@ namespace MajorMiseries.Afflictions
                 return IsTreatmentActive() ? TREATED_CONDITION_LOSS_PER_HOUR : UNTREATED_CONDITION_LOSS_PER_HOUR;
             }
 
-            private float GetCurrentWholeMinute()
+            private static float GetCurrentWholeMinute()
             {
                 TimeOfDay tod = GameManager.GetTimeOfDayComponent();
                 if (tod == null)

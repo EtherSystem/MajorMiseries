@@ -868,6 +868,53 @@ namespace MajorMiseries
             return penalty;
         }
 
+        internal static bool HasStageEffect(RequiemStage minimumStage)
+        {
+            return GetCurrentStage() >= minimumStage;
+        }
+
+        internal static float GetSleepFatigueRecoveryMultiplier()
+        {
+            return HasStageEffect(RequiemStage.Omen) ? 0.5f : 1f;
+        }
+
+        internal static int GetAdjustedMaxSleepHours(int vanillaMaxHours)
+        {
+            if (!HasStageEffect(RequiemStage.Omen))
+                return vanillaMaxHours;
+
+            return Mathf.Max(1, vanillaMaxHours - 4);
+        }
+
+        internal static float GetBodyTemperatureModifierCelsius()
+        {
+            return HasStageEffect(RequiemStage.Dirge) ? -5f : 0f;
+        }
+
+        internal static bool ShouldDisableNaturalConditionRecovery()
+        {
+            return HasStageEffect(RequiemStage.Requiem);
+        }
+
+        internal static float ApplyIncomingDamageMultiplier(float healthDelta)
+        {
+            if (!HasStageEffect(RequiemStage.Requiem) || healthDelta >= 0f)
+                return healthDelta;
+
+            return healthDelta * 2f;
+        }
+
+        internal static float ApplySprintSpeedPenaltyToFinalMultiplier(float multiplier)
+        {
+            if (!HasStageEffect(RequiemStage.Knell))
+                return multiplier;
+
+            if (HasWeakJoints())
+                return multiplier;
+
+            return multiplier * 0.75f;
+        }
+
         internal static bool ShouldBlockSprint()
         {
             RefreshEffectsIfNeeded();
@@ -884,13 +931,17 @@ namespace MajorMiseries
         {
             RefreshEffectsIfNeeded();
 
+            float multiplier = 1f;
+
             if (_cache.BrokenLegLeft && _cache.BrokenLegRight)
-                return 0.45f;
+                multiplier *= 0.45f;
+            else if (_cache.BrokenLegCount > 0)
+                multiplier *= 0.65f;
 
-            if (_cache.BrokenLegCount > 0)
-                return 0.65f;
+            if (HasStageEffect(RequiemStage.Knell))
+                multiplier *= 0.9f;
 
-            return 1f;
+            return multiplier;
         }
 
         internal static float GetMovementFatigueMultiplier()
@@ -1063,6 +1114,12 @@ namespace MajorMiseries
             }
 
             return false;
+        }
+
+        internal static bool HasWeakJoints()
+        {
+            Condition? condition = GameManager.GetConditionComponent();
+            return condition != null && condition.HasSpecificAffliction(AfflictionType.WeakJoints);
         }
 
         private static bool RollChance(float chance)

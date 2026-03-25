@@ -1,7 +1,6 @@
 ﻿using System.Collections;
-using System.Text;
-using AfflictionComponent.Components;
 using Il2CppTLD.IntBackedUnit;
+using MajorMiseries.Persistence;
 using static MajorMiseries.Afflictions.Sepsis;
 using static MajorMiseries.Afflictions.SepsisRisk;
 
@@ -212,7 +211,7 @@ namespace MajorMiseries.Patches
         [HarmonyPatch(typeof(Infection), nameof(Infection.InfectionStart))]
         internal static class Infection_InfectionStart
         {
-            private static void Postfix(Infection __instance, string causeLocID, int location, bool displayIcon, bool nofx)
+            private static void Postfix(Infection __instance, int location)
             {
                 if (__instance == null)
                     return;
@@ -263,12 +262,159 @@ namespace MajorMiseries.Patches
             }
         }
 
+        [HarmonyPatch(typeof(vp_FPSController), nameof(vp_FPSController.GetSlopeMultiplier))]
+        internal static class vp_FPSController_GetSlopeMultiplier_Patch
+        {
+            [HarmonyPostfix]
+            private static void Postfix(ref float __result)
+            {
+                bool isSprinting = GameManager.GetPlayerManagerComponent()?.PlayerIsSprinting() ?? false;
+
+                if (isSprinting) __result = AfflictionLogic.ApplySprintSpeedPenaltyToFinalMultiplier(__result);
+            }
+        }
+
+        [HarmonyPatch(typeof(Freezing), nameof(Freezing.CalculateBodyTemperature))]
+        internal static class BodyTemperaturePatch
+        {
+            private static void Postfix(ref float __result)
+            {
+                __result += AfflictionLogic.GetBodyTemperatureModifierCelsius();
+            }
+        }
+
+        [HarmonyPatch(typeof(Condition), nameof(Condition.Update))]
+        internal static class HealthyConditionRecoveryPatch
+        {
+            private static void Prefix(Condition __instance, out float __state)
+            {
+                __state = 0f;
+
+                if (__instance == null || !AfflictionLogic.ShouldDisableNaturalConditionRecovery())
+                    return;
+
+                __state = __instance.m_HPIncreasePerDayWhileHealthy;
+                __instance.m_HPIncreasePerDayWhileHealthy = 0f;
+            }
+
+            private static void Postfix(Condition __instance, float __state)
+            {
+                if (__instance == null || !AfflictionLogic.ShouldDisableNaturalConditionRecovery())
+                    return;
+
+                __instance.m_HPIncreasePerDayWhileHealthy = __state;
+            }
+        }
+
+        [HarmonyPatch(typeof(Condition), nameof(Condition.AddHealth), typeof(float), typeof(DamageSource), typeof(bool))]
+        internal static class IncomingDamagePatch
+        {
+            private static void Prefix(ref float hp)
+            {
+                hp = AfflictionLogic.ApplyIncomingDamageMultiplier(hp);
+            }
+        }
+
+        [HarmonyPatch(typeof(Rest), nameof(Rest.UpdateFatigue), typeof(float))]
+        internal static class SleepFatigueRecoveryPatch
+        {
+            private static void Prefix(Rest __instance, out float __state)
+            {
+                __state = 0f;
+
+                if (__instance == null)
+                    return;
+
+                __state = __instance.m_ReduceFatiguePerHourRest;
+                __instance.m_ReduceFatiguePerHourRest *= AfflictionLogic.GetSleepFatigueRecoveryMultiplier();
+            }
+
+            private static void Postfix(Rest __instance, float __state)
+            {
+                if (__instance == null)
+                    return;
+
+                __instance.m_ReduceFatiguePerHourRest = __state;
+            }
+        }
+
+        [HarmonyPatch(typeof(Rest), nameof(Rest.AllowedToSleepAmount))]
+        internal static class AllowedToSleepAmountPatch
+        {
+            private static void Postfix(Rest __instance, int amount, ref bool __result)
+            {
+                if (!__result || __instance == null)
+                    return;
+
+                int adjustedMaxHours = AfflictionLogic.GetAdjustedMaxSleepHours(__instance.m_MaxHoursSleepPerDay);
+                if (amount > adjustedMaxHours)
+                    __result = false;
+            }
+        }
+
+        [HarmonyPatch(typeof(Panel_Rest), nameof(Panel_Rest.GetAdjustedMaxSleep))]
+        [HarmonyPriority(Priority.Last)]
+        internal static class PanelRest_GetAdjustedMaxSleepPatch
+        {
+            private static void Postfix(ref int __result)
+            {
+                __result = AfflictionLogic.GetAdjustedMaxSleepHours(__result);
+            }
+        }
+
+        [HarmonyPatch(typeof(Panel_Rest), nameof(Panel_Rest.Enable), typeof(bool), typeof(bool))]
+        [HarmonyPriority(Priority.Last)]
+        internal static class PanelRest_EnablePatch
+        {
+            private static void Postfix(Panel_Rest __instance, bool enable, bool passTimeOnly)
+            {
+                if (!enable || passTimeOnly)
+                    return;
+
+                SyncRestPanelSleepLimit(__instance);
+            }
+        }
+
+        private static void SyncRestPanelSleepLimit(Panel_Rest panel)
+        {
+            if (panel == null)
+                return;
+
+            if (panel.IsPassingTimeOnly())
+                return;
+
+            int finalAdjustedMax = Mathf.Max(panel.m_MinSleepHours, panel.GetAdjustedMaxSleep());
+
+            bool changed = false;
+
+            if (panel.m_CurrentMaxSleepHours != finalAdjustedMax)
+            {
+                panel.m_CurrentMaxSleepHours = finalAdjustedMax;
+                changed = true;
+            }
+
+            int clampedSleepHours = Mathf.Clamp(panel.m_SleepHours, panel.m_MinSleepHours, finalAdjustedMax);
+            if (panel.m_SleepHours != clampedSleepHours)
+            {
+                panel.m_SleepHours = clampedSleepHours;
+                changed = true;
+            }
+
+            if (!changed)
+                return;
+
+            panel.UpdateRestDurationLabel();
+            panel.UpdateWakeTimeLabel();
+            panel.UpdateEstimatedCaloriesBurnedLabel();
+        }
+
+        // -------------------------------------natural HP regen disabled for sepsis---------------------------------------
         [HarmonyPatch(typeof(Condition), nameof(Condition.MaybeIncreaseConditionFromWillpower))]
         internal static class Condition_MaybeIncreaseConditionFromWillpower
         {
             private static bool Prefix()
             {
-                return !SepsisAffliction.IsActive;
+                return !SepsisAffliction.IsActive && !AfflictionLogic.ShouldDisableNaturalConditionRecovery();
             }
         }
     }

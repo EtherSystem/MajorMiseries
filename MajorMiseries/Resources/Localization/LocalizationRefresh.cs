@@ -42,10 +42,7 @@ namespace MajorMiseries.Resources.Localization
             AfflictionLogic.ForceRefreshEffects();
 
             var firstAid = InterfaceManager.GetPanel<Panel_FirstAid>();
-            if (firstAid != null)
-            {
-                firstAid.UpdateDueToAfflictionHealed();
-            }
+            firstAid?.UpdateDueToAfflictionHealed();
 
             Core.Log("Localization refreshed for active custom afflictions");
         }
