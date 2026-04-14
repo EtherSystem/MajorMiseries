@@ -117,6 +117,43 @@ namespace MajorMiseries
             {
                 Patches.DisplayStagePopup.ShowStagePopup(1, "GAMEPLAY_OmenName");
             }));
+
+            uConsole.RegisterCommand("reset_PH", new Action(() =>
+            {
+                Core.State.PredatorHostility = 0f;
+                Core.State.HoursSinceLastPredatorKill = 0f;
+                Core.Instance?.MarkDirty();
+
+                uConsole.Log("PredatorHostility reset to 0");
+
+                if (Settings.options.IsLogging)
+                    Core.Log("PredatorHostility reset to 0", false);
+            }));
+
+            uConsole.RegisterCommand("set_PH", new Action(() =>
+            {
+                var @params = uConsole.GetAllParameters();
+                if (@params == null || @params.Count < 1)
+                {
+                    uConsole.Log("[value]");
+                    return;
+                }
+
+                if (!int.TryParse(@params[0], out int v))
+                {
+                    uConsole.Log("value must be a number");
+                    return;
+                }
+
+                Core.State.PredatorHostility = Mathf.Max(0, v);
+                Core.State.HoursSinceLastPredatorKill = 0f;
+                Core.Instance?.MarkDirty();
+
+                uConsole.Log($"PredatorHostility set to {Core.State.PredatorHostility:0}");
+
+                if (Settings.options.IsLogging)
+                    Core.Log($"PredatorHostility set to {Core.State.PredatorHostility:0}", false);
+            }));
         }
     }
 }

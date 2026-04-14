@@ -129,7 +129,7 @@ namespace MajorMiseries
 
             float gameHoursPassed = tod.GetTODHours(realTimeElapsed);
             if (gameHoursPassed <= 0f) return;
-
+            
             AfflictionLogic.UpdatePredatorHostilityDecay(gameHoursPassed);
         }
     }
