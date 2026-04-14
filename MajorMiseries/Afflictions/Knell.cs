@@ -13,8 +13,8 @@ namespace MajorMiseries.Afflictions
             private const string CAUSE_KEY = "GAMEPLAY_KnellCause";
             private const string DESC_KEY = "GAMEPLAY_KnellDescription";
 
-            private const string ICON = "Major_Miseries.Resources.Icons.Afflictions.Knell.png";
-            private const string ALT_ICON = "OxygenLevels.Resources.Icons.Aperture.png";
+            private const string ICON = "Major_Miseries.Resources.Icons.Afflictions.Classic.Knell.png";
+            private const string ALT_ICON = "Major_Miseries.Resources.Icons.Afflictions.Alt.Knell_ALT.png";
 
             public InstanceType Type { get; set; } = InstanceType.Single;
             public void OnFoundExistingInstance(CustomAffliction existingAffliction)

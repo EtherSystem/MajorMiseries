@@ -13,8 +13,8 @@ namespace MajorMiseries.Afflictions
             private const string CAUSE_KEY = "GAMEPLAY_SepsisCause";
             private const string DESC_KEY = "GAMEPLAY_SepsisDescription";
 
-            private const string ICON = "Major_Miseries.Resources.Icons.Afflictions.Sepsis.png";
-            private const string ALT_ICON = "OxygenLevels.Resources.Icons.Aperture.png";
+            private const string ICON = "Major_Miseries.Resources.Icons.Afflictions.Classic.Sepsis.png";
+            private const string ALT_ICON = "Major_Miseries.Resources.Icons.Afflictions.Alt.Sepsis_ALT.png";
 
             public const float TOTAL_DURATION_HOURS = 480f;
             public const float DOSE_DURATION_HOURS = 120f;

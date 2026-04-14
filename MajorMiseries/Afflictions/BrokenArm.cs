@@ -13,8 +13,8 @@ namespace MajorMiseries.Afflictions
             private const string CAUSE_KEY = "GAMEPLAY_BrokenArmCause";
             private const string DESC_KEY = "GAMEPLAY_BrokenArmDescription";
 
-            private const string ICON = "Major_Miseries.Resources.Icons.Afflictions.BrokenArm.png";
-            private const string ALT_ICON = "OxygenLevels.Resources.Icons.Aperture.png";
+            private const string ICON = "Major_Miseries.Resources.Icons.Afflictions.Classic.BrokenArm.png";
+            private const string ALT_ICON = "Major_Miseries.Resources.Icons.Afflictions.Alt.BrokenArm_ALT.png";
 
             public InstanceType Type { get; set; } = InstanceType.SingleLocation;
 
