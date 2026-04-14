@@ -13,6 +13,9 @@ namespace MajorMiseries.Afflictions
             private const string DEFAULT_CAUSE_KEY = "GAMEPLAY_BrokenLegCause";
             private const string DESC_KEY = "GAMEPLAY_BrokenLegDescription";
 
+            private const string ICON = "Major_Miseries.Resources.Icons.Afflictions.BrokenLeg.png";
+            private const string ALT_ICON = "OxygenLevels.Resources.Icons.Aperture.png";
+
             private string _causeKey;
 
             public InstanceType Type { get; set; } = InstanceType.SingleLocation;
@@ -30,7 +33,7 @@ namespace MajorMiseries.Afflictions
 
             public bool InstantHeal { get; set; } = false;
 
-            //public BrokenLegAffliction(AfflictionBodyArea bodyArea, float durationHours, string? causeKey = null) : base(NAME_KEY, causeKey ?? DEFAULT_CAUSE_KEY, DESC_KEY, null, "Major_Miseries.Resources.Icons.Afflictions.BrokenLeg.png", bodyArea, true)
+            //public BrokenLegAffliction(AfflictionBodyArea bodyArea, float durationHours, string? causeKey = null) : base(NAME_KEY, causeKey ?? DEFAULT_CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
             public BrokenLegAffliction(AfflictionBodyArea bodyArea, float durationHours, string? causeKey = null) : base(NAME_KEY, causeKey ?? DEFAULT_CAUSE_KEY, DESC_KEY, null, "ico_injury_BrokenBody", bodyArea)
             {
                 Duration = durationHours;

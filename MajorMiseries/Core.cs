@@ -69,6 +69,7 @@ namespace MajorMiseries
             _gameplayUpdateTimer = 0f;
 
             AfflictionLogic.ResetRuntime();
+            Patches.WildlifePatches.ResetRuntime();
         }
 
         public void OnStateLoaded()

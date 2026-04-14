@@ -13,6 +13,9 @@ namespace MajorMiseries.Afflictions
             private const string CAUSE_KEY = "GAMEPLAY_OmenCause";
             private const string DESC_KEY = "GAMEPLAY_OmenDescription";
 
+            private const string ICON = "Major_Miseries.Resources.Icons.Afflictions.Omen.png";
+            private const string ALT_ICON = "OxygenLevels.Resources.Icons.Aperture.png";
+
             public InstanceType Type { get; set; } = InstanceType.Single;
             public void OnFoundExistingInstance(CustomAffliction existingAffliction)
             {
@@ -32,7 +35,7 @@ namespace MajorMiseries.Afflictions
 
             public bool InstantHeal { get; set; } = true;
 
-            //public OmenAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, "Major_Miseries.Resources.Icons.Afflictions.Omen.png", bodyArea, true)
+            //public OmenAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
             public OmenAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, "ico_injury_BrokenBody", bodyArea)
             {
             }

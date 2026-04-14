@@ -13,6 +13,9 @@ namespace MajorMiseries.Afflictions
             private const string CAUSE_KEY = "GAMEPLAY_SepsisCause";
             private const string DESC_KEY = "GAMEPLAY_SepsisDescription";
 
+            private const string ICON = "Major_Miseries.Resources.Icons.Afflictions.Sepsis.png";
+            private const string ALT_ICON = "OxygenLevels.Resources.Icons.Aperture.png";
+
             public const float TOTAL_DURATION_HOURS = 480f;
             public const float DOSE_DURATION_HOURS = 120f;
             public const int ANTIBIOTIC_DOSES_PER_TREATMENT = 2;
@@ -40,8 +43,8 @@ namespace MajorMiseries.Afflictions
 
             public bool InstantHeal { get; set; } = false;
 
-            public SepsisAffliction(AfflictionBodyArea bodyArea)
-                : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, "ico_injury_infectedWound", bodyArea)
+            //public SepsisAffliction(AfflictionBodyArea bodyArea): base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
+            public SepsisAffliction(AfflictionBodyArea bodyArea): base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, "ico_injury_infectedWound", bodyArea)
             {
                 float now = GameManager.GetTimeOfDayComponent().GetHoursPlayedNotPaused();
                 EndTime = now + Duration;

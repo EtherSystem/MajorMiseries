@@ -19,10 +19,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Resources\Icons\Aperture.png" />
 	  <None Remove="Resources\Localization\Localization.json" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <EmbeddedResource Include="Resources\Icons\Aperture.png" />
 	  <EmbeddedResource Include="Resources\Localization\Localization.json" />
 	</ItemGroup>
 
@@ -55,10 +57,6 @@
 		<Using Include="UnityEngine" />
 		<Using Include="ModSettings" />
 		<Using Include="ModComponent" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Resources\Icons\" />
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="Build">

@@ -13,6 +13,9 @@ namespace MajorMiseries.Afflictions
             private const string CAUSE_KEY = "GAMEPLAY_ScarredFleshCause";
             private const string DESC_KEY = "GAMEPLAY_ScarredFleshDescription";
 
+            private const string ICON = "Major_Miseries.Resources.Icons.Afflictions.ScarredFlesh.png";
+            private const string ALT_ICON = "OxygenLevels.Resources.Icons.Aperture.png";
+
             public InstanceType Type { get; set; } = InstanceType.Open;
             public void OnFoundExistingInstance(CustomAffliction existingAffliction)
             {
@@ -32,7 +35,7 @@ namespace MajorMiseries.Afflictions
 
             public bool InstantHeal { get; set; } = true;
 
-            //public ScarredFleshAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, "Major_Miseries.Resources.Icons.Afflictions.ScarredFlesh.png", bodyArea, true)
+            //public ScarredFleshAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
             public ScarredFleshAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, "ico_injury_SevereLacerations", bodyArea)
             {
             }

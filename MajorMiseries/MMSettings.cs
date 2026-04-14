@@ -81,8 +81,36 @@
         [Name("ML Logging")]
         [Description("Add logs for debugging in the ML console.")]
         public bool IsLogging = false;
-    }
 
+        [Name("Do you really want to mess with affliction ?")]
+        [Description("This will possibly ruin everything...")]
+        public bool RevealShinyAfflictionIconChance1 = false;
+
+        [Name("Are you sure you want to interfer with your destiny ?")]
+        [Description("Think twice")]
+        public bool RevealShinyAfflictionIconChance2 = false;
+
+        [Name("Fine. Let's tempt fate.")]
+        [Description("This reveals the alternative affliction icon chance slider. Don't touch it.")]
+        public bool RevealShinyAfflictionIconChance3 = false;
+
+        [Name("Shiny affliction icon chance")]
+        [Description("Chance for a newly contracted affliction to use its alternative icon instead of the normal one.")]
+        [Slider(0f, 100f, 1001, NumberFormat = "{0:0.0}%")]
+        public float AltAfflictionIconChance = 0.1f;
+
+        protected override void OnChange(FieldInfo field, object? oldValue, object? newValue)
+        {
+            if (field.Name == nameof(RevealShinyAfflictionIconChance1) ||
+                field.Name == nameof(RevealShinyAfflictionIconChance2) ||
+                field.Name == nameof(RevealShinyAfflictionIconChance3))
+            {
+                Settings.UpdateShinyAfflictionIconChanceVisibility();
+            }
+
+            base.OnChange(field, oldValue, newValue);
+        }
+    }
     internal static class Settings
     {
         public static MMSettings options;
@@ -91,6 +119,31 @@
         {
             options = new MMSettings();
             options.AddToModSettings("Major Miseries");
+
+            UpdateShinyAfflictionIconChanceVisibility();
+        }
+
+
+        internal static void UpdateShinyAfflictionIconChanceVisibility()
+        {
+            bool showSecond = options.RevealShinyAfflictionIconChance1;
+            bool showThird = showSecond && options.RevealShinyAfflictionIconChance2;
+            bool showChance = showThird && options.RevealShinyAfflictionIconChance3;
+
+            if (!showSecond)
+            {
+                options.RevealShinyAfflictionIconChance2 = false;
+                options.RevealShinyAfflictionIconChance3 = false;
+            }
+
+            if (!showThird)
+            {
+                options.RevealShinyAfflictionIconChance3 = false;
+            }
+
+            options.SetFieldVisible(nameof(options.RevealShinyAfflictionIconChance2), showSecond);
+            options.SetFieldVisible(nameof(options.RevealShinyAfflictionIconChance3), showThird);
+            options.SetFieldVisible(nameof(options.AltAfflictionIconChance), showChance);
         }
     }
 }
