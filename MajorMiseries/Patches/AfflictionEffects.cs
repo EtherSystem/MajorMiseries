@@ -263,7 +263,7 @@ namespace MajorMiseries.Patches
         }
 
         [HarmonyPatch(typeof(vp_FPSController), nameof(vp_FPSController.GetSlopeMultiplier))]
-        internal static class vp_FPSController_GetSlopeMultiplier_Patch
+        internal static class Vp_FPSController_GetSlopeMultiplier_Patch
         {
             [HarmonyPostfix]
             private static void Postfix(ref float __result)
