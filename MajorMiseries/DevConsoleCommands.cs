@@ -9,6 +9,10 @@ using static MajorMiseries.Afflictions.Requiem;
 using static MajorMiseries.Afflictions.ScarredFlesh;
 using static MajorMiseries.Afflictions.SepsisRisk;
 using static MajorMiseries.Afflictions.Sepsis;
+using static MajorMiseries.Afflictions.BlackLungRisk;
+using static MajorMiseries.Afflictions.BlackLung;
+using static MajorMiseries.Afflictions.COExposure;
+using static MajorMiseries.Afflictions.COPoisoning;
 using Random = UnityEngine.Random;
 
 namespace MajorMiseries
@@ -68,6 +72,26 @@ namespace MajorMiseries
                 new BrokenArmAffliction(Random.Range(0, 2) == 0 ? AfflictionBodyArea.ArmLeft : AfflictionBodyArea.ArmRight, Settings.options.BrokenLimbDurationMode == 1 ? 134.4f : 1344f).Start();
             }));
 
+            uConsole.RegisterCommand("blacklungrisk", new Action(() =>
+            {
+                new BlackLungRiskAffliction(AfflictionBodyArea.Chest).Start();
+            }));
+
+            uConsole.RegisterCommand("blacklung", new Action(() =>
+            {
+                new BlackLungAffliction(AfflictionBodyArea.Chest, Settings.options.BlackLungDurationMode == 1 ? 360f : 3600f).Start();
+            }));
+
+            uConsole.RegisterCommand("coexposure", new Action(() =>
+            {
+                new COExposureAffliction(AfflictionBodyArea.Chest).Start();
+            }));
+
+            uConsole.RegisterCommand("copoisoning", new Action(() =>
+            {
+                new COPoisoningAffliction(AfflictionBodyArea.Chest, Random.Range(6f, 24f)).Start();
+            }));
+
             uConsole.RegisterCommand("maj_afflictions_cure", new Action(() =>
             {
                 var mgr = AfflictionManager.GetAfflictionManagerInstance();
@@ -86,7 +110,11 @@ namespace MajorMiseries
                         || a is BrokenLegAffliction
                         || a is BrokenArmAffliction
                         || a is SepsisRiskAffliction
-                        || a is SepsisAffliction)
+                        || a is SepsisAffliction
+                        || a is BlackLungRiskAffliction
+                        || a is BlackLungAffliction
+                        || a is COExposureAffliction
+                        || a is COPoisoningAffliction)
                     {
                         a.Cure();
                     }

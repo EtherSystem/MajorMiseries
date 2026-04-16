@@ -270,5 +270,121 @@
         "German": "Ende der Tage",
         "Turkish": "Ahir Zaman",
         "Russian": "Конец света"
+    },
+
+
+    "GAMEPLAY_BlackLungRiskName": {
+        "English": "Black Lung Risk",
+        "French (France)": "Risque de poumon noir",
+        "Spanish (Spain)": "Riesgo de pulmón negro",
+        "German": "Risiko für schwarze Lunge",
+        "Turkish": "Kara Akciğer Riski",
+        "Russian": "Риск чёрного лёгкого"
+    },
+    "GAMEPLAY_BlackLungRiskCause": {
+        "English": "Coal Dust",
+        "French (France)": "Poussière de charbon",
+        "Spanish (Spain)": "Polvo de carbón",
+        "German": "Kohlenstaub",
+        "Turkish": "Kömür Tozu",
+        "Russian": "Угольная пыль"
+    },
+    "GAMEPLAY_BlackLungRiskDescription": {
+        "English": "You have spent too long breathing coal dust. Your lungs are beginning to suffer, but the condition can still improve if your exposure drops.",
+        "French (France)": "Vous avez passé trop de temps à respirer de la poussière de charbon. Vos poumons commencent à en subir les effets, mais votre état peut encore s'améliorer si l'exposition diminue.",
+        "Spanish (Spain)": "Has pasado demasiado tiempo respirando polvo de carbón. Tus pulmones empiezan a resentirse, pero tu estado aún puede mejorar si la exposición disminuye.",
+        "German": "Du hast zu lange Kohlenstaub eingeatmet. Deine Lungen beginnen bereits darunter zu leiden, aber dein Zustand kann sich noch bessern, wenn die Belastung sinkt.",
+        "Turkish": "Çok uzun süre kömür tozu soludun. Akciğerlerin bunun etkilerini hissetmeye başladı, ancak maruziyet azalırsa durumun hâlâ düzelebilir.",
+        "Russian": "Вы слишком долго вдыхали угольную пыль. Ваши лёгкие уже начинают страдать, но состояние ещё может улучшиться, если воздействие уменьшится."
+    },
+    "GAMEPLAY_BlackLungName": {
+        "English": "Black Lung",
+        "French (France)": "Poumon noir",
+        "Spanish (Spain)": "Pulmón negro",
+        "German": "Schwarze Lunge",
+        "Turkish": "Kara Akciğer",
+        "Russian": "Чёрное лёгкое"
+    },
+    "GAMEPLAY_BlackLungCause": {
+        "English": "Coal Dust",
+        "French (France)": "Poussière de charbon",
+        "Spanish (Spain)": "Polvo de carbón",
+        "German": "Kohlenstaub",
+        "Turkish": "Kömür Tozu",
+        "Russian": "Угольная пыль"
+    },
+    "GAMEPLAY_BlackLungDescription": {
+        "English": "Your lungs have been badly affected by coal dust. The condition is more advanced now, but it is not permanent and may clear with time if the exposure stops.",
+        "French (France)": "Vos poumons ont été sévèrement affectés par la poussière de charbon. L'affection est désormais plus avancée, mais elle n'est pas permanente et peut finir par disparaître avec le temps si l'exposition cesse.",
+        "Spanish (Spain)": "Tus pulmones han sido gravemente afectados por el polvo de carbón. La afección está ahora más avanzada, pero no es permanente y puede acabar desapareciendo con el tiempo si la exposición cesa.",
+        "German": "Deine Lungen wurden durch Kohlenstaub stark in Mitleidenschaft gezogen. Der Zustand ist nun weiter fortgeschritten, aber nicht dauerhaft und kann mit der Zeit abklingen, wenn die Belastung aufhört.",
+        "Turkish": "Akciğerlerin kömür tozundan ciddi şekilde etkilendi. Durum artık daha ileri bir aşamada, ancak kalıcı değil; maruziyet durursa zamanla düzelebilir.",
+        "Russian": "Ваши лёгкие серьёзно пострадали от угольной пыли. Состояние уже более тяжёлое, но не является постоянным и со временем может пройти, если воздействие прекратится."
+    },
+    "GAMEPLAY_COExposureName": {
+        "English": "CO Exposure",
+        "French (France)": "Exposition au CO",
+        "Spanish (Spain)": "Exposición al CO",
+        "German": "CO-Belastung",
+        "Turkish": "CO Maruziyeti",
+        "Russian": "Воздействие CO"
+    },
+    "GAMEPLAY_COExposureCause": {
+        "English": "Carbon Monoxide",
+        "French (France)": "Monoxyde de carbone",
+        "Spanish (Spain)": "Monóxido de carbono",
+        "German": "Kohlenmonoxid",
+        "Turkish": "Karbon Monoksit",
+        "Russian": "Угарный газ"
+    },
+    "GAMEPLAY_COExposureDescription": {
+        "English": "The air in this indoor space has become dangerous. Fumes from an old fire are building up, and staying here too long will lead to carbon monoxide poisoning.",
+        "French (France)": "L'air de cet intérieur est devenu dangereux. Les émanations d'un feu ancien s'y accumulent, et rester ici trop longtemps mènera à une intoxication au monoxyde de carbone.",
+        "Spanish (Spain)": "El aire de este interior se ha vuelto peligroso. Los gases de un fuego antiguo se están acumulando y permanecer aquí demasiado tiempo provocará una intoxicación por monóxido de carbono.",
+        "German": "Die Luft in diesem Innenraum ist gefährlich geworden. Die Dämpfe eines alten Feuers sammeln sich an, und wenn du zu lange hier bleibst, führt das zu einer Kohlenmonoxidvergiftung.",
+        "Turkish": "Bu iç mekândaki hava tehlikeli hâle geldi. Eski bir ateşin dumanı içeride birikiyor ve burada fazla uzun kalmak karbon monoksit zehirlenmesine yol açacak.",
+        "Russian": "Воздух в этом помещении стал опасным. Испарения от старого огня накапливаются, и если оставаться здесь слишком долго, это приведёт к отравлению угарным газом."
+    },
+    "GAMEPLAY_COPoisoningName": {
+        "English": "CO Poisoning",
+        "French (France)": "Intoxication au CO",
+        "Spanish (Spain)": "Intoxicación por CO",
+        "German": "CO-Vergiftung",
+        "Turkish": "CO Zehirlenmesi",
+        "Russian": "Отравление CO"
+    },
+    "GAMEPLAY_COPoisoningCause": {
+        "English": "Carbon Monoxide",
+        "French (France)": "Monoxyde de carbone",
+        "Spanish (Spain)": "Monóxido de carbono",
+        "German": "Kohlenmonoxid",
+        "Turkish": "Karbon Monoksit",
+        "Russian": "Угарный газ"
+    },
+    "GAMEPLAY_COPoisoningDescription": {
+        "English": "You stayed too long in poisoned air. Carbon monoxide has taken hold, and the danger has already moved from the room into your body.",
+        "French (France)": "Vous êtes resté trop longtemps dans un air vicié. Le monoxyde de carbone a fait son œuvre, et le danger s'est déjà déplacé de la pièce vers votre corps.",
+        "Spanish (Spain)": "Has permanecido demasiado tiempo en un aire envenenado. El monóxido de carbono ya ha hecho efecto y el peligro ha pasado de la habitación a tu cuerpo.",
+        "German": "Du bist zu lange in vergifteter Luft geblieben. Das Kohlenmonoxid hat bereits gewirkt, und die Gefahr ist längst vom Raum in deinen Körper übergegangen.",
+        "Turkish": "Zehirli havada fazla uzun kaldın. Karbon monoksit etkisini gösterdi ve tehlike artık odadan bedenine geçti.",
+        "Russian": "Вы слишком долго находились в отравленном воздухе. Угарный газ уже подействовал, и опасность теперь перешла из помещения в ваше тело."
+    },
+
+    "GAMEPLAY_BlackLungSleepWakeup": {
+        "English": "A violent coughing fit wakes you up.",
+        "French (France)": "Une violente quinte de toux vous réveille.",
+        "Spanish (Spain)": "Un violento ataque de tos te despierta.",
+        "German": "Ein heftiger Hustenanfall weckt dich auf.",
+        "Turkish": "Şiddetli bir öksürük nöbeti seni uyandırıyor.",
+        "Russian": "Сильный приступ кашля будит вас."
+    },
+
+    "GAMEPLAY_BrokenLimbNoRopeClimb": {
+        "English": "You cannot climb ropes with a broken limb.",
+        "French (France)": "Vous ne pouvez pas grimper aux cordes avec un membre brisé.",
+        "Spanish (Spain)": "No puedes trepar cuerdas con una extremidad rota.",
+        "German": "Mit einer gebrochenen Gliedmaße kannst du keine Seile erklimmen.",
+        "Turkish": "Kırık bir uzuvla iplere tırmanamazsın.",
+        "Russian": "Со сломанной конечностью вы не можете взбираться по верёвкам."
     }
 }

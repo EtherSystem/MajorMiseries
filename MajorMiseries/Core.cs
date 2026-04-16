@@ -80,12 +80,15 @@ namespace MajorMiseries
 
             float oldHostility = State.PredatorHostility;
             float oldSinceKill = State.HoursSinceLastPredatorKill;
+            float oldBlackLungExposure = State.BlackLungExposure;
 
             State.PredatorHostility = Mathf.Max(0f, State.PredatorHostility);
             State.HoursSinceLastPredatorKill = Mathf.Max(0f, State.HoursSinceLastPredatorKill);
+            State.BlackLungExposure = Mathf.Clamp(State.BlackLungExposure, 0f, 100f);
 
             if (!Mathf.Approximately(oldHostility, State.PredatorHostility)) changed = true;
             if (!Mathf.Approximately(oldSinceKill, State.HoursSinceLastPredatorKill)) changed = true;
+            if (!Mathf.Approximately(oldBlackLungExposure, State.BlackLungExposure)) changed = true;
 
             if (changed) _dirty = true;
 
@@ -129,8 +132,11 @@ namespace MajorMiseries
 
             float gameHoursPassed = tod.GetTODHours(realTimeElapsed);
             if (gameHoursPassed <= 0f) return;
-            
+
+            AfflictionLogic.UpdateBlackLungSleepTracking(gameHoursPassed);
             AfflictionLogic.UpdatePredatorHostilityDecay(gameHoursPassed);
+            AfflictionLogic.UpdateBlackLungExposure(gameHoursPassed);
+            AfflictionLogic.UpdateCOExposure(gameHoursPassed);
         }
     }
 }

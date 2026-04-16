@@ -382,12 +382,7 @@ namespace MajorMiseries.Patches
             if (!IsPredatorThreatTracked(ai))
                 return null;
 
-            PredatorThreatController? controller = ai.gameObject.GetComponent<PredatorThreatController>();
-            if (controller == null)
-            {
-                controller = ai.gameObject.AddComponent<PredatorThreatController>();
-            }
-
+            PredatorThreatController? controller = ai.gameObject.GetComponent<PredatorThreatController>() ?? ai.gameObject.AddComponent<PredatorThreatController>();
             controller.Initialize(ai);
             return controller;
         }

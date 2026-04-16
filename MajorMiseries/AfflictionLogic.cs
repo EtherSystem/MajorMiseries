@@ -1,4 +1,6 @@
 ﻿using System.Collections;
+using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
+using UnityEngine.SceneManagement;
 using AfflictionComponent.Components;
 using MajorMiseries.Patches;
 using MajorMiseries.Persistence;
@@ -9,6 +11,10 @@ using static MajorMiseries.Afflictions.Knell;
 using static MajorMiseries.Afflictions.Omen;
 using static MajorMiseries.Afflictions.Requiem;
 using static MajorMiseries.Afflictions.ScarredFlesh;
+using static MajorMiseries.Afflictions.BlackLungRisk;
+using static MajorMiseries.Afflictions.BlackLung;
+using static MajorMiseries.Afflictions.COExposure;
+using static MajorMiseries.Afflictions.COPoisoning;
 using Random = UnityEngine.Random;
 
 namespace MajorMiseries
@@ -28,6 +34,12 @@ namespace MajorMiseries
         {
             _lastProcessedHour = -1;
             _lastRefreshUnscaledTime = -999f;
+            _coSceneStates.Clear();
+
+            s_LastBlackLungExposureLogTime = -999f;
+            s_LastBlackLungExposureLogWasIncrease = null;
+            _blackLungSleepTrackingActive = false;
+            _blackLungTrackedSleepHours = 0f;
 
             StageGaugeLockVisuals.ResetRuntime();
 
@@ -1085,6 +1097,352 @@ namespace MajorMiseries
             }
         }
 
+        // =======================================================================================
+        //                                 Black Lung logic
+        // =======================================================================================
+
+        private static readonly HashSet<string> s_BlackLungScenes = new(StringComparer.OrdinalIgnoreCase)
+        {
+            // scene to filter by name :
+            "AshMine",
+            "AshCaveA",
+            "AshCaveB",
+        };
+
+        private const float BLACK_LUNG_EXPOSURE_GAIN_PER_HOUR = 1f;
+        private const float BLACK_LUNG_EXPOSURE_DECAY_PER_HOUR = 0.01f;
+        private const float BLACK_LUNG_RISK_START_THRESHOLD = 75f;
+        private const float BLACK_LUNG_SLEEP_RECOVERY_MULTIPLIER = 10f;
+        private const float BLACK_LUNG_COAL_SCENE_WORSENING_MULTIPLIER = 10f;
+
+        private static bool _blackLungSleepTrackingActive = false;
+        private static float _blackLungTrackedSleepHours = 0f;
+
+        private const float BLACK_LUNG_LOG_INTERVAL_HOURS = 10f / 60f; // 10 in-game minutes
+        private static float s_LastBlackLungExposureLogTime = -999f;
+        private static bool? s_LastBlackLungExposureLogWasIncrease = null;
+
+        internal static void UpdateBlackLungExposure(float gameHoursPassed)
+        {
+            if (gameHoursPassed <= 0f)
+                return;
+
+            string sceneName = GameManager.m_ActiveScene;
+            if (string.IsNullOrEmpty(sceneName))
+                return;
+
+            bool inCoalScene = IsBlackLungScene(sceneName);
+            float oldExposure = Core.State.BlackLungExposure;
+
+            if (inCoalScene)
+            {
+                Core.State.BlackLungExposure = Mathf.Clamp(Core.State.BlackLungExposure + (gameHoursPassed * BLACK_LUNG_EXPOSURE_GAIN_PER_HOUR), 0f, 100f);
+            }
+            else
+            {
+                Core.State.BlackLungExposure = Mathf.Clamp(Core.State.BlackLungExposure - (gameHoursPassed * BLACK_LUNG_EXPOSURE_DECAY_PER_HOUR), 0f, 100f);
+            }
+
+            if (!Mathf.Approximately(oldExposure, Core.State.BlackLungExposure))
+            {
+                Core.Instance?.MarkDirty();
+
+                float now = GameManager.GetTimeOfDayComponent()?.GetHoursPlayedNotPaused() ?? 0f;
+                bool isIncrease = Core.State.BlackLungExposure > oldExposure;
+
+                bool shouldLog =
+                    (now - s_LastBlackLungExposureLogTime) >= BLACK_LUNG_LOG_INTERVAL_HOURS
+                    || s_LastBlackLungExposureLogWasIncrease == null
+                    || s_LastBlackLungExposureLogWasIncrease.Value != isIncrease;
+
+                if (shouldLog)
+                {
+                    Core.Log($"BlackLung exposure {(isIncrease ? "increased" : "decreased")} in scene '{sceneName}' -> {oldExposure:0.###} => {Core.State.BlackLungExposure:0.###}");
+                    s_LastBlackLungExposureLogTime = now;
+                    s_LastBlackLungExposureLogWasIncrease = isIncrease;
+                }
+            }
+
+            BlackLungAffliction? activeBlackLung = GetAffliction<BlackLungAffliction>();
+            if (activeBlackLung != null)
+            {
+                if (inCoalScene)
+                {
+                    float addedHours = gameHoursPassed * BLACK_LUNG_COAL_SCENE_WORSENING_MULTIPLIER;
+                    activeBlackLung.EndTime += addedHours;
+                    Core.Log($"BlackLung worsened by coal exposure -> +{addedHours:0.###}h remaining.");
+                }
+
+                return;
+            }
+
+            if (HasAffliction<BlackLungRiskAffliction>())
+                return;
+
+            if (Core.State.BlackLungExposure >= BLACK_LUNG_RISK_START_THRESHOLD)
+            {
+                new BlackLungRiskAffliction(AfflictionBodyArea.Head).Start();
+            }
+        }
+
+        private static bool IsBlackLungScene(string? sceneName)
+        {
+            return !string.IsNullOrEmpty(sceneName) && s_BlackLungScenes.Contains(sceneName);
+        }
+
+        internal static void UpdateBlackLungSleepTracking(float gameHoursPassed)
+        {
+            if (gameHoursPassed <= 0f)
+                return;
+
+            Rest? rest = GameManager.GetRestComponent();
+            bool hasBlackLung = GetAffliction<BlackLungAffliction>() != null;
+            bool isSleeping = hasBlackLung && rest != null && rest.IsSleeping();
+
+            if (isSleeping)
+            {
+                if (!_blackLungSleepTrackingActive)
+                {
+                    _blackLungSleepTrackingActive = true;
+                    _blackLungTrackedSleepHours = 0f;
+
+                    Core.Log("BlackLung sleep tracking started.");
+                }
+
+                _blackLungTrackedSleepHours += gameHoursPassed;
+                return;
+            }
+
+            if (_blackLungSleepTrackingActive)
+            {
+                _blackLungSleepTrackingActive = false;
+
+                float sleptHours = _blackLungTrackedSleepHours;
+                _blackLungTrackedSleepHours = 0f;
+
+                if (sleptHours > 0f)
+                {
+                    Core.Log($"BlackLung sleep tracking finalized -> actual={sleptHours:0.###}h");
+                    ProcessBlackLungSleepRecovery(sleptHours);
+                }
+            }
+        }
+
+        // ============================================================================
+        //                         Carbon Monoxide Exposure
+        // ============================================================================
+
+        private const float CO_MIN_FIRE_BURN_HOURS = 2f;
+        private const float CO_ROLL_INTERVAL_HOURS = 10f / 60f;      // 10 in-game minutes
+        private const float CO_EXPOSURE_ROLL_CHANCE = 10f;           // percent per roll
+        private const float CO_LINGER_AFTER_FIRE_OUT_HOURS = 2f;     // contaminated scene lingers for 2h after last valid fire
+
+        private sealed class CORiskSceneState
+        {
+            public float LastRollTimeHours = -999f;
+            public float LastValidFireSeenTimeHours = -999f;
+            public bool SceneContaminated = false;
+        }
+
+        private static readonly Dictionary<string, CORiskSceneState> _coSceneStates = new();
+
+        internal static void UpdateCOExposure(float gameHoursPassed)
+        {
+            if (gameHoursPassed <= 0f)
+                return;
+
+            TimeOfDay tod = GameManager.GetTimeOfDayComponent();
+            if (tod == null)
+                return;
+
+            if (HasAffliction<COExposureAffliction>())
+                return;
+
+            if (HasAffliction<COPoisoningAffliction>())
+                return;
+
+            if (!IsPlayerInIndoorScene())
+                return;
+
+            string sceneName = GetCurrentSceneName();
+            if (string.IsNullOrEmpty(sceneName))
+                return;
+
+            float nowHours = tod.GetHoursPlayedNotPaused();
+            CORiskSceneState state = GetOrCreateCOSceneState(sceneName);
+
+            bool hasValidFire = TryGetIndoorValidCOFireInfo(nowHours, out float qualifyingSinceHours);
+
+            if (hasValidFire)
+            {
+                state.LastValidFireSeenTimeHours = nowHours;
+
+                if (state.LastRollTimeHours < 0f)
+                {
+                    state.LastRollTimeHours = qualifyingSinceHours;
+                }
+            }
+
+            if (state.SceneContaminated)
+            {
+                if (IsSceneStillCOContaminated(state, nowHours, hasValidFire))
+                {
+                    Core.Log($"CO contaminated scene re-entry -> applying COExposure immediately in scene '{sceneName}'.");
+                    new COExposureAffliction(AfflictionBodyArea.Head).Start();
+                    return;
+                }
+
+                Core.Log($"CO scene contamination expired in scene '{sceneName}'.");
+                ResetCOSceneState(state);
+            }
+
+            if (!hasValidFire)
+                return;
+
+            float elapsed = nowHours - state.LastRollTimeHours;
+            if (elapsed < CO_ROLL_INTERVAL_HOURS)
+                return;
+
+            int rollCount = Mathf.FloorToInt(elapsed / CO_ROLL_INTERVAL_HOURS);
+            if (rollCount <= 0)
+                return;
+
+            for (int i = 0; i < rollCount; i++)
+            {
+                float roll = Random.Range(0f, 100f);
+                Core.Log($"CO roll -> chance={CO_EXPOSURE_ROLL_CHANCE:0.##}% roll={roll:0.##} scene='{sceneName}'");
+
+                if (roll <= CO_EXPOSURE_ROLL_CHANCE)
+                {
+                    state.SceneContaminated = true;
+                    state.LastValidFireSeenTimeHours = nowHours;
+                    state.LastRollTimeHours += (i + 1) * CO_ROLL_INTERVAL_HOURS;
+
+                    Core.Log($"CO roll succeeded -> scene '{sceneName}' is now contaminated, applying COExposure.");
+                    new COExposureAffliction(AfflictionBodyArea.Head).Start();
+                    return;
+                }
+            }
+
+            state.LastRollTimeHours += rollCount * CO_ROLL_INTERVAL_HOURS;
+        }
+
+        internal static bool IsPlayerStillInActiveCOScene()
+        {
+            if (!IsPlayerInIndoorScene())
+                return false;
+
+            TimeOfDay tod = GameManager.GetTimeOfDayComponent();
+            if (tod == null)
+                return false;
+
+            string sceneName = GetCurrentSceneName();
+            if (string.IsNullOrEmpty(sceneName))
+                return false;
+
+            if (!_coSceneStates.TryGetValue(sceneName, out CORiskSceneState? state) || state == null || !state.SceneContaminated)
+                return false;
+
+            float nowHours = tod.GetHoursPlayedNotPaused();
+            bool hasValidFire = TryGetIndoorValidCOFireInfo(nowHours, out _);
+
+            if (hasValidFire)
+            {
+                state.LastValidFireSeenTimeHours = nowHours;
+                return true;
+            }
+
+            if (IsSceneStillCOContaminated(state, nowHours, hasValidFire: false))
+                return true;
+
+            Core.Log($"CO active scene check expired -> scene '{sceneName}' is no longer contaminated.");
+            ResetCOSceneState(state);
+            return false;
+        }
+
+        private static bool TryGetIndoorValidCOFireInfo(float nowHours, out float qualifyingSinceHours)
+        {
+            qualifyingSinceHours = -1f;
+
+            if (!IsPlayerInIndoorScene())
+                return false;
+
+            if (FireManager.m_Fires == null)
+                return false;
+
+            int count = FireManager.m_Fires.Count;
+            float longestBurnHours = -1f;
+
+            for (int i = 0; i < count; i++)
+            {
+                Fire? fire = FireManager.m_Fires[i];
+                if (fire == null)
+                    continue;
+
+                if (!fire.IsBurning())
+                    continue;
+
+                float burnHours = fire.GetBurningTimeTODHours();
+                if (burnHours < CO_MIN_FIRE_BURN_HOURS)
+                    continue;
+
+                if (burnHours > longestBurnHours)
+                    longestBurnHours = burnHours;
+            }
+
+            if (longestBurnHours < CO_MIN_FIRE_BURN_HOURS)
+                return false;
+
+            qualifyingSinceHours = nowHours - (longestBurnHours - CO_MIN_FIRE_BURN_HOURS);
+            return true;
+        }
+
+        private static bool IsSceneStillCOContaminated(CORiskSceneState state, float nowHours, bool hasValidFire)
+        {
+            if (!state.SceneContaminated)
+                return false;
+
+            if (hasValidFire)
+                return true;
+
+            if (state.LastValidFireSeenTimeHours < 0f)
+                return false;
+
+            return (nowHours - state.LastValidFireSeenTimeHours) < CO_LINGER_AFTER_FIRE_OUT_HOURS;
+        }
+
+        private static CORiskSceneState GetOrCreateCOSceneState(string sceneName)
+        {
+            if (!_coSceneStates.TryGetValue(sceneName, out CORiskSceneState? state) || state == null)
+            {
+                state = new CORiskSceneState();
+                _coSceneStates[sceneName] = state;
+            }
+
+            return state;
+        }
+
+        private static void ResetCOSceneState(CORiskSceneState state)
+        {
+            state.SceneContaminated = false;
+            state.LastRollTimeHours = -999f;
+            state.LastValidFireSeenTimeHours = -999f;
+        }
+
+        private static string GetCurrentSceneName()
+        {
+            return UnitySceneManager.GetActiveScene().name;
+        }
+
+        private static bool IsPlayerInIndoorScene()
+        {
+            Weather? weather = GameManager.GetWeatherComponent();
+            if (weather == null)
+                return false;
+
+            return weather.IsIndoorScene();
+        }
+
         // ===========================================================================
         //                               Utilities
         // ===========================================================================
@@ -1114,6 +1472,44 @@ namespace MajorMiseries
             }
 
             return false;
+        }
+
+        internal static void ProcessBlackLungSleepRecovery(float hoursSlept)
+        {
+            if (hoursSlept <= 0f)
+                return;
+
+            BlackLungAffliction? blackLung = GetAffliction<BlackLungAffliction>();
+            if (blackLung == null)
+                return;
+
+            float reductionHours = hoursSlept * BLACK_LUNG_SLEEP_RECOVERY_MULTIPLIER;
+            float now = GameManager.GetTimeOfDayComponent()?.GetHoursPlayedNotPaused() ?? 0f;
+
+            blackLung.EndTime -= reductionHours;
+
+            Core.Log($"BlackLung improved through sleep -> -{reductionHours:0.###}h remaining.");
+
+            if (blackLung.EndTime <= now)
+            {
+                Core.Log("BlackLung duration reduced to zero by sleep.");
+                blackLung.Cure();
+            }
+        }
+
+        private static T? GetAffliction<T>() where T : class
+        {
+            var mgr = AfflictionManager.GetAfflictionManagerInstance();
+            if (mgr?.m_Afflictions == null)
+                return null;
+
+            for (int i = 0; i < mgr.m_Afflictions.Count; i++)
+            {
+                if (mgr.m_Afflictions[i] is T affliction)
+                    return affliction;
+            }
+
+            return null;
         }
 
         internal static bool HasWeakJoints()

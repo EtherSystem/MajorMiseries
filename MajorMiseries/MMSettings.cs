@@ -35,6 +35,13 @@
         [Choice("Realistic", "Unrealistic")]
         public int BrokenLimbDurationMode = 0;
 
+        [Section("Coal Illnesses")]
+
+        [Name("Black Lung Duration")]
+        [Description("Choose whether Black Lung uses realistic or shortened recovery durations.")]
+        [Choice("Realistic", "Unrealistic")]
+        public int BlackLungDurationMode = 0;
+
         [Section("Predator Struggle Afflictions")]
 
         [Name("Bear broken limb chance")]
