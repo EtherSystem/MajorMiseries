@@ -84,7 +84,7 @@ namespace MajorMiseries
 
             State.PredatorHostility = Mathf.Max(0f, State.PredatorHostility);
             State.HoursSinceLastPredatorKill = Mathf.Max(0f, State.HoursSinceLastPredatorKill);
-            State.BlackLungExposure = Mathf.Clamp(State.BlackLungExposure, 0f, 100f);
+            State.BlackLungExposure = Mathf.Clamp(State.BlackLungExposure, 0f, AfflictionLogic.GetBlackLungExposureMax());
 
             if (!Mathf.Approximately(oldHostility, State.PredatorHostility)) changed = true;
             if (!Mathf.Approximately(oldSinceKill, State.HoursSinceLastPredatorKill)) changed = true;

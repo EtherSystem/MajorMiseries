@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
-using UnityEngine.SceneManagement;
 using AfflictionComponent.Components;
 using MajorMiseries.Patches;
 using MajorMiseries.Persistence;
@@ -358,6 +357,9 @@ namespace MajorMiseries
             if (hostilityAdded <= 0f)
                 return;
 
+            if (Settings.options.PredatorHostilityMode == 2)
+                return;
+
             float before = Core.State.PredatorHostility;
 
             Core.State.PredatorHostility += hostilityAdded;
@@ -433,7 +435,7 @@ namespace MajorMiseries
         {
             RefreshEffectsIfNeeded();
 
-            if (!_cache.Requiem)
+            if (!RequiemStagesEffects.ShouldConvertPredatorBloodLossToSevere(GetCurrentStage()))
                 return;
 
             PlayerManager player = GameManager.GetPlayerManagerComponent();
@@ -1109,9 +1111,25 @@ namespace MajorMiseries
             "AshCaveB",
         };
 
-        private const float BLACK_LUNG_EXPOSURE_GAIN_PER_HOUR = 1f;
-        private const float BLACK_LUNG_EXPOSURE_DECAY_PER_HOUR = 0.01f;
+        internal static bool IsBlackLungScene(string? sceneName)
+        {
+            return !string.IsNullOrEmpty(sceneName) && s_BlackLungScenes.Contains(sceneName);
+        }
+
+        private const float BLACK_LUNG_EXPOSURE_MAX = 75f;
         private const float BLACK_LUNG_RISK_START_THRESHOLD = 75f;
+
+        private const float BLACK_LUNG_EXPOSURE_TIME_TO_RISK_HOURS = 14f * 24f; // 336h = 14 days to reach 75 exposure
+        private const float BLACK_LUNG_RISK_TIME_TO_BLACK_LUNG_HOURS = BLACK_LUNG_EXPOSURE_TIME_TO_RISK_HOURS / 3f; // 112h = time for risk to reach 100
+
+        private const float BLACK_LUNG_DECAY_SLOWDOWN_MULTIPLIER = 4f; // recovery is 4x slower than buildup
+
+        private const float BLACK_LUNG_EXPOSURE_GAIN_PER_HOUR = BLACK_LUNG_EXPOSURE_MAX / BLACK_LUNG_EXPOSURE_TIME_TO_RISK_HOURS;
+        private const float BLACK_LUNG_EXPOSURE_DECAY_PER_HOUR = BLACK_LUNG_EXPOSURE_GAIN_PER_HOUR / BLACK_LUNG_DECAY_SLOWDOWN_MULTIPLIER; // 1344h from 75 to 0
+
+        private const float BLACK_LUNG_RISK_GAIN_PER_HOUR = 100f / BLACK_LUNG_RISK_TIME_TO_BLACK_LUNG_HOURS;
+        private const float BLACK_LUNG_RISK_DECAY_PER_HOUR = BLACK_LUNG_RISK_GAIN_PER_HOUR / BLACK_LUNG_DECAY_SLOWDOWN_MULTIPLIER; // 448h from 100 to 0
+
         private const float BLACK_LUNG_SLEEP_RECOVERY_MULTIPLIER = 10f;
         private const float BLACK_LUNG_COAL_SCENE_WORSENING_MULTIPLIER = 10f;
 
@@ -1121,6 +1139,12 @@ namespace MajorMiseries
         private const float BLACK_LUNG_LOG_INTERVAL_HOURS = 10f / 60f; // 10 in-game minutes
         private static float s_LastBlackLungExposureLogTime = -999f;
         private static bool? s_LastBlackLungExposureLogWasIncrease = null;
+
+        internal static float GetBlackLungExposureGainPerHour() => BLACK_LUNG_EXPOSURE_GAIN_PER_HOUR;
+        internal static float GetBlackLungExposureDecayPerHour() => BLACK_LUNG_EXPOSURE_DECAY_PER_HOUR;
+        internal static float GetBlackLungExposureMax() => BLACK_LUNG_EXPOSURE_MAX;
+        internal static float GetBlackLungRiskGainPerHour() => BLACK_LUNG_RISK_GAIN_PER_HOUR;
+        internal static float GetBlackLungRiskDecayPerHour() => BLACK_LUNG_RISK_DECAY_PER_HOUR;
 
         internal static void UpdateBlackLungExposure(float gameHoursPassed)
         {
@@ -1132,36 +1156,7 @@ namespace MajorMiseries
                 return;
 
             bool inCoalScene = IsBlackLungScene(sceneName);
-            float oldExposure = Core.State.BlackLungExposure;
-
-            if (inCoalScene)
-            {
-                Core.State.BlackLungExposure = Mathf.Clamp(Core.State.BlackLungExposure + (gameHoursPassed * BLACK_LUNG_EXPOSURE_GAIN_PER_HOUR), 0f, 100f);
-            }
-            else
-            {
-                Core.State.BlackLungExposure = Mathf.Clamp(Core.State.BlackLungExposure - (gameHoursPassed * BLACK_LUNG_EXPOSURE_DECAY_PER_HOUR), 0f, 100f);
-            }
-
-            if (!Mathf.Approximately(oldExposure, Core.State.BlackLungExposure))
-            {
-                Core.Instance?.MarkDirty();
-
-                float now = GameManager.GetTimeOfDayComponent()?.GetHoursPlayedNotPaused() ?? 0f;
-                bool isIncrease = Core.State.BlackLungExposure > oldExposure;
-
-                bool shouldLog =
-                    (now - s_LastBlackLungExposureLogTime) >= BLACK_LUNG_LOG_INTERVAL_HOURS
-                    || s_LastBlackLungExposureLogWasIncrease == null
-                    || s_LastBlackLungExposureLogWasIncrease.Value != isIncrease;
-
-                if (shouldLog)
-                {
-                    Core.Log($"BlackLung exposure {(isIncrease ? "increased" : "decreased")} in scene '{sceneName}' -> {oldExposure:0.###} => {Core.State.BlackLungExposure:0.###}");
-                    s_LastBlackLungExposureLogTime = now;
-                    s_LastBlackLungExposureLogWasIncrease = isIncrease;
-                }
-            }
+            float now = GameManager.GetTimeOfDayComponent()?.GetHoursPlayedNotPaused() ?? 0f;
 
             BlackLungAffliction? activeBlackLung = GetAffliction<BlackLungAffliction>();
             if (activeBlackLung != null)
@@ -1177,17 +1172,58 @@ namespace MajorMiseries
             }
 
             if (HasAffliction<BlackLungRiskAffliction>())
-                return;
+            {
+                if (!Mathf.Approximately(Core.State.BlackLungExposure, BLACK_LUNG_RISK_START_THRESHOLD))
+                {
+                    float exposureBeforeLock = Core.State.BlackLungExposure;
+                    Core.State.BlackLungExposure = BLACK_LUNG_RISK_START_THRESHOLD;
+                    Core.Instance?.MarkDirty();
+                    Core.Log($"BlackLungRisk active -> exposure locked at {BLACK_LUNG_RISK_START_THRESHOLD:0.###} ({exposureBeforeLock:0.###} => {Core.State.BlackLungExposure:0.###}).");
+                }
 
-            if (Core.State.BlackLungExposure >= BLACK_LUNG_RISK_START_THRESHOLD)
+                return;
+            }
+
+            float oldExposure = Core.State.BlackLungExposure;
+
+            if (inCoalScene)
+            {
+                Core.State.BlackLungExposure = Mathf.Clamp(
+                    Core.State.BlackLungExposure + (gameHoursPassed * BLACK_LUNG_EXPOSURE_GAIN_PER_HOUR),
+                    0f,
+                    BLACK_LUNG_EXPOSURE_MAX);
+            }
+            else
+            {
+                Core.State.BlackLungExposure = Mathf.Clamp(
+                    Core.State.BlackLungExposure - (gameHoursPassed * BLACK_LUNG_EXPOSURE_DECAY_PER_HOUR),
+                    0f,
+                    BLACK_LUNG_EXPOSURE_MAX);
+            }
+
+            if (!Mathf.Approximately(oldExposure, Core.State.BlackLungExposure))
+            {
+                Core.Instance?.MarkDirty();
+
+                bool isIncrease = Core.State.BlackLungExposure > oldExposure;
+
+                bool shouldLog =
+                    (now - s_LastBlackLungExposureLogTime) >= BLACK_LUNG_LOG_INTERVAL_HOURS
+                    || s_LastBlackLungExposureLogWasIncrease == null
+                    || s_LastBlackLungExposureLogWasIncrease.Value != isIncrease;
+
+                if (shouldLog)
+                {
+                    Core.Log($"BlackLung exposure {(isIncrease ? "increased" : "decreased")} in scene '{sceneName}' -> {oldExposure:0.###} => {Core.State.BlackLungExposure:0.###}");
+                    s_LastBlackLungExposureLogTime = now;
+                    s_LastBlackLungExposureLogWasIncrease = isIncrease;
+                }
+            }
+
+            if (inCoalScene && Core.State.BlackLungExposure >= BLACK_LUNG_RISK_START_THRESHOLD)
             {
                 new BlackLungRiskAffliction(AfflictionBodyArea.Head).Start();
             }
-        }
-
-        private static bool IsBlackLungScene(string? sceneName)
-        {
-            return !string.IsNullOrEmpty(sceneName) && s_BlackLungScenes.Contains(sceneName);
         }
 
         internal static void UpdateBlackLungSleepTracking(float gameHoursPassed)
@@ -1382,6 +1418,9 @@ namespace MajorMiseries
                 if (!fire.IsBurning())
                     continue;
 
+                if (!IsCOEligibleFire(fire))
+                    continue;
+
                 float burnHours = fire.GetBurningTimeTODHours();
                 if (burnHours < CO_MIN_FIRE_BURN_HOURS)
                     continue;
@@ -1395,6 +1434,134 @@ namespace MajorMiseries
 
             qualifyingSinceHours = nowHours - (longestBurnHours - CO_MIN_FIRE_BURN_HOURS);
             return true;
+        }
+
+        private static bool IsCOEligibleFire(Fire fire)
+        {
+            if (fire == null || !fire.IsBurning())
+                return false;
+
+            bool isWoodStoveFire = IsWoodStoveFire(fire);
+            bool isCampfireFire = IsCampfireFire(fire);
+
+            if (isCampfireFire)
+                return true;
+
+            if (isWoodStoveFire)
+                return IsFireBarrelWoodStove(fire);
+
+            return false;
+        }
+
+        private static bool IsWoodStoveFire(Fire fire)
+        {
+            if (fire == null)
+                return false;
+
+            var woodStoves = FireManager.m_WoodStoves;
+            if (woodStoves == null)
+                return false;
+
+            for (int i = 0; i < woodStoves.Count; i++)
+            {
+                WoodStove? woodStove = woodStoves[i];
+                if (woodStove == null || woodStove.Fire == null)
+                    continue;
+
+                if (SameFire(woodStove.Fire, fire))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsCampfireFire(Fire fire)
+        {
+            if (fire == null)
+                return false;
+
+            if (fire.m_Campfire != null)
+                return true;
+
+            var campfires = FireManager.m_Campfires;
+            if (campfires == null)
+                return false;
+
+            for (int i = 0; i < campfires.Count; i++)
+            {
+                Campfire? campfire = campfires[i];
+                if (campfire == null || campfire.Fire == null)
+                    continue;
+
+                if (SameFire(campfire.Fire, fire))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsFireBarrelWoodStove(Fire fire)
+        {
+            WoodStove? woodStove = FindWoodStoveForFire(fire);
+            if (woodStove == null)
+                return false;
+
+            string objectName = woodStove.gameObject != null ? woodStove.gameObject.name ?? string.Empty : string.Empty;
+            if (objectName.Contains("FireBarrel", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            string path = GetTransformPath(woodStove.transform);
+            if (path.Contains("FireBarrel", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            return false;
+        }
+
+        private static WoodStove? FindWoodStoveForFire(Fire fire)
+        {
+            if (fire == null)
+                return null;
+
+            var woodStoves = FireManager.m_WoodStoves;
+            if (woodStoves == null)
+                return null;
+
+            for (int i = 0; i < woodStoves.Count; i++)
+            {
+                WoodStove? woodStove = woodStoves[i];
+                if (woodStove == null || woodStove.Fire == null)
+                    continue;
+
+                if (SameFire(woodStove.Fire, fire))
+                    return woodStove;
+            }
+
+            return null;
+        }
+
+        private static bool SameFire(Fire a, Fire b)
+        {
+            if (a == null || b == null)
+                return false;
+
+            return a.GetInstanceID() == b.GetInstanceID();
+        }
+
+        private static string GetTransformPath(Transform t)
+        {
+            if (t == null)
+                return "<null>";
+
+            string path = t.name;
+            Transform current = t.parent;
+
+            while (current != null)
+            {
+                path = current.name + "/" + path;
+                current = current.parent;
+            }
+
+            return path;
         }
 
         private static bool IsSceneStillCOContaminated(CORiskSceneState state, float nowHours, bool hasValidFire)

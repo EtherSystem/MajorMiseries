@@ -16,6 +16,11 @@ namespace MajorMiseries.Afflictions
             private const string ICON = "Major_Miseries.Resources.Icons.Afflictions.Classic.COPoisoning.png";
             private const string ALT_ICON = "Major_Miseries.Resources.Icons.Afflictions.Alt.COPoisoning_ALT.png";
 
+            public const float PASSIVE_FATIGUE_PER_HOUR = 6f;
+            public const float CONDITION_LOSS_PER_HOUR = 5f;
+
+            private float m_LastWholeMinute = -1f;
+
             public static bool IsActive { get; private set; } = false;
 
             public InstanceType Type { get; set; } = InstanceType.Single;
@@ -47,7 +52,6 @@ namespace MajorMiseries.Afflictions
                 if (existingAffliction is COPoisoningAffliction coPoisoning)
                 {
                     coPoisoning.ResetAffliction(resetRemedies: false);
-
                     coPoisoning.Duration = Duration;
 
                     TimeOfDay? tod = GameManager.GetTimeOfDayComponent();
@@ -68,23 +72,74 @@ namespace MajorMiseries.Afflictions
             public void OnCure()
             {
                 IsActive = false;
+                m_LastWholeMinute = -1f;
             }
 
             public override void OnUpdate()
             {
+                Panel_FirstAid firstAid = InterfaceManager.GetPanel<Panel_FirstAid>();
+                if (firstAid != null && firstAid.isActiveAndEnabled)
+                    return;
+
                 IsActive = true;
 
                 TimeOfDay? tod = GameManager.GetTimeOfDayComponent();
                 if (tod == null)
                     return;
 
-                if (tod.GetHoursPlayedNotPaused() >= EndTime)
+                float now = tod.GetHoursPlayedNotPaused();
+
+                if (now >= EndTime)
                 {
                     Core.Log("COPoisoning expired naturally.");
                     Cure();
+                    return;
                 }
 
-                // yes theres no direct effects, its intended
+                ApplyTimedEffects();
+            }
+
+            private static float GetCurrentWholeMinute()
+            {
+                TimeOfDay tod = GameManager.GetTimeOfDayComponent();
+                if (tod == null)
+                    return 0f;
+
+                return Mathf.Floor(tod.GetHoursPlayedNotPaused() * 60f);
+            }
+
+            private void ApplyTimedEffects()
+            {
+                float currentMinute = GetCurrentWholeMinute();
+
+                if (m_LastWholeMinute < 0f)
+                {
+                    m_LastWholeMinute = currentMinute;
+                    return;
+                }
+
+                float minuteDelta = currentMinute - m_LastWholeMinute;
+                if (minuteDelta <= 0f)
+                    return;
+
+                m_LastWholeMinute = currentMinute;
+
+                float hoursDelta = minuteDelta / 60f;
+
+                Fatigue? fatigue = GameManager.GetFatigueComponent();
+                fatigue?.AddFatigue(hoursDelta * PASSIVE_FATIGUE_PER_HOUR);
+
+                Condition? condition = GameManager.GetConditionComponent();
+                if (condition == null || condition.m_CurrentHP <= 0f)
+                    return;
+
+                float hpLoss = hoursDelta * CONDITION_LOSS_PER_HOUR;
+                if (hpLoss <= 0f)
+                    return;
+
+                condition.AddHealth(-hpLoss, DamageSource.Unspecified);
+
+                Core.Log($"COPoisoning drain: {hpLoss:0.###} HP over {minuteDelta:0} min ({CONDITION_LOSS_PER_HOUR:0.##}/h)");
             }
 
             public void RefreshLocalization()

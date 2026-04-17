@@ -8,6 +8,11 @@
         [Description("Renable or disable the Requiem stage system / afflictions.")]
         public bool EnableRequiemStages = false;
 
+        [Name("Predator Hostility")]
+        [Description("Choose when predator hostility should be active.")]
+        [Choice("Only with Requiem Stages", "Always", "Disabled")]
+        public int PredatorHostilityMode = 0;
+
         [Name("Omen threshold")]
         [Description("Days survived before Omen starts.")]
         [Slider(1, 365, 365, NumberFormat = "{0:0}d")]
@@ -42,7 +47,12 @@
         [Choice("Realistic", "Unrealistic")]
         public int BlackLungDurationMode = 0;
 
-        [Section("Predator Struggle Afflictions")]
+        [Section("Predator Related Afflictions")]
+
+        [Name("Predator Blood Loss to Severe Lacerations")]
+        [Description("Choose when predator Blood Loss should be converted into Severe Lacerations.")]
+        [Choice("Only with Requiem", "Always", "Disabled")]
+        public int PredatorBloodLossToSevereLacerationsMode = 0;
 
         [Name("Bear broken limb chance")]
         [Description("Default : 20% - Chance for a bear struggle to cause a broken arm or leg.")]

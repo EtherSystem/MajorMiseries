@@ -81,7 +81,7 @@ namespace MajorMiseries.Persistence
 
             Core.State.PredatorHostility = Mathf.Max(0f, Core.State.PredatorHostility);
             Core.State.HoursSinceLastPredatorKill = Mathf.Max(0f, Core.State.HoursSinceLastPredatorKill);
-            Core.State.BlackLungExposure = Mathf.Clamp(Core.State.BlackLungExposure, 0f, 100f);
+            Core.State.BlackLungExposure = Mathf.Clamp(Core.State.BlackLungExposure, 0f, AfflictionLogic.GetBlackLungExposureMax());
         }
     }
 

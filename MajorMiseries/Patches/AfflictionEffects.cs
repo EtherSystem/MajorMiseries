@@ -1,8 +1,5 @@
 ﻿using System.Collections;
-using AfflictionComponent.Components;
 using Il2CppTLD.IntBackedUnit;
-using MajorMiseries.Persistence;
-using static Il2Cpp.Rest;
 using static MajorMiseries.Afflictions.BlackLung;
 using static MajorMiseries.Afflictions.COPoisoning;
 using static MajorMiseries.Afflictions.Sepsis;
@@ -17,9 +14,6 @@ namespace MajorMiseries.Patches
         // --------------------------------------------------------------------
 
         private const string BLACK_LUNG_COUGH_EVENT = "Play_SuffocationCough";
-
-        private const float CO_PASSIVE_FATIGUE_PER_HOUR = 6f;
-        private const float CO_CONDITION_DRAIN_PER_HOUR = 5f; // ~20h lethality if unmanaged
 
         private const float CO_SPRINT_USAGE_MULT = 1.85f;
         private const float CO_SPRINT_RECOVERY_MULT = 0.55f;
@@ -44,8 +38,6 @@ namespace MajorMiseries.Patches
         private static float _baseSprintStaminaRecoverPerHour = 0f;
         private static float _baseSprintStaminaUsagePerSecond = 0f;
         private static float _baseSecondsNotSprintingBeforeRecovery = 0f;
-
-        private static bool _applyingCOPoisoningConditionDrain = false;
 
         private static bool IsGameplayScene()
         {
@@ -128,7 +120,7 @@ namespace MajorMiseries.Patches
 
             if (hasBlackLung)
             {
-                waterTarget = Mathf.Max(waterTarget, 0.15f);
+                waterTarget = Mathf.Max(waterTarget, 0.2f);
                 sprainTarget = Mathf.Max(sprainTarget, 0.1f);
                 headacheTarget = Mathf.Max(headacheTarget, 0.1f);
                 headacheSinSpeed = Mathf.Max(headacheSinSpeed, 2.5f);
@@ -138,11 +130,11 @@ namespace MajorMiseries.Patches
 
             if (hasCOPoisoning)
             {
-                waterTarget = Mathf.Max(waterTarget, 0.50f);
-                sprainTarget = Mathf.Max(sprainTarget, 0.28f);
-                headacheTarget = Mathf.Max(headacheTarget, 0.36f);
-                headacheSinSpeed = Mathf.Max(headacheSinSpeed, 5.25f);
-                headacheVignetteIntensity = Mathf.Max(headacheVignetteIntensity, 0.55f);
+                waterTarget = Mathf.Max(waterTarget, 0.35f);
+                sprainTarget = Mathf.Max(sprainTarget, 0.3f);
+                headacheTarget = Mathf.Max(headacheTarget, 0.4f);
+                headacheSinSpeed = Mathf.Max(headacheSinSpeed, 5f);
+                headacheVignetteIntensity = Mathf.Max(headacheVignetteIntensity, 0.5f);
                 vignetteColor = Color.black;
             }
 
@@ -160,28 +152,8 @@ namespace MajorMiseries.Patches
                 return;
 
             bool hasBlackLung = BlackLungAffliction.IsActive;
-            bool hasCOPoisoning = COPoisoningAffliction.IsActive;
 
             UpdateBlackLungSleepCough(hasBlackLung, gameHoursPassed);
-
-            if (!hasCOPoisoning)
-                return;
-
-            Fatigue? fatigue = GameManager.GetFatigueComponent();
-            fatigue?.AddFatigue(gameHoursPassed * CO_PASSIVE_FATIGUE_PER_HOUR);
-
-            if (condition.m_CurrentHP > 0f)
-            {
-                try
-                {
-                    _applyingCOPoisoningConditionDrain = true;
-                    condition.AddHealth(-(gameHoursPassed * CO_CONDITION_DRAIN_PER_HOUR), DamageSource.Suffocating, false);
-                }
-                finally
-                {
-                    _applyingCOPoisoningConditionDrain = false;
-                }
-            }
         }
 
         private static void UpdateBlackLungSleepCough(bool hasBlackLung, float gameHoursPassed)
@@ -646,9 +618,6 @@ namespace MajorMiseries.Patches
         {
             private static void Prefix(ref float hp)
             {
-                if (_applyingCOPoisoningConditionDrain && hp < 0f)
-                    return;
-
                 hp = AfflictionLogic.ApplyIncomingDamageMultiplier(hp);
             }
         }

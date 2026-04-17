@@ -108,12 +108,32 @@ namespace MajorMiseries
 
         internal static bool ShouldConvertPredatorBloodLossToSevere(RequiemStage stage)
         {
-            return GetProfile(stage).ConvertPredatorBloodLossToSevere;
+            return Settings.options.PredatorBloodLossToSevereLacerationsMode switch
+            {
+                1 => true,
+                2 => false,
+                _ => GetProfile(stage).ConvertPredatorBloodLossToSevere
+            };
+        }
+
+        internal static bool ShouldConvertPredatorBloodLossToSevere()
+        {
+            return ShouldConvertPredatorBloodLossToSevere(AfflictionLogic.GetCurrentStage());
         }
 
         internal static bool IsPredatorHostilityEnabled(RequiemStage stage)
         {
-            return GetProfile(stage).PredatorHostilityEnabled;
+            return Settings.options.PredatorHostilityMode switch
+            {
+                1 => true,
+                2 => false,
+                _ => GetProfile(stage).PredatorHostilityEnabled
+            };
+        }
+
+        internal static bool IsPredatorHostilityEnabled()
+        {
+            return IsPredatorHostilityEnabled(AfflictionLogic.GetCurrentStage());
         }
 
         internal static bool IsHungerLocked(RequiemStage stage)

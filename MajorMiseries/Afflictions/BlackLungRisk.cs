@@ -18,11 +18,6 @@ namespace MajorMiseries.Afflictions
             private const string ICON = "Major_Miseries.Resources.Icons.Afflictions.Classic.BlackLungRisk.png";
             private const string ALT_ICON = "Major_Miseries.Resources.Icons.Afflictions.Alt.BlackLungRisk_ALT.png";
 
-            private const float RISK_PER_HOUR = 2f;
-
-            public const float START_THRESHOLD = 75f;
-            public const float CURE_THRESHOLD = 50f;
-
             public static bool IsActive { get; private set; } = false;
 
             private float m_RiskValue = 0f;
@@ -39,7 +34,8 @@ namespace MajorMiseries.Afflictions
             //public BlackLungRiskAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
             public BlackLungRiskAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, "ico_injury_BrokenBody", bodyArea)
             {
-                m_LastUpdateTime = GameManager.GetTimeOfDayComponent().GetHoursPlayedNotPaused();
+                TimeOfDay? tod = GameManager.GetTimeOfDayComponent();
+                m_LastUpdateTime = tod != null ? tod.GetHoursPlayedNotPaused() : 0f;
             }
 
             public void OnFoundExistingInstance(CustomAffliction existingAffliction)
@@ -71,14 +67,7 @@ namespace MajorMiseries.Afflictions
                     return;
                 }
 
-                float exposure = Core.State?.BlackLungExposure ?? 0f;
-
-                if (exposure < CURE_THRESHOLD)
-                {
-                    Core.Log($"BlackLungRisk cured naturally, exposure dropped to {exposure:0.##}.");
-                    Cure();
-                    return;
-                }
+                UpdateRiskValue();
 
                 if (m_RiskValue >= 100f)
                 {
@@ -88,31 +77,40 @@ namespace MajorMiseries.Afflictions
                     return;
                 }
 
-                if (m_RiskValue < 0f)
+                if (!AfflictionLogic.IsBlackLungScene(GameManager.m_ActiveScene) && m_RiskValue <= 0f)
                 {
+                    Core.Log("BlackLungRisk fully decayed.");
                     Cure();
                     return;
                 }
-
-                UpdateRiskValue();
             }
 
             public void UpdateRiskValue()
             {
-                float currentTime = GameManager.GetTimeOfDayComponent().GetHoursPlayedNotPaused();
+                TimeOfDay? tod = GameManager.GetTimeOfDayComponent();
+                if (tod == null)
+                    return;
+
+                float currentTime = tod.GetHoursPlayedNotPaused();
                 float elapsedTime = currentTime - m_LastUpdateTime;
 
                 if (elapsedTime <= 0f)
                     return;
 
-                float riskIncrease = elapsedTime * RISK_PER_HOUR;
-                m_RiskValue = Mathf.Min(m_RiskValue + riskIncrease, 100f);
                 m_LastUpdateTime = currentTime;
-            }
 
-            private void ResetProgressTimer()
-            {
-                m_LastUpdateTime = GameManager.GetTimeOfDayComponent().GetHoursPlayedNotPaused();
+                bool inCoalScene = AfflictionLogic.IsBlackLungScene(GameManager.m_ActiveScene);
+
+                if (inCoalScene)
+                {
+                    float riskIncrease = elapsedTime * AfflictionLogic.GetBlackLungRiskGainPerHour();
+                    m_RiskValue = Mathf.Min(m_RiskValue + riskIncrease, 100f);
+                }
+                else
+                {
+                    float riskDecrease = elapsedTime * AfflictionLogic.GetBlackLungRiskDecayPerHour();
+                    m_RiskValue = Mathf.Max(m_RiskValue - riskDecrease, 0f);
+                }
             }
 
             private IEnumerator StartBlackLungNextFrame()
