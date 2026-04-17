@@ -13,8 +13,8 @@ namespace MajorMiseries.Afflictions
             private const string CAUSE_KEY = "GAMEPLAY_RequiemCause";
             private const string DESC_KEY = "GAMEPLAY_RequiemDescription";
 
-            private const string ICON = "Major_Miseries.Resources.Icons.Afflictions.Classic.Requiem.png";
-            private const string ALT_ICON = "Major_Miseries.Resources.Icons.Afflictions.Alt.Requiem_ALT.png";
+            private const string ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.Requiem.png";
+            private const string ALT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Alt.Requiem_ALT.png";
 
             public InstanceType Type { get; set; } = InstanceType.Single;
             public void OnFoundExistingInstance(CustomAffliction existingAffliction)

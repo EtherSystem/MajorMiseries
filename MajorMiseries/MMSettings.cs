@@ -1,17 +1,23 @@
-﻿namespace MajorMiseries
+﻿using System.Reflection;
+
+namespace MajorMiseries
 {
     internal class MMSettings : JsonModSettings
     {
         [Section("Requiem Stages")]
 
         [Name("Enable Requiem Stages")]
-        [Description("Renable or disable the Requiem stage system / afflictions.")]
+        [Description("Enable or disable the Requiem stage system.")]
         public bool EnableRequiemStages = false;
 
         [Name("Predator Hostility")]
         [Description("Choose when predator hostility should be active.")]
         [Choice("Only with Requiem Stages", "Always", "Disabled")]
         public int PredatorHostilityMode = 0;
+
+        [Name("Customize Stage Thresholds")]
+        [Description("Override the default day thresholds for Omen, Dirge, Knell, and Requiem.")]
+        public bool CustomizeStageThresholds = false;
 
         [Name("Omen threshold")]
         [Description("Days survived before Omen starts.")]
@@ -33,12 +39,33 @@
         [Slider(1, 365, 365, NumberFormat = "{0:0}d")]
         public int RequiemThreshold = 4;
 
-        [Section("Broken Limbs")]
+
+        [Section("Predator Related Afflictions")]
+
+        [Name("Bear broken limb chance")]
+        [Description("Default: 20% - Chance for a bear struggle to cause a broken arm or leg.")]
+        [Slider(1, 100, 100, NumberFormat = "{0:0}%")]
+        public float BearBrokenLimbChance = 20f;
+
+        [Name("Moose broken limb chance")]
+        [Description("Default: 30% - Chance for a moose struggle to cause a broken arm or leg.")]
+        [Slider(1, 100, 100, NumberFormat = "{0:0}%")]
+        public float MooseBrokenLimbChance = 30f;
+
+        [Name("Allow broken arm and broken leg together")]
+        [Description("If enabled, the same struggle can cause both a broken arm and a broken leg.")]
+        public bool AllowDoubleBrokenLimb = false;
 
         [Name("Broken Limb Duration")]
         [Description("Choose whether broken arm and broken leg use realistic or shortened recovery durations.")]
         [Choice("Realistic", "Unrealistic")]
         public int BrokenLimbDurationMode = 0;
+
+        [Name("Predator Blood Loss to Severe Lacerations")]
+        [Description("Choose when predator Blood Loss should be converted into Severe Lacerations.")]
+        [Choice("Only with Requiem", "Always", "Disabled")]
+        public int PredatorBloodLossToSevereLacerationsMode = 0;
+
 
         [Section("Coal Illnesses")]
 
@@ -47,26 +74,25 @@
         [Choice("Realistic", "Unrealistic")]
         public int BlackLungDurationMode = 0;
 
-        [Section("Predator Related Afflictions")]
+        [Name("Enable Carbon Monoxide")]
+        [Description("Enable or disable the carbon monoxide affliction system.")]
+        public bool EnableCarbonMonoxide = true;
 
-        [Name("Predator Blood Loss to Severe Lacerations")]
-        [Description("Choose when predator Blood Loss should be converted into Severe Lacerations.")]
-        [Choice("Only with Requiem", "Always", "Disabled")]
-        public int PredatorBloodLossToSevereLacerationsMode = 0;
+        [Name("Enable Black Lung")]
+        [Description("Enable or disable the Black Lung affliction system.")]
+        public bool EnableBlackLung = true;
 
-        [Name("Bear broken limb chance")]
-        [Description("Default : 20% - Chance for a bear struggle to cause a broken arm or leg.")]
-        [Slider(1, 100, 100, NumberFormat = "{0:0}%")]
-        public float BearBrokenLimbChance = 20f;
 
-        [Name("Moose broken limb chance")]
-        [Description("Default : 30% - Chance for a moose struggle to cause a broken arm or leg.")]
-        [Slider(1, 100, 100, NumberFormat = "{0:0}%")]
-        public float MooseBrokenLimbChance = 30f;
+        [Section("Affliction Systems")]
 
-        [Name("Allow broken arm and broken leg together")]
-        [Description("If enabled, the same struggle can cause both a broken arm and a broken leg.")]
-        public bool AllowDoubleBrokenLimb = false;
+        [Name("Enable Scarred Flesh")]
+        [Description("Enable or disable the Severe Lacerations to Scarred Flesh affliction chain.")]
+        public bool EnableScarredFlesh = true;
+
+        [Name("Enable Sepsis")]
+        [Description("Enable or disable the Infection to Sepsis affliction chain.")]
+        public bool EnableSepsis = true;
+
 
         [Section("Advanced")]
 
@@ -99,8 +125,8 @@
         [Description("Add logs for debugging in the ML console.")]
         public bool IsLogging = false;
 
-        [Name("Do you really want to mess with affliction ?")]
-        [Description("This will possibly ruin everything...")]
+        [Name("Do you want to mess with affliction ?")]
+        [Description("This will ruin everything...")]
         public bool RevealShinyAfflictionIconChance1 = false;
 
         [Name("Are you sure you want to interfer with your destiny ?")]
@@ -108,16 +134,21 @@
         public bool RevealShinyAfflictionIconChance2 = false;
 
         [Name("Fine. Let's tempt fate.")]
-        [Description("This reveals the alternative affliction icon chance slider. Don't touch it.")]
+        [Description("This will reveals a true heresy. Don't touch it.")]
         public bool RevealShinyAfflictionIconChance3 = false;
 
-        [Name("Shiny affliction icon chance")]
-        [Description("Chance for a newly contracted affliction to use its alternative icon instead of the normal one.")]
-        [Slider(0f, 100f, 1001, NumberFormat = "{0:0.0}%")]
+        [Name("Your Destiny")]
+        [Description("This slider allows you to choose how much you want to alter your destiny, please don't touch it.")]
+        [Slider(0f, 100f, 1001, NumberFormat = "{0:0.0}")]
         public float AltAfflictionIconChance = 0.1f;
 
         protected override void OnChange(FieldInfo field, object? oldValue, object? newValue)
         {
+            if (field.Name == nameof(CustomizeStageThresholds))
+            {
+                Settings.UpdateStageThresholdVisibility();
+            }
+
             if (field.Name == nameof(RevealShinyAfflictionIconChance1) ||
                 field.Name == nameof(RevealShinyAfflictionIconChance2) ||
                 field.Name == nameof(RevealShinyAfflictionIconChance3))
@@ -128,6 +159,7 @@
             base.OnChange(field, oldValue, newValue);
         }
     }
+
     internal static class Settings
     {
         public static MMSettings options;
@@ -137,9 +169,19 @@
             options = new MMSettings();
             options.AddToModSettings("Major Miseries");
 
+            UpdateStageThresholdVisibility();
             UpdateShinyAfflictionIconChanceVisibility();
         }
 
+        internal static void UpdateStageThresholdVisibility()
+        {
+            bool showThresholds = options.CustomizeStageThresholds;
+
+            options.SetFieldVisible(nameof(options.OmenThreshold), showThresholds);
+            options.SetFieldVisible(nameof(options.DirgeThreshold), showThresholds);
+            options.SetFieldVisible(nameof(options.KnellThreshold), showThresholds);
+            options.SetFieldVisible(nameof(options.RequiemThreshold), showThresholds);
+        }
 
         internal static void UpdateShinyAfflictionIconChanceVisibility()
         {

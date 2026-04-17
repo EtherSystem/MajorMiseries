@@ -494,12 +494,21 @@ namespace MajorMiseries.Patches
                 if (__instance == null)
                     return;
 
+                if (!Settings.options.EnableSepsis)
+                {
+                    Core.Log("InfectionStart -> Sepsis system disabled, SepsisRisk not applied.");
+                    return;
+                }
+
                 MelonCoroutines.Start(ApplySepsisRiskNextFrame((AfflictionBodyArea)location));
             }
 
             private static IEnumerator ApplySepsisRiskNextFrame(AfflictionBodyArea requestedBodyArea)
             {
                 yield return null;
+
+                if (!Settings.options.EnableSepsis)
+                    yield break;
 
                 Infection infection = GameManager.GetInfectionComponent();
                 if (infection == null)
@@ -721,7 +730,7 @@ namespace MajorMiseries.Patches
         {
             private static bool Prefix()
             {
-                return !SepsisAffliction.IsActive && !AfflictionLogic.ShouldDisableNaturalConditionRecovery();
+                return !SepsisAffliction.IsActive && !COPoisoningAffliction.IsActive && !AfflictionLogic.ShouldDisableNaturalConditionRecovery();
             }
         }
     }

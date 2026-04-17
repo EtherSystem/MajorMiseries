@@ -5,6 +5,7 @@
         public float PredatorHostility = 0f;
         public float HoursSinceLastPredatorKill = 0f;
         public float BlackLungExposure = 0f;
+        public int ScarredFleshHistoryCount = 0;
     }
 
     internal enum RequiemStage

@@ -15,8 +15,8 @@ namespace MajorMiseries.Afflictions
             private const string CAUSE_KEY = "GAMEPLAY_BlackLungRiskCause";
             private const string DESC_KEY = "GAMEPLAY_BlackLungRiskDescription";
 
-            private const string ICON = "Major_Miseries.Resources.Icons.Afflictions.Classic.BlackLungRisk.png";
-            private const string ALT_ICON = "Major_Miseries.Resources.Icons.Afflictions.Alt.BlackLungRisk_ALT.png";
+            private const string ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.BlackLungRisk.png";
+            private const string ALT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Alt.BlackLungRisk_ALT.png";
 
             public static bool IsActive { get; private set; } = false;
 
@@ -57,6 +57,12 @@ namespace MajorMiseries.Afflictions
             public override void OnUpdate()
             {
                 IsActive = true;
+
+                if (!Settings.options.EnableBlackLung)
+                {
+                    Cure();
+                    return;
+                }
 
                 if (!Risk)
                     return;

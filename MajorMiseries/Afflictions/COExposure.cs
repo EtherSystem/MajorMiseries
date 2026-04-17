@@ -15,8 +15,8 @@ namespace MajorMiseries.Afflictions
             private const string CAUSE_KEY = "GAMEPLAY_COExposureCause";
             private const string DESC_KEY = "GAMEPLAY_COExposureDescription";
 
-            private const string ICON = "Major_Miseries.Resources.Icons.Afflictions.Classic.COExposure.png";
-            private const string ALT_ICON = "Major_Miseries.Resources.Icons.Afflictions.Alt.COExposure_ALT.png";
+            private const string ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.COExposure.png";
+            private const string ALT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Alt.COExposure_ALT.png";
 
             private const float TIME_TO_CO_POISONING_HOURS = 30f / 60f; // 30 in-game minutes
             private const float CO_POISONING_MIN_DURATION_HOURS = 6f;
@@ -62,6 +62,12 @@ namespace MajorMiseries.Afflictions
             public override void OnUpdate()
             {
                 IsActive = true;
+
+                if (!Settings.options.EnableCarbonMonoxide)
+                {
+                    Cure();
+                    return;
+                }
 
                 if (!Risk)
                     return;

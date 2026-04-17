@@ -13,8 +13,8 @@ namespace MajorMiseries.Afflictions
             private const string CAUSE_KEY = "GAMEPLAY_BlackLungCause";
             private const string DESC_KEY = "GAMEPLAY_BlackLungDescription";
 
-            private const string ICON = "Major_Miseries.Resources.Icons.Afflictions.Classic.BlackLung.png";
-            private const string ALT_ICON = "Major_Miseries.Resources.Icons.Afflictions.Alt.BlackLung_ALT.png";
+            private const string ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.BlackLung.png";
+            private const string ALT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Alt.BlackLung_ALT.png";
 
             public static bool IsActive { get; private set; } = false;
 

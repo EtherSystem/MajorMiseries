@@ -15,8 +15,8 @@ namespace MajorMiseries.Afflictions
             private const string CAUSE_KEY = "GAMEPLAY_SepsisCause";
             private const string DESC_KEY = "GAMEPLAY_SepsisRiskDescription";
 
-            private const string ICON = "Major_Miseries.Resources.Icons.Afflictions.Classic.SepsisRisk.png";
-            private const string ALT_ICON = "Major_Miseries.Resources.Icons.Afflictions.Alt.SepsisRisk_ALT.png";
+            private const string ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.SepsisRisk.png";
+            private const string ALT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Alt.SepsisRisk_ALT.png";
 
             private const float RISK_PER_HOUR = 25f;
 
@@ -64,6 +64,12 @@ namespace MajorMiseries.Afflictions
                 Panel_FirstAid firstAid = InterfaceManager.GetPanel<Panel_FirstAid>();
                 if (firstAid != null && firstAid.isActiveAndEnabled)
                     return;
+
+                if (!Settings.options.EnableSepsis)
+                {
+                    Cure();
+                    return;
+                }
 
                 if (!Risk)
                     return;

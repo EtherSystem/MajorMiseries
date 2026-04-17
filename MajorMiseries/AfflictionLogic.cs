@@ -29,6 +29,11 @@ namespace MajorMiseries
         private const float REFRESH_INTERVAL_SECONDS = 0.25f;
         private static float _lastRefreshUnscaledTime = -999f;
 
+        private const float DEFAULT_OMEN_THRESHOLD_DAYS = 1f;
+        private const float DEFAULT_DIRGE_THRESHOLD_DAYS = 2f;
+        private const float DEFAULT_KNELL_THRESHOLD_DAYS = 3f;
+        private const float DEFAULT_REQUIEM_THRESHOLD_DAYS = 4f;
+
         internal static void ResetRuntime()
         {
             _lastProcessedHour = -1;
@@ -212,10 +217,11 @@ namespace MajorMiseries
         {
             float daysAlive = totalHours / 24f;
 
-            float omenThreshold = Settings.options.OmenThreshold;
-            float dirgeThreshold = Settings.options.DirgeThreshold;
-            float knellThreshold = Settings.options.KnellThreshold;
-            float requiemThreshold = Settings.options.RequiemThreshold;
+            GetConfiguredStageThresholds(
+                out float omenThreshold,
+                out float dirgeThreshold,
+                out float knellThreshold,
+                out float requiemThreshold);
 
             if (daysAlive >= requiemThreshold) return RequiemStage.Requiem;
             if (daysAlive >= knellThreshold) return RequiemStage.Knell;
@@ -223,6 +229,27 @@ namespace MajorMiseries
             if (daysAlive >= omenThreshold) return RequiemStage.Omen;
 
             return RequiemStage.None;
+        }
+
+        private static void GetConfiguredStageThresholds(
+            out float omenThreshold,
+            out float dirgeThreshold,
+            out float knellThreshold,
+            out float requiemThreshold)
+        {
+            if (!Settings.options.CustomizeStageThresholds)
+            {
+                omenThreshold = DEFAULT_OMEN_THRESHOLD_DAYS;
+                dirgeThreshold = DEFAULT_DIRGE_THRESHOLD_DAYS;
+                knellThreshold = DEFAULT_KNELL_THRESHOLD_DAYS;
+                requiemThreshold = DEFAULT_REQUIEM_THRESHOLD_DAYS;
+                return;
+            }
+
+            omenThreshold = Settings.options.OmenThreshold;
+            dirgeThreshold = Mathf.Max(omenThreshold, Settings.options.DirgeThreshold);
+            knellThreshold = Mathf.Max(dirgeThreshold, Settings.options.KnellThreshold);
+            requiemThreshold = Mathf.Max(knellThreshold, Settings.options.RequiemThreshold);
         }
 
         private static RequiemStage GetAppliedStage()
@@ -494,7 +521,18 @@ namespace MajorMiseries
             if (mgr == null)
                 return;
 
-            Core.Log("SevereLacerations healed -> applying ScarredFlesh");
+            Core.State ??= new MMState();
+            Core.State.ScarredFleshHistoryCount++;
+            Core.Instance?.MarkDirty();
+
+            if (!Settings.options.EnableScarredFlesh)
+            {
+                Core.Log($"SevereLacerations healed -> ScarredFlesh history increased to {Core.State.ScarredFleshHistoryCount}, but the system is disabled.");
+                ForceRefreshEffects();
+                return;
+            }
+
+            Core.Log($"SevereLacerations healed -> applying ScarredFlesh ({Core.State.ScarredFleshHistoryCount} total recorded).");
 
             new ScarredFleshAffliction(AfflictionBodyArea.Chest).Start();
             ForceRefreshEffects();
@@ -526,8 +564,105 @@ namespace MajorMiseries
 
         internal static int GetScarredFleshCount()
         {
-            RefreshEffectsIfNeeded();
-            return _cache.ScarredFleshCount;
+            Core.State ??= new MMState();
+            return Settings.options.EnableScarredFlesh ? Mathf.Max(0, Core.State.ScarredFleshHistoryCount) : 0;
+        }
+
+        internal static void SyncSettingsControlledAfflictions()
+        {
+            if (!IsReady())
+                return;
+
+            SyncScarredFleshFromHistory();
+            SyncSepsisSystem();
+            SyncCarbonMonoxideSystem();
+            SyncBlackLungSystem();
+            ForceRefreshEffects();
+        }
+
+        private static void SyncScarredFleshFromHistory()
+        {
+            Core.State ??= new MMState();
+
+            if (!Settings.options.EnableScarredFlesh)
+            {
+                CureAllAfflictionsOfType<ScarredFleshAffliction>();
+                return;
+            }
+
+            RefreshEffectsIfNeeded(force: true);
+
+            int targetCount = Mathf.Max(0, Core.State.ScarredFleshHistoryCount);
+            int activeCount = _cache.ScarredFleshCount;
+
+            if (activeCount > targetCount)
+            {
+                Core.State.ScarredFleshHistoryCount = activeCount;
+                Core.Instance?.MarkDirty();
+                targetCount = activeCount;
+                Core.Log($"ScarredFlesh sync -> migrated existing active count ({activeCount}) into persistent history.");
+            }
+
+            if (activeCount >= targetCount)
+                return;
+
+            int missingCount = targetCount - activeCount;
+            Core.Log($"ScarredFlesh sync -> restoring {missingCount} missing instance(s) from history.");
+
+            for (int i = 0; i < missingCount; i++)
+            {
+                new ScarredFleshAffliction(AfflictionBodyArea.Chest).Start();
+            }
+        }
+
+        private static void SyncSepsisSystem()
+        {
+            if (Settings.options.EnableSepsis)
+                return;
+
+            CureAllAfflictionsOfType<MajorMiseries.Afflictions.SepsisRisk.SepsisRiskAffliction>();
+            CureAllAfflictionsOfType<MajorMiseries.Afflictions.Sepsis.SepsisAffliction>();
+        }
+
+        private static void SyncCarbonMonoxideSystem()
+        {
+            if (Settings.options.EnableCarbonMonoxide)
+                return;
+
+            _coSceneStates.Clear();
+            CureAllAfflictionsOfType<COExposureAffliction>();
+            CureAllAfflictionsOfType<COPoisoningAffliction>();
+        }
+
+        private static void SyncBlackLungSystem()
+        {
+            if (Settings.options.EnableBlackLung)
+                return;
+
+            Core.State ??= new MMState();
+            if (!Mathf.Approximately(Core.State.BlackLungExposure, 0f))
+            {
+                Core.State.BlackLungExposure = 0f;
+                Core.Instance?.MarkDirty();
+            }
+
+            CureAllAfflictionsOfType<BlackLungRiskAffliction>();
+            CureAllAfflictionsOfType<BlackLungAffliction>();
+        }
+
+        private static void CureAllAfflictionsOfType<TAffliction>() where TAffliction : class
+        {
+            AfflictionManager mgr = AfflictionManager.GetAfflictionManagerInstance();
+            if (mgr?.m_Afflictions == null)
+                return;
+
+            for (int i = mgr.m_Afflictions.Count - 1; i >= 0; i--)
+            {
+                if (mgr.m_Afflictions[i] is TAffliction afflictionObject && afflictionObject is CustomAffliction affliction)
+                {
+                    affliction.Cure();
+                }
+            }
         }
 
         // ======================================================================================
@@ -1148,6 +1283,9 @@ namespace MajorMiseries
 
         internal static void UpdateBlackLungExposure(float gameHoursPassed)
         {
+            if (!Settings.options.EnableBlackLung)
+                return;
+
             if (gameHoursPassed <= 0f)
                 return;
 
@@ -1228,6 +1366,13 @@ namespace MajorMiseries
 
         internal static void UpdateBlackLungSleepTracking(float gameHoursPassed)
         {
+            if (!Settings.options.EnableBlackLung)
+            {
+                _blackLungSleepTrackingActive = false;
+                _blackLungTrackedSleepHours = 0f;
+                return;
+            }
+
             if (gameHoursPassed <= 0f)
                 return;
 
@@ -1284,6 +1429,9 @@ namespace MajorMiseries
 
         internal static void UpdateCOExposure(float gameHoursPassed)
         {
+            if (!Settings.options.EnableCarbonMonoxide)
+                return;
+
             if (gameHoursPassed <= 0f)
                 return;
 

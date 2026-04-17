@@ -13,8 +13,8 @@ namespace MajorMiseries.Afflictions
             private const string DEFAULT_CAUSE_KEY = "GAMEPLAY_BrokenLegCause";
             private const string DESC_KEY = "GAMEPLAY_BrokenLegDescription";
 
-            private const string ICON = "Major_Miseries.Resources.Icons.Afflictions.Classic.BrokenLeg.png";
-            private const string ALT_ICON = "Major_Miseries.Resources.Icons.Afflictions.Alt.BrokenLeg_ALT.png";
+            private const string ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.BrokenLeg.png";
+            private const string ALT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Alt.BrokenLeg_ALT.png";
 
             private string _causeKey;
 

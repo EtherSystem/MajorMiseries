@@ -13,8 +13,8 @@ namespace MajorMiseries.Afflictions
             private const string CAUSE_KEY = "GAMEPLAY_COPoisoningCause";
             private const string DESC_KEY = "GAMEPLAY_COPoisoningDescription";
 
-            private const string ICON = "Major_Miseries.Resources.Icons.Afflictions.Classic.COPoisoning.png";
-            private const string ALT_ICON = "Major_Miseries.Resources.Icons.Afflictions.Alt.COPoisoning_ALT.png";
+            private const string ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.COPoisoning.png";
+            private const string ALT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Alt.COPoisoning_ALT.png";
 
             public const float PASSIVE_FATIGUE_PER_HOUR = 6f;
             public const float CONDITION_LOSS_PER_HOUR = 5f;
