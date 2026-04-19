@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using UnityEngine.SceneManagement;
 using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
 using AfflictionComponent.Components;
 using MajorMiseries.Patches;

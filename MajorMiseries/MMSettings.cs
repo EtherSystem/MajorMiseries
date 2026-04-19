@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace MajorMiseries
+﻿namespace MajorMiseries
 {
     internal class MMSettings : JsonModSettings
     {
@@ -69,6 +67,10 @@ namespace MajorMiseries
 
         [Section("Coal Illnesses")]
 
+        [Name("Enable Black Lung")]
+        [Description("Enable or disable the Black Lung affliction system.")]
+        public bool EnableBlackLung = true;
+
         [Name("Black Lung Duration")]
         [Description("Choose whether Black Lung uses realistic or shortened recovery durations.")]
         [Choice("Realistic", "Unrealistic")]
@@ -77,10 +79,6 @@ namespace MajorMiseries
         [Name("Enable Carbon Monoxide")]
         [Description("Enable or disable the carbon monoxide affliction system.")]
         public bool EnableCarbonMonoxide = true;
-
-        [Name("Enable Black Lung")]
-        [Description("Enable or disable the Black Lung affliction system.")]
-        public bool EnableBlackLung = true;
 
 
         [Section("Affliction Systems")]
@@ -110,22 +108,22 @@ namespace MajorMiseries
 
         [Name("Human corpse radius")]
         [Description("Maximum distance at which a human corpse counts for corpse sickness exposure.")]
-        [Slider(1f, 30f, 29, NumberFormat = "{0:0}m")]
+        [Slider(1f, 30f, 30, NumberFormat = "{0:0}m")]
         public int HumanCorpseExposureRadiusMeters = 15;
 
         [Name("Animal carcass radius")]
         [Description("Maximum distance at which an animal carcass counts for corpse sickness exposure.")]
-        [Slider(1f, 30f, 29, NumberFormat = "{0:0}m")]
+        [Slider(1f, 30f, 30, NumberFormat = "{0:0}m")]
         public int AnimalCarcassExposureRadiusMeters = 10;
 
         [Name("Human corpse time to risk")]
         [Description("How many in-game hours it takes, at full human corpse exposure, to reach 100 hidden corpse exposure.")]
-        [Slider(1f, 24f, 23, NumberFormat = "{0:0}h")]
+        [Slider(1f, 24f, 24, NumberFormat = "{0:0}h")]
         public int HumanCorpseHoursToRisk = 1;
 
         [Name("Animal carcass time to risk")]
         [Description("How many in-game hours it takes, at full animal carcass exposure, to reach 100 hidden corpse exposure.")]
-        [Slider(1f, 24f, 23, NumberFormat = "{0:0}h")]
+        [Slider(1f, 24f, 24, NumberFormat = "{0:0}h")]
         public int AnimalCarcassHoursToRisk = 5;
 
 
@@ -184,6 +182,16 @@ namespace MajorMiseries
                 Settings.UpdateStageThresholdVisibility();
             }
 
+            if (field.Name == nameof(EnableBlackLung))
+            {
+                Settings.UpdateBlackLungVisibility();
+            }
+
+            if (field.Name == nameof(EnableCorpseSickness))
+            {
+                Settings.UpdateCorpseSicknessVisibility();
+            }
+
             if (field.Name == nameof(RevealShinyAfflictionIconChance1) ||
                 field.Name == nameof(RevealShinyAfflictionIconChance2) ||
                 field.Name == nameof(RevealShinyAfflictionIconChance3))
@@ -217,6 +225,8 @@ namespace MajorMiseries
             options.AddToModSettings("Major Miseries");
 
             UpdateStageThresholdVisibility();
+            UpdateBlackLungVisibility();
+            UpdateCorpseSicknessVisibility();
             UpdateShinyAfflictionIconChanceVisibility();
         }
 
@@ -228,6 +238,25 @@ namespace MajorMiseries
             options.SetFieldVisible(nameof(options.DirgeThreshold), showThresholds);
             options.SetFieldVisible(nameof(options.KnellThreshold), showThresholds);
             options.SetFieldVisible(nameof(options.RequiemThreshold), showThresholds);
+        }
+
+        internal static void UpdateBlackLungVisibility()
+        {
+            bool showBlackLungDuration = options.EnableBlackLung;
+
+            options.SetFieldVisible(nameof(options.BlackLungDurationMode), showBlackLungDuration);
+        }
+
+        internal static void UpdateCorpseSicknessVisibility()
+        {
+            bool showCorpseSicknessSettings = options.EnableCorpseSickness;
+
+            options.SetFieldVisible(nameof(options.EnableHumanCorpseExposure), showCorpseSicknessSettings);
+            options.SetFieldVisible(nameof(options.EnableAnimalCarcassExposure), showCorpseSicknessSettings);
+            options.SetFieldVisible(nameof(options.HumanCorpseExposureRadiusMeters), showCorpseSicknessSettings);
+            options.SetFieldVisible(nameof(options.AnimalCarcassExposureRadiusMeters), showCorpseSicknessSettings);
+            options.SetFieldVisible(nameof(options.HumanCorpseHoursToRisk), showCorpseSicknessSettings);
+            options.SetFieldVisible(nameof(options.AnimalCarcassHoursToRisk), showCorpseSicknessSettings);
         }
 
         internal static void UpdateShinyAfflictionIconChanceVisibility()

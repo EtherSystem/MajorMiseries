@@ -1,18 +1,20 @@
 ﻿using AfflictionComponent.Components;
 using MajorMiseries.Patches;
+using static MajorMiseries.Afflictions.BlackLung;
+using static MajorMiseries.Afflictions.BlackLungRisk;
 using static MajorMiseries.Afflictions.BrokenArm;
 using static MajorMiseries.Afflictions.BrokenLeg;
+using static MajorMiseries.Afflictions.COExposure;
+using static MajorMiseries.Afflictions.COPoisoning;
 using static MajorMiseries.Afflictions.Dirge;
 using static MajorMiseries.Afflictions.Knell;
 using static MajorMiseries.Afflictions.Omen;
 using static MajorMiseries.Afflictions.Requiem;
 using static MajorMiseries.Afflictions.ScarredFlesh;
-using static MajorMiseries.Afflictions.SepsisRisk;
 using static MajorMiseries.Afflictions.Sepsis;
-using static MajorMiseries.Afflictions.BlackLungRisk;
-using static MajorMiseries.Afflictions.BlackLung;
-using static MajorMiseries.Afflictions.COExposure;
-using static MajorMiseries.Afflictions.COPoisoning;
+using static MajorMiseries.Afflictions.SepsisRisk;
+using static MajorMiseries.Afflictions.CorpseSicknessRisk;
+using static MajorMiseries.Afflictions.CorpseSickness;
 using Random = UnityEngine.Random;
 
 namespace MajorMiseries
@@ -114,7 +116,9 @@ namespace MajorMiseries
                         || a is BlackLungRiskAffliction
                         || a is BlackLungAffliction
                         || a is COExposureAffliction
-                        || a is COPoisoningAffliction)
+                        || a is COPoisoningAffliction
+                        || a is CorpseSicknessRiskAffliction
+                        || a is CorpseSicknessAffliction)
                     {
                         a.Cure();
                     }
@@ -144,6 +148,41 @@ namespace MajorMiseries
             uConsole.RegisterCommand("mm_testpopup", new Action(() =>
             {
                 Patches.DisplayStagePopup.ShowStagePopup(1, "GAMEPLAY_OmenName");
+            }));
+
+            uConsole.RegisterCommand("reset_SFhistory", new Action(() =>
+            {
+                Core.State.ScarredFleshHistoryCount = 0;
+                Core.Instance?.MarkDirty();
+
+                uConsole.Log("ScarredFleshHistoryCount reset to 0");
+
+                if (Settings.options.IsLogging)
+                    Core.Log("ScarredFleshHistoryCount reset to 0", false);
+            }));
+
+            uConsole.RegisterCommand("set_SFhistory", new Action(() =>
+            {
+                var @params = uConsole.GetAllParameters();
+                if (@params == null || @params.Count < 1)
+                {
+                    uConsole.Log("[value]");
+                    return;
+                }
+
+                if (!int.TryParse(@params[0], out int v))
+                {
+                    uConsole.Log("value must be a number");
+                    return;
+                }
+
+                Core.State.ScarredFleshHistoryCount = Mathf.Max(0, v);
+                Core.Instance?.MarkDirty();
+
+                uConsole.Log($"ScarredFleshHistoryCount set to {Core.State.ScarredFleshHistoryCount}");
+
+                if (Settings.options.IsLogging)
+                    Core.Log($"ScarredFleshHistoryCount set to {Core.State.ScarredFleshHistoryCount}", false);
             }));
 
             uConsole.RegisterCommand("reset_PH", new Action(() =>
