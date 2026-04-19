@@ -26,6 +26,7 @@ namespace MajorMiseries.Persistence
                     $"Saved -> PredatorHostility:{Core.State.PredatorHostility:0.###} | " +
                     $"HrsSinceLastPredatorKill:{Core.State.HoursSinceLastPredatorKill:0.###} | " +
                     $"BlackLungExposure:{Core.State.BlackLungExposure:0.###} | " +
+                    $"CorpseExposure:{Core.State.CorpseExposure:0.###} | " +
                     $"ScarredFleshHistory:{Core.State.ScarredFleshHistoryCount}"
                 );
             }
@@ -64,6 +65,7 @@ namespace MajorMiseries.Persistence
                     $"Loaded -> PredatorHostility:{Core.State.PredatorHostility:0.###} | " +
                     $"HrsSinceLastPredatorKill:{Core.State.HoursSinceLastPredatorKill:0.###} | " +
                     $"BlackLungExposure:{Core.State.BlackLungExposure:0.###} | " +
+                    $"CorpseExposure:{Core.State.CorpseExposure:0.###} | " +
                     $"ScarredFleshHistory:{Core.State.ScarredFleshHistoryCount}"
                 );
             }
@@ -85,6 +87,7 @@ namespace MajorMiseries.Persistence
             Core.State.HoursSinceLastPredatorKill = Mathf.Max(0f, Core.State.HoursSinceLastPredatorKill);
             Core.State.BlackLungExposure = Mathf.Clamp(Core.State.BlackLungExposure, 0f, AfflictionLogic.GetBlackLungExposureMax());
             Core.State.ScarredFleshHistoryCount = Mathf.Max(0, Core.State.ScarredFleshHistoryCount);
+            Core.State.CorpseExposure = Mathf.Clamp(Core.State.CorpseExposure, 0f, AfflictionLogic.GetCorpseExposureMax());
         }
     }
 

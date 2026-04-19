@@ -568,6 +568,7 @@ namespace MajorMiseries.Patches
         {
             private static void Prefix(BaseAi __instance)
             {
+                AfflictionLogic.QueueAnimalCarcassReseed("BaseAi.EnterDead");
                 TryRegisterPredatorKill(__instance, "BaseAi.EnterDead");
             }
         }
@@ -577,6 +578,7 @@ namespace MajorMiseries.Patches
         {
             private static void Prefix(AiCougar __instance)
             {
+                AfflictionLogic.QueueAnimalCarcassReseed("AiCougar.EnterDead");
                 TryRegisterPredatorKill(__instance, "AiCougar.EnterDead");
             }
         }

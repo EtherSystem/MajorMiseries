@@ -370,6 +370,47 @@
         "Russian": "Вы слишком долго находились в отравленном воздухе. Угарный газ уже подействовал, и опасность теперь перешла из помещения в ваше тело."
     },
 
+    "GAMEPLAY_CorpseSicknessRiskName": {
+        "English": "Corpse Sickness Risk",
+        "French (France)": "Risque de maladie cadavérique",
+        "Spanish (Spain)": "Riesgo de enfermedad cadavérica",
+        "German": "Risiko einer Leichenkrankheit",
+        "Turkish": "Ceset Hastalığı Riski",
+        "Russian": "Риск трупной болезни"
+    },
+    "GAMEPLAY_CorpseSicknessCause": {
+        "English": "Rot and contamination",
+        "French (France)": "Putréfaction et contamination",
+        "Spanish (Spain)": "Putrefacción y contaminación",
+        "German": "Verwesung und Kontamination",
+        "Turkish": "Çürüme ve bulaşma",
+        "Russian": "Гниение и заражение"
+    },
+    "GAMEPLAY_CorpseSicknessRiskDescription": {
+        "English": "You have spent too long near the dead. If you keep exposing yourself, this sickness will take hold.",
+        "French (France)": "Vous avez passé trop de temps près des morts. Si vous continuez à vous y exposer, cette maladie finira par vous atteindre.",
+        "Spanish (Spain)": "Has pasado demasiado tiempo cerca de los muertos. Si sigues exponiéndote, esta enfermedad terminará por afectarte.",
+        "German": "Du hast zu lange in der Nähe der Toten verbracht. Wenn du dich weiter aussetzt, wird diese Krankheit dich befallen.",
+        "Turkish": "Ölülerin yanında fazla uzun kaldın. Bu maruziyet sürerse hastalık sana da işleyecek.",
+        "Russian": "Вы слишком долго находились рядом с мёртвыми. Если это продолжится, болезнь доберётся и до вас."
+    },
+    "GAMEPLAY_CorpseSicknessName": {
+        "English": "Corpse Sickness",
+        "French (France)": "Maladie cadavérique",
+        "Spanish (Spain)": "Enfermedad cadavérica",
+        "German": "Leichenkrankheit",
+        "Turkish": "Ceset Hastalığı",
+        "Russian": "Трупная болезнь"
+    },
+    "GAMEPLAY_CorpseSicknessDescription": {
+        "English": "The stench of death has made you ill. You feel weak, feverish, and your condition slowly worsens until the sickness passes.",
+        "French (France)": "L'odeur de la mort vous a rendu malade. Vous vous sentez faible, fiévreux, et votre état se dégrade lentement jusqu'à ce que la maladie passe.",
+        "Spanish (Spain)": "El hedor de la muerte te ha enfermado. Te sientes débil, febril, y tu estado empeora lentamente hasta que la enfermedad remita.",
+        "German": "Der Gestank des Todes hat dich krank gemacht. Du fühlst dich schwach und fiebrig, und dein Zustand verschlechtert sich langsam, bis die Krankheit vorübergeht.",
+        "Turkish": "Ölüm kokusu seni hasta etti. Kendini zayıf ve ateşli hissediyorsun; hastalık geçene kadar durumun yavaşça kötüleşecek.",
+        "Russian": "Смрад смерти сделал вас больным. Вы чувствуете слабость и жар, а ваше состояние медленно ухудшается, пока болезнь не отступит."
+    },
+
     "GAMEPLAY_BlackLungSleepWakeup": {
         "English": "A violent coughing fit wakes you up.",
         "French (France)": "Une violente quinte de toux vous réveille.",

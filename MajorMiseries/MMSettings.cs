@@ -94,6 +94,41 @@ namespace MajorMiseries
         public bool EnableSepsis = true;
 
 
+        [Section("Corpse Sickness")]
+
+        [Name("Enable Corpse Sickness")]
+        [Description("Enable or disable the corpse sickness affliction system.")]
+        public bool EnableCorpseSickness = true;
+
+        [Name("Human corpses can infect you")]
+        [Description("If enabled, staying too close to human corpses for too long can make you sick.")]
+        public bool EnableHumanCorpseExposure = true;
+
+        [Name("Animal carcasses can infect you")]
+        [Description("If enabled, staying too close to animal carcasses for too long can make you sick.")]
+        public bool EnableAnimalCarcassExposure = true;
+
+        [Name("Human corpse radius")]
+        [Description("Maximum distance at which a human corpse counts for corpse sickness exposure.")]
+        [Slider(1f, 30f, 29, NumberFormat = "{0:0}m")]
+        public int HumanCorpseExposureRadiusMeters = 15;
+
+        [Name("Animal carcass radius")]
+        [Description("Maximum distance at which an animal carcass counts for corpse sickness exposure.")]
+        [Slider(1f, 30f, 29, NumberFormat = "{0:0}m")]
+        public int AnimalCarcassExposureRadiusMeters = 10;
+
+        [Name("Human corpse time to risk")]
+        [Description("How many in-game hours it takes, at full human corpse exposure, to reach 100 hidden corpse exposure.")]
+        [Slider(1f, 24f, 23, NumberFormat = "{0:0}h")]
+        public int HumanCorpseHoursToRisk = 1;
+
+        [Name("Animal carcass time to risk")]
+        [Description("How many in-game hours it takes, at full animal carcass exposure, to reach 100 hidden corpse exposure.")]
+        [Slider(1f, 24f, 23, NumberFormat = "{0:0}h")]
+        public int AnimalCarcassHoursToRisk = 5;
+
+
         [Section("Advanced")]
 
         [Name("Hunger lock arc rotation")]
@@ -157,6 +192,18 @@ namespace MajorMiseries
             }
 
             base.OnChange(field, oldValue, newValue);
+
+            bool requiresRuntimeSync =
+                field.Name == nameof(EnableScarredFlesh) ||
+                field.Name == nameof(EnableSepsis) ||
+                field.Name == nameof(EnableCarbonMonoxide) ||
+                field.Name == nameof(EnableBlackLung) ||
+                field.Name == nameof(EnableCorpseSickness);
+
+            if (requiresRuntimeSync)
+            {
+                AfflictionLogic.SyncSettingsControlledAfflictions();
+            }
         }
     }
 

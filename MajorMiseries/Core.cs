@@ -81,16 +81,19 @@ namespace MajorMiseries
             float oldHostility = State.PredatorHostility;
             float oldSinceKill = State.HoursSinceLastPredatorKill;
             float oldBlackLungExposure = State.BlackLungExposure;
+            float oldCorpseExposure = State.CorpseExposure;
             int oldScarredFleshHistory = State.ScarredFleshHistoryCount;
 
             State.PredatorHostility = Mathf.Max(0f, State.PredatorHostility);
             State.HoursSinceLastPredatorKill = Mathf.Max(0f, State.HoursSinceLastPredatorKill);
             State.BlackLungExposure = Mathf.Clamp(State.BlackLungExposure, 0f, AfflictionLogic.GetBlackLungExposureMax());
+            State.CorpseExposure = Mathf.Clamp(State.CorpseExposure, 0f, AfflictionLogic.GetCorpseExposureMax());
             State.ScarredFleshHistoryCount = Mathf.Max(0, State.ScarredFleshHistoryCount);
 
             if (!Mathf.Approximately(oldHostility, State.PredatorHostility)) changed = true;
             if (!Mathf.Approximately(oldSinceKill, State.HoursSinceLastPredatorKill)) changed = true;
             if (!Mathf.Approximately(oldBlackLungExposure, State.BlackLungExposure)) changed = true;
+            if (!Mathf.Approximately(oldCorpseExposure, State.CorpseExposure)) changed = true;
             if (oldScarredFleshHistory != State.ScarredFleshHistoryCount) changed = true;
 
             if (changed) _dirty = true;
@@ -116,8 +119,13 @@ namespace MajorMiseries
                 if (!AfflictionLogic.IsReady()) return;
 
                 AfflictionLogic.ApplyCurrentStageFromGame();
+                AfflictionLogic.SyncSettingsControlledAfflictions();
+
+                AfflictionLogic.RebuildHumanCorpseSceneCache();
+                AfflictionLogic.SeedAnimalCarcassCacheFromScene();
+
                 _pendingStageSync = false;
-                Log("stage sync executed");
+                Log("stage/settings sync executed");
             }
 
             AfflictionLogic.Tick();
@@ -140,6 +148,7 @@ namespace MajorMiseries
             AfflictionLogic.UpdatePredatorHostilityDecay(gameHoursPassed);
             AfflictionLogic.UpdateBlackLungExposure(gameHoursPassed);
             AfflictionLogic.UpdateCOExposure(gameHoursPassed);
+            AfflictionLogic.UpdateCorpseExposure(gameHoursPassed);
         }
     }
 }

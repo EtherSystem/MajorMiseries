@@ -4,6 +4,7 @@ using static MajorMiseries.Afflictions.BlackLung;
 using static MajorMiseries.Afflictions.COPoisoning;
 using static MajorMiseries.Afflictions.Sepsis;
 using static MajorMiseries.Afflictions.SepsisRisk;
+using static MajorMiseries.Afflictions.CorpseSickness;
 
 namespace MajorMiseries.Patches
 {
@@ -730,7 +731,10 @@ namespace MajorMiseries.Patches
         {
             private static bool Prefix()
             {
-                return !SepsisAffliction.IsActive && !COPoisoningAffliction.IsActive && !AfflictionLogic.ShouldDisableNaturalConditionRecovery();
+                return !SepsisAffliction.IsActive
+                    && !COPoisoningAffliction.IsActive
+                    && !CorpseSicknessAffliction.IsActive
+                    && !AfflictionLogic.ShouldDisableNaturalConditionRecovery();
             }
         }
     }
