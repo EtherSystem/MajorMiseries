@@ -322,12 +322,12 @@
         "Russian": "Ваши лёгкие серьёзно пострадали от угольной пыли. Состояние уже более тяжёлое, но не является постоянным и со временем может пройти, если воздействие прекратится."
     },
     "GAMEPLAY_COExposureName": {
-        "English": "CO Exposure",
-        "French (France)": "Exposition au CO",
-        "Spanish (Spain)": "Exposición al CO",
-        "German": "CO-Belastung",
-        "Turkish": "CO Maruziyeti",
-        "Russian": "Воздействие CO"
+        "English": "Carbon Monoxide Exposure",
+        "French (France)": "Exposition au monoxyde de carbone",
+        "Spanish (Spain)": "Exposición al monóxido de carbono",
+        "German": "Kohlenmonoxidbelastung",
+        "Turkish": "Karbon Monoksit Maruziyeti",
+        "Russian": "Воздействие угарного газа"
     },
     "GAMEPLAY_COExposureCause": {
         "English": "Carbon Monoxide",
@@ -338,20 +338,20 @@
         "Russian": "Угарный газ"
     },
     "GAMEPLAY_COExposureDescription": {
-        "English": "The air in this indoor space has become dangerous. Fumes from an old fire are building up, and staying here too long will lead to carbon monoxide poisoning.",
-        "French (France)": "L'air de cet intérieur est devenu dangereux. Les émanations d'un feu ancien s'y accumulent, et rester ici trop longtemps mènera à une intoxication au monoxyde de carbone.",
-        "Spanish (Spain)": "El aire de este interior se ha vuelto peligroso. Los gases de un fuego antiguo se están acumulando y permanecer aquí demasiado tiempo provocará una intoxicación por monóxido de carbono.",
-        "German": "Die Luft in diesem Innenraum ist gefährlich geworden. Die Dämpfe eines alten Feuers sammeln sich an, und wenn du zu lange hier bleibst, führt das zu einer Kohlenmonoxidvergiftung.",
-        "Turkish": "Bu iç mekândaki hava tehlikeli hâle geldi. Eski bir ateşin dumanı içeride birikiyor ve burada fazla uzun kalmak karbon monoksit zehirlenmesine yol açacak.",
-        "Russian": "Воздух в этом помещении стал опасным. Испарения от старого огня накапливаются, и если оставаться здесь слишком долго, это приведёт к отравлению угарным газом."
+        "English": "The air in this enclosed space has become dangerous. Toxic fumes are building up, and staying here too long may lead to carbon monoxide poisoning.",
+        "French (France)": "L'air de cet intérieur est devenu dangereux. Des fumées toxiques s'y accumulent, et y rester trop longtemps peut provoquer une intoxication au monoxyde de carbone.",
+        "Spanish (Spain)": "El aire de este espacio interior se ha vuelto peligroso. Se están acumulando gases tóxicos, y permanecer aquí demasiado tiempo puede provocar una intoxicación por monóxido de carbono.",
+        "German": "Die Luft in diesem Innenraum ist gefährlich geworden. Giftige Dämpfe sammeln sich an, und wenn du zu lange hier bleibst, kann das zu einer Kohlenmonoxidvergiftung führen.",
+        "Turkish": "Bu kapalı alandaki hava tehlikeli hâle geldi. Zehirli dumanlar içeride birikiyor ve burada fazla uzun kalmak karbon monoksit zehirlenmesine yol açabilir.",
+        "Russian": "Воздух в этом помещении стал опасным. Здесь скапливаются ядовитые испарения, и если оставаться тут слишком долго, можно получить отравление угарным газом."
     },
     "GAMEPLAY_COPoisoningName": {
-        "English": "CO Poisoning",
-        "French (France)": "Intoxication au CO",
-        "Spanish (Spain)": "Intoxicación por CO",
-        "German": "CO-Vergiftung",
-        "Turkish": "CO Zehirlenmesi",
-        "Russian": "Отравление CO"
+        "English": "Carbon Monoxide Poisoning",
+        "French (France)": "Intoxication au monoxyde de carbone",
+        "Spanish (Spain)": "Intoxicación por monóxido de carbono",
+        "German": "Kohlenmonoxidvergiftung",
+        "Turkish": "Karbon Monoksit Zehirlenmesi",
+        "Russian": "Отравление угарным газом"
     },
     "GAMEPLAY_COPoisoningCause": {
         "English": "Carbon Monoxide",
@@ -362,53 +362,53 @@
         "Russian": "Угарный газ"
     },
     "GAMEPLAY_COPoisoningDescription": {
-        "English": "You stayed too long in poisoned air. Carbon monoxide has taken hold, and the danger has already moved from the room into your body.",
-        "French (France)": "Vous êtes resté trop longtemps dans un air vicié. Le monoxyde de carbone a fait son œuvre, et le danger s'est déjà déplacé de la pièce vers votre corps.",
-        "Spanish (Spain)": "Has permanecido demasiado tiempo en un aire envenenado. El monóxido de carbono ya ha hecho efecto y el peligro ha pasado de la habitación a tu cuerpo.",
-        "German": "Du bist zu lange in vergifteter Luft geblieben. Das Kohlenmonoxid hat bereits gewirkt, und die Gefahr ist längst vom Raum in deinen Körper übergegangen.",
-        "Turkish": "Zehirli havada fazla uzun kaldın. Karbon monoksit etkisini gösterdi ve tehlike artık odadan bedenine geçti.",
-        "Russian": "Вы слишком долго находились в отравленном воздухе. Угарный газ уже подействовал, и опасность теперь перешла из помещения в ваше тело."
+        "English": "You have breathed carbon monoxide for too long. Oxygen deprivation is weakening you, and your condition will continue to worsen until the poisoning subsides.",
+        "French (France)": "Vous avez respiré trop longtemps un air chargé en monoxyde de carbone. Le manque d'oxygène vous affaiblit, et votre état continuera de se dégrader jusqu'à dissipation de l'intoxication.",
+        "Spanish (Spain)": "Has respirado monóxido de carbono durante demasiado tiempo. La falta de oxígeno te debilita y tu estado seguirá empeorando hasta que la intoxicación remita.",
+        "German": "Du hast zu lange Kohlenmonoxid eingeatmet. Der Sauerstoffmangel schwächt dich, und dein Zustand wird sich weiter verschlechtern, bis die Vergiftung nachlässt.",
+        "Turkish": "Çok uzun süre karbon monoksit soludun. Oksijen eksikliği seni zayıflatıyor ve zehirlenme geçene kadar durumun kötüleşmeye devam edecek.",
+        "Russian": "Вы слишком долго вдыхали угарный газ. Нехватка кислорода ослабляет вас, и ваше состояние будет ухудшаться, пока отравление не пройдёт."
     },
 
     "GAMEPLAY_CorpseSicknessRiskName": {
         "English": "Corpse Sickness Risk",
-        "French (France)": "Risque de maladie cadavérique",
-        "Spanish (Spain)": "Riesgo de enfermedad cadavérica",
-        "German": "Risiko einer Leichenkrankheit",
-        "Turkish": "Ceset Hastalığı Riski",
-        "Russian": "Риск трупной болезни"
+        "French (France)": "Risque de nausée cadavérique",
+        "Spanish (Spain)": "Riesgo de náusea cadavérica",
+        "German": "Risiko von Leichenübelkeit",
+        "Turkish": "Ceset Bulantısı Riski",
+        "Russian": "Риск трупной тошноты"
     },
     "GAMEPLAY_CorpseSicknessCause": {
-        "English": "Rot and contamination",
-        "French (France)": "Putréfaction et contamination",
-        "Spanish (Spain)": "Putrefacción y contaminación",
-        "German": "Verwesung und Kontamination",
-        "Turkish": "Çürüme ve bulaşma",
-        "Russian": "Гниение и заражение"
+        "English": "Prolonged proximity to corpses",
+        "French (France)": "Proximité prolongée avec des cadavres",
+        "Spanish (Spain)": "Proximidad prolongada a cadáveres",
+        "German": "Längere Nähe zu Leichen",
+        "Turkish": "Cesetlere uzun süre yakın kalmak",
+        "Russian": "Длительное пребывание рядом с трупами"
     },
     "GAMEPLAY_CorpseSicknessRiskDescription": {
-        "English": "You have spent too long near the dead. If you keep exposing yourself, this sickness will take hold.",
-        "French (France)": "Vous avez passé trop de temps près des morts. Si vous continuez à vous y exposer, cette maladie finira par vous atteindre.",
-        "Spanish (Spain)": "Has pasado demasiado tiempo cerca de los muertos. Si sigues exponiéndote, esta enfermedad terminará por afectarte.",
-        "German": "Du hast zu lange in der Nähe der Toten verbracht. Wenn du dich weiter aussetzt, wird diese Krankheit dich befallen.",
-        "Turkish": "Ölülerin yanında fazla uzun kaldın. Bu maruziyet sürerse hastalık sana da işleyecek.",
-        "Russian": "Вы слишком долго находились рядом с мёртвыми. Если это продолжится, болезнь доберётся и до вас."
+        "English": "You have spent too long near corpses. If this exposure continues, you will eventually fall ill.",
+        "French (France)": "Vous avez passé trop de temps à proximité de cadavres. Si cette exposition continue, vous finirez par tomber malade.",
+        "Spanish (Spain)": "Has pasado demasiado tiempo cerca de cadáveres. Si esta exposición continúa, acabarás enfermando.",
+        "German": "Du hast zu lange in der Nähe von Leichen verbracht. Wenn diese Belastung anhält, wirst du schließlich krank werden.",
+        "Turkish": "Cesetlerin yakınında fazla uzun kaldın. Bu maruziyet sürerse sonunda hastalanacaksın.",
+        "Russian": "Вы слишком долго находились рядом с трупами. Если это продолжится, вы в конце концов заболеете."
     },
     "GAMEPLAY_CorpseSicknessName": {
         "English": "Corpse Sickness",
-        "French (France)": "Maladie cadavérique",
-        "Spanish (Spain)": "Enfermedad cadavérica",
-        "German": "Leichenkrankheit",
-        "Turkish": "Ceset Hastalığı",
-        "Russian": "Трупная болезнь"
+        "French (France)": "Nausée cadavérique",
+        "Spanish (Spain)": "Náusea cadavérica",
+        "German": "Leichenübelkeit",
+        "Turkish": "Ceset Bulantısı",
+        "Russian": "Трупная тошнота"
     },
     "GAMEPLAY_CorpseSicknessDescription": {
-        "English": "The stench of death has made you ill. You feel weak, feverish, and your condition slowly worsens until the sickness passes.",
-        "French (France)": "L'odeur de la mort vous a rendu malade. Vous vous sentez faible, fiévreux, et votre état se dégrade lentement jusqu'à ce que la maladie passe.",
-        "Spanish (Spain)": "El hedor de la muerte te ha enfermado. Te sientes débil, febril, y tu estado empeora lentamente hasta que la enfermedad remita.",
-        "German": "Der Gestank des Todes hat dich krank gemacht. Du fühlst dich schwach und fiebrig, und dein Zustand verschlechtert sich langsam, bis die Krankheit vorübergeht.",
-        "Turkish": "Ölüm kokusu seni hasta etti. Kendini zayıf ve ateşli hissediyorsun; hastalık geçene kadar durumun yavaşça kötüleşecek.",
-        "Russian": "Смрад смерти сделал вас больным. Вы чувствуете слабость и жар, а ваше состояние медленно ухудшается, пока болезнь не отступит."
+        "English": "The smell of death has made you ill. You feel weak, feverish, and your condition will gradually worsen until the sickness passes.",
+        "French (France)": "L'odeur de la mort vous a rendu malade. Vous vous sentez faible, fiévreux, et votre état se dégradera peu à peu jusqu'à ce que le mal passe.",
+        "Spanish (Spain)": "El olor de la muerte te ha enfermado. Te sientes débil, febril, y tu estado empeorará poco a poco hasta que el mal pase.",
+        "German": "Der Geruch des Todes hat dich krank gemacht. Du fühlst dich schwach und fiebrig, und dein Zustand wird sich nach und nach verschlechtern, bis das Übel vorübergeht.",
+        "Turkish": "Ölüm kokusu seni hasta etti. Kendini zayıf ve ateşli hissediyorsun; durumun, bu rahatsızlık geçene kadar yavaş yavaş kötüleşecek.",
+        "Russian": "Запах смерти сделал вас больным. Вы чувствуете слабость и жар, и ваше состояние будет постепенно ухудшаться, пока недуг не отступит."
     },
 
     "GAMEPLAY_BlackLungSleepWakeup": {
