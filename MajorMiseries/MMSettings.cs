@@ -129,30 +129,30 @@
 
         [Section("Advanced")]
 
-        [Name("Hunger lock arc rotation")]
-        [Description("Adjust the hunger red lock arc rotation.")]
-        [Slider(-10f, 10f, 201, NumberFormat = "{0:0.0}°")]
-        public float HungerLockArcRotation = 0f;
+        //[Name("Hunger lock arc rotation")]
+        //[Description("Adjust the hunger red lock arc rotation.")]
+        //[Slider(-10f, 10f, 201, NumberFormat = "{0:0.0}°")]
+        //public float HungerLockArcRotation = 0f;
 
-        [Name("Thirst lock arc rotation")]
-        [Description("Adjust the thirst red lock arc rotation.")]
-        [Slider(-10f, 10f, 201, NumberFormat = "{0:0.0}°")]
-        public float ThirstLockArcRotation = 0f;
+        //[Name("Thirst lock arc rotation")]
+        //[Description("Adjust the thirst red lock arc rotation.")]
+        //[Slider(-10f, 10f, 201, NumberFormat = "{0:0.0}°")]
+        //public float ThirstLockArcRotation = 0f;
 
-        [Name("Fatigue lock arc rotation")]
-        [Description("Adjust the fatigue red lock arc rotation.")]
-        [Slider(-10f, 10f, 201, NumberFormat = "{0:0.0}°")]
-        public float FatigueLockArcRotation = 0f;
+        //[Name("Fatigue lock arc rotation")]
+        //[Description("Adjust the fatigue red lock arc rotation.")]
+        //[Slider(-10f, 10f, 201, NumberFormat = "{0:0.0}°")]
+        //public float FatigueLockArcRotation = 0f;
 
-        [Name("Cold lock arc rotation")]
-        [Description("Adjust the cold red lock arc rotation.")]
-        [Slider(-10f, 10f, 201, NumberFormat = "{0:0.0}°")]
-        public float ColdLockArcRotation = 0f;
+        //[Name("Cold lock arc rotation")]
+        //[Description("Adjust the cold red lock arc rotation.")]
+        //[Slider(-10f, 10f, 201, NumberFormat = "{0:0.0}°")]
+        //public float ColdLockArcRotation = 0f;
 
-        [Name("Sour Stomach extra hunger rotation")]
-        [Description("Additional hunger rotation offset when Sour Stomach is active.")]
-        [Slider(-10f, 10f, 201, NumberFormat = "{0:0.0}°")]
-        public float SourStomachExtraHungerRotation = -3f;
+        //[Name("Sour Stomach extra hunger rotation")]
+        //[Description("Additional hunger rotation offset when Sour Stomach is active.")]
+        //[Slider(-10f, 10f, 201, NumberFormat = "{0:0.0}°")]
+        //public float SourStomachExtraHungerRotation = -3f;
 
         [Name("ML Logging")]
         [Description("Add logs for debugging in the ML console.")]
@@ -200,6 +200,19 @@
             }
 
             base.OnChange(field, oldValue, newValue);
+
+            bool requiresStageReapply =
+                field.Name == nameof(EnableRequiemStages) ||
+                field.Name == nameof(CustomizeStageThresholds) ||
+                field.Name == nameof(OmenThreshold) ||
+                field.Name == nameof(DirgeThreshold) ||
+                field.Name == nameof(KnellThreshold) ||
+                field.Name == nameof(RequiemThreshold);
+
+            if (requiresStageReapply)
+            {
+                AfflictionLogic.ApplyCurrentStageFromGame();
+            }
 
             bool requiresRuntimeSync =
                 field.Name == nameof(EnableScarredFlesh) ||

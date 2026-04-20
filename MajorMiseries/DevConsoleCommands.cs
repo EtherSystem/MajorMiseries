@@ -94,6 +94,16 @@ namespace MajorMiseries
                 new COPoisoningAffliction(AfflictionBodyArea.Chest, Random.Range(6f, 24f)).Start();
             }));
 
+            uConsole.RegisterCommand("corpsesicknessrisk", new Action(() =>
+            {
+                new CorpseSicknessRiskAffliction(AfflictionBodyArea.Head).Start();
+            }));
+
+            uConsole.RegisterCommand("corpsesickness", new Action(() =>
+            {
+                new CorpseSicknessAffliction(AfflictionBodyArea.Head, Random.Range(48f, 96f)).Start();
+            }));
+
             uConsole.RegisterCommand("maj_afflictions_cure", new Action(() =>
             {
                 var mgr = AfflictionManager.GetAfflictionManagerInstance();
@@ -220,6 +230,41 @@ namespace MajorMiseries
 
                 if (Settings.options.IsLogging)
                     Core.Log($"PredatorHostility set to {Core.State.PredatorHostility:0}", false);
+            }));
+
+            uConsole.RegisterCommand("reset_CE", new Action(() =>
+            {
+                Core.State.CorpseExposure = 0f;
+                Core.Instance?.MarkDirty();
+
+                uConsole.Log("CorpseExposure reset to 0");
+
+                if (Settings.options.IsLogging)
+                    Core.Log("CorpseExposure reset to 0", false);
+            }));
+
+            uConsole.RegisterCommand("set_CE", new Action(() =>
+            {
+                var @params = uConsole.GetAllParameters();
+                if (@params == null || @params.Count < 1)
+                {
+                    uConsole.Log("[value]");
+                    return;
+                }
+
+                if (!float.TryParse(@params[0], out float v))
+                {
+                    uConsole.Log("value must be a number");
+                    return;
+                }
+
+                Core.State.CorpseExposure = Mathf.Clamp(v, 0f, AfflictionLogic.GetCorpseExposureMax());
+                Core.Instance?.MarkDirty();
+
+                uConsole.Log($"CorpseExposure set to {Core.State.CorpseExposure:0.##}");
+
+                if (Settings.options.IsLogging)
+                    Core.Log($"CorpseExposure set to {Core.State.CorpseExposure:0.##}", false);
             }));
         }
     }

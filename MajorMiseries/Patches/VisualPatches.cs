@@ -86,21 +86,23 @@ namespace MajorMiseries.Patches
 
         private static float GetDisplayedRotationOffset(StatusBar.StatusBarType type)
         {
-            float rotationOffset = type switch
-            {
-                StatusBar.StatusBarType.Hunger => 270f + Settings.options.HungerLockArcRotation,
-                StatusBar.StatusBarType.Thirst => 270f + Settings.options.ThirstLockArcRotation,
-                StatusBar.StatusBarType.Fatigue => 270f + Settings.options.FatigueLockArcRotation,
-                StatusBar.StatusBarType.Cold => 270f + Settings.options.ColdLockArcRotation,
-                _ => 270f
-            };
+            float rotationOffset = 270f;
+            //float rotationOffset = type switch
+            //{
+            //    StatusBar.StatusBarType.Hunger => 270f + Settings.options.HungerLockArcRotation,
+            //    StatusBar.StatusBarType.Thirst => 270f + Settings.options.ThirstLockArcRotation,
+            //    StatusBar.StatusBarType.Fatigue => 270f + Settings.options.FatigueLockArcRotation,
+            //    StatusBar.StatusBarType.Cold => 270f + Settings.options.ColdLockArcRotation,
+            //    _ => 270f
+            //};
 
             if (type == StatusBar.StatusBarType.Hunger && HasSourStomach())
             {
                 float displayedLock = GetDisplayedLockPercent(type);
                 float extraLock = displayedLock - RequiemStagesEffects.GaugeLockPercent;
                 rotationOffset -= extraLock * 360f;
-                rotationOffset += Settings.options.SourStomachExtraHungerRotation;
+                rotationOffset += -3f;
+                //rotationOffset += Settings.options.SourStomachExtraHungerRotation;
             }
 
             return rotationOffset;
