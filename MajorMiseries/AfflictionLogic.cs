@@ -5,10 +5,10 @@ using MajorMiseries.Patches;
 using MajorMiseries.Persistence;
 using static MajorMiseries.Afflictions.BrokenArm;
 using static MajorMiseries.Afflictions.BrokenLeg;
-using static MajorMiseries.Afflictions.Dirge;
-using static MajorMiseries.Afflictions.Knell;
-using static MajorMiseries.Afflictions.Omen;
-using static MajorMiseries.Afflictions.Requiem;
+using static MajorMiseries.Afflictions.RequiemStagesAfflictions.Dirge;
+using static MajorMiseries.Afflictions.RequiemStagesAfflictions.Knell;
+using static MajorMiseries.Afflictions.RequiemStagesAfflictions.Omen;
+using static MajorMiseries.Afflictions.RequiemStagesAfflictions.Requiem;
 using static MajorMiseries.Afflictions.ScarredFlesh;
 using static MajorMiseries.Afflictions.BlackLungRisk;
 using static MajorMiseries.Afflictions.BlackLung;
@@ -42,8 +42,9 @@ namespace MajorMiseries
             _lastRefreshUnscaledTime = -999f;
             _coSceneStates.Clear();
 
-            s_LastBlackLungExposureLogTime = -999f;
-            s_LastBlackLungExposureLogWasIncrease = null;
+            s_BlackLungExposureSceneActive = false;
+            s_BlackLungExposureSceneName = string.Empty;
+            s_BlackLungExposureSceneStartExposure = 0f;
             s_WasPlayerNearCorpseSource = false;
             s_LastCorpseSourceLabel = string.Empty;
             _blackLungSleepTrackingActive = false;
@@ -91,17 +92,10 @@ namespace MajorMiseries
 
             if (!Settings.options.EnableRequiemStages)
             {
-                RequiemStage appliedStageDisabled = GetAppliedStage();
-
-                if (appliedStageDisabled != RequiemStage.None)
+                if (GetAppliedStage() != RequiemStage.None)
                 {
                     CureAllStageAfflictions();
                     ForceRefreshEffects();
-                    Core.Log($"requiem stages disabled -> cured {appliedStageDisabled}");
-                }
-                else
-                {
-                    Core.Log("requiem stages disabled");
                 }
 
                 return;
@@ -142,6 +136,15 @@ namespace MajorMiseries
             Core.Log($"stage updated: {appliedStage} -> {stage}");
         }
 
+        internal static void LogRequiemStagesDisabledByPlayer()
+        {
+            RequiemStage appliedStage = GetAppliedStage();
+
+            if (appliedStage != RequiemStage.None) Core.Log($"requiem stages disabled by player -> cured {appliedStage}");
+
+            else Core.Log("requiem stages disabled by player");
+        }
+
         internal static void ApplyCurrentStageFromGame()
         {
             if (!IsReady()) return;
@@ -153,20 +156,12 @@ namespace MajorMiseries
 
             if (!Settings.options.EnableRequiemStages)
             {
-                RequiemStage appliedStageDisabled = GetAppliedStage();
-
-                if (appliedStageDisabled != RequiemStage.None)
+                if (GetAppliedStage() != RequiemStage.None)
                 {
                     CureAllStageAfflictions();
-                    ForceRefreshEffects();
-                    Core.Log($"requiem stages disabled -> cured {appliedStageDisabled}");
-                }
-                else
-                {
-                    ForceRefreshEffects();
-                    Core.Log("requiem stages disabled");
                 }
 
+                ForceRefreshEffects();
                 return;
             }
 
@@ -1267,9 +1262,33 @@ namespace MajorMiseries
         private static readonly HashSet<string> s_BlackLungScenes = new(StringComparer.OrdinalIgnoreCase)
         {
             // scene to filter by name :
-            "AshMine",
-            "AshCaveA",
-            "AshCaveB",
+            "DamCaveTransitionZone", // WR <-> PV transition cave
+            "MineTransitionZone", // CH Aurora mine
+            "HighwayMineTransitionZone", // DP n3 coal mine
+            "CanneryMarshTransitionCave", // BI <-> FM transition cave
+            "CanyonRoadCave", // KP North <-> KP South transition cave
+            "RiverValleyTransitionCave", // MT <-> HRV transition cave
+            "AshCaveA", // AC <-> TWM transition cave
+            "AshCaveB", // AC cave between Long Falls and Miner's Folly
+            "AshMine",     // AC Gold Mine
+            "IceCaveA", // HRV South ice cave system
+            "IceCaveB", // HRV North ice cave system
+            "MountainCaveA", // TWM cave close to the engine down a ravine
+            "MountainCaveB", // TWM secluded shelf cave
+            "MountainTownCaveA", // MT cave close to crashed plane
+            "MountainTownCaveB", // MT <-> ML transition cave
+            "BlackrockMineA", // Blackrock Last Prospect
+            "WhalingMine", // DP Abandoned Mine n5
+            "BlackrockCaveA", // transition zone between TM and Blackrock
+            "BlackrockSteamTunnelsASurvival", // steam tunnels in blackrock prison
+            "CaveB", // PV Misty Falls picnic area cave
+            "CaveC", // DP Broken bridge falls cave
+            "CaveD",  // FM Marsh Ridge cave
+            "HubCave", // Far Territories cave system
+            "MiningRegionMine", // ZoC Langstone mine
+            "MineConcentratorBuilding", // ZoC Concentrator
+            "MountainPassCaveA", // SP cave system
+            "MountainPassCaveB" // SP abandoned mine
         };
 
         internal static bool IsBlackLungScene(string? sceneName)
@@ -1297,15 +1316,90 @@ namespace MajorMiseries
         private static bool _blackLungSleepTrackingActive = false;
         private static float _blackLungTrackedSleepHours = 0f;
 
-        private const float BLACK_LUNG_LOG_INTERVAL_HOURS = 10f / 60f; // 10 in-game minutes
-        private static float s_LastBlackLungExposureLogTime = -999f;
-        private static bool? s_LastBlackLungExposureLogWasIncrease = null;
+        private static bool s_BlackLungExposureSceneActive = false;
+        private static string s_BlackLungExposureSceneName = string.Empty;
+        private static float s_BlackLungExposureSceneStartExposure = 0f;
 
         internal static float GetBlackLungExposureGainPerHour() => BLACK_LUNG_EXPOSURE_GAIN_PER_HOUR;
         internal static float GetBlackLungExposureDecayPerHour() => BLACK_LUNG_EXPOSURE_DECAY_PER_HOUR;
         internal static float GetBlackLungExposureMax() => BLACK_LUNG_EXPOSURE_MAX;
         internal static float GetBlackLungRiskGainPerHour() => BLACK_LUNG_RISK_GAIN_PER_HOUR;
         internal static float GetBlackLungRiskDecayPerHour() => BLACK_LUNG_RISK_DECAY_PER_HOUR;
+
+        private static void BeginBlackLungExposureScene(string sceneName)
+        {
+            s_BlackLungExposureSceneActive = true;
+            s_BlackLungExposureSceneName = sceneName;
+            s_BlackLungExposureSceneStartExposure = Core.State.BlackLungExposure;
+
+            Core.Log($"BlackLung exposure scene entered: '{sceneName}' -> exposure will start increasing.");
+        }
+
+        private static void EndBlackLungExposureScene(string? nextSceneName, bool nextSceneWillIncreaseExposure, bool exposureWillDecrease)
+        {
+            if (!s_BlackLungExposureSceneActive)
+                return;
+
+            float totalExposure = Core.State.BlackLungExposure;
+            float sceneExposureGenerated = Mathf.Max(0f, totalExposure - s_BlackLungExposureSceneStartExposure);
+
+            string message =
+                $"BlackLung exposure scene exited: '{s_BlackLungExposureSceneName}' -> total exposure {totalExposure:0.###}, scene gain +{sceneExposureGenerated:0.###}.";
+
+            if (exposureWillDecrease)
+            {
+                message += " Exposure stops increasing and will now decrease.";
+            }
+            else if (nextSceneWillIncreaseExposure && !string.IsNullOrEmpty(nextSceneName))
+            {
+                message += $" Exposure will continue increasing in scene '{nextSceneName}'.";
+            }
+            else
+            {
+                message += " Exposure stops increasing.";
+            }
+
+            Core.Log(message);
+
+            s_BlackLungExposureSceneActive = false;
+            s_BlackLungExposureSceneName = string.Empty;
+            s_BlackLungExposureSceneStartExposure = 0f;
+        }
+
+        private static void UpdateBlackLungExposureSceneTracking(string sceneName, bool inCoalScene, bool canGainExposure, bool exposureWillDecreaseOutsideCoal)
+        {
+            if (canGainExposure)
+            {
+                if (!s_BlackLungExposureSceneActive)
+                {
+                    BeginBlackLungExposureScene(sceneName);
+                    return;
+                }
+
+                if (!string.Equals(s_BlackLungExposureSceneName, sceneName, StringComparison.OrdinalIgnoreCase))
+                {
+                    EndBlackLungExposureScene(sceneName, true, false);
+                    BeginBlackLungExposureScene(sceneName);
+                }
+
+                return;
+            }
+
+            if (!s_BlackLungExposureSceneActive)
+                return;
+
+            if (inCoalScene)
+            {
+                if (!string.Equals(s_BlackLungExposureSceneName, sceneName, StringComparison.OrdinalIgnoreCase))
+                {
+                    EndBlackLungExposureScene(sceneName, false, false);
+                }
+
+                return;
+            }
+
+            EndBlackLungExposureScene(sceneName, false, exposureWillDecreaseOutsideCoal);
+        }
 
         internal static void UpdateBlackLungExposure(float gameHoursPassed)
         {
@@ -1320,9 +1414,12 @@ namespace MajorMiseries
                 return;
 
             bool inCoalScene = IsBlackLungScene(sceneName);
-            float now = GameManager.GetTimeOfDayComponent()?.GetHoursPlayedNotPaused() ?? 0f;
 
             BlackLungAffliction? activeBlackLung = GetAffliction<BlackLungAffliction>();
+            bool hasBlackLungRisk = HasAffliction<BlackLungRiskAffliction>();
+
+            UpdateBlackLungExposureSceneTracking(sceneName, inCoalScene, inCoalScene && activeBlackLung == null && !hasBlackLungRisk, activeBlackLung == null && !hasBlackLungRisk);
+
             if (activeBlackLung != null)
             {
                 if (inCoalScene)
@@ -1335,7 +1432,7 @@ namespace MajorMiseries
                 return;
             }
 
-            if (HasAffliction<BlackLungRiskAffliction>())
+            if (hasBlackLungRisk)
             {
                 if (!Mathf.Approximately(Core.State.BlackLungExposure, BLACK_LUNG_RISK_START_THRESHOLD))
                 {
@@ -1352,36 +1449,16 @@ namespace MajorMiseries
 
             if (inCoalScene)
             {
-                Core.State.BlackLungExposure = Mathf.Clamp(
-                    Core.State.BlackLungExposure + (gameHoursPassed * BLACK_LUNG_EXPOSURE_GAIN_PER_HOUR),
-                    0f,
-                    BLACK_LUNG_EXPOSURE_MAX);
+                Core.State.BlackLungExposure = Mathf.Clamp(Core.State.BlackLungExposure + (gameHoursPassed * BLACK_LUNG_EXPOSURE_GAIN_PER_HOUR), 0f, BLACK_LUNG_EXPOSURE_MAX);
             }
             else
             {
-                Core.State.BlackLungExposure = Mathf.Clamp(
-                    Core.State.BlackLungExposure - (gameHoursPassed * BLACK_LUNG_EXPOSURE_DECAY_PER_HOUR),
-                    0f,
-                    BLACK_LUNG_EXPOSURE_MAX);
+                Core.State.BlackLungExposure = Mathf.Clamp(Core.State.BlackLungExposure - (gameHoursPassed * BLACK_LUNG_EXPOSURE_DECAY_PER_HOUR), 0f, BLACK_LUNG_EXPOSURE_MAX);
             }
 
             if (!Mathf.Approximately(oldExposure, Core.State.BlackLungExposure))
             {
                 Core.Instance?.MarkDirty();
-
-                bool isIncrease = Core.State.BlackLungExposure > oldExposure;
-
-                bool shouldLog =
-                    (now - s_LastBlackLungExposureLogTime) >= BLACK_LUNG_LOG_INTERVAL_HOURS
-                    || s_LastBlackLungExposureLogWasIncrease == null
-                    || s_LastBlackLungExposureLogWasIncrease.Value != isIncrease;
-
-                if (shouldLog)
-                {
-                    Core.Log($"BlackLung exposure {(isIncrease ? "increased" : "decreased")} in scene '{sceneName}' -> {oldExposure:0.###} => {Core.State.BlackLungExposure:0.###}");
-                    s_LastBlackLungExposureLogTime = now;
-                    s_LastBlackLungExposureLogWasIncrease = isIncrease;
-                }
             }
 
             if (inCoalScene && Core.State.BlackLungExposure >= BLACK_LUNG_RISK_START_THRESHOLD)
@@ -1976,10 +2053,7 @@ namespace MajorMiseries
             if (go == null)
                 return false;
 
-            BaseAi ai = go.GetComponent<BaseAi>();
-            if (ai == null)
-                ai = go.GetComponentInParent<BaseAi>();
-
+            BaseAi ai = go.GetComponent<BaseAi>() ?? go.GetComponentInParent<BaseAi>();
             if (ai == null)
                 return true;
 
@@ -2165,10 +2239,7 @@ namespace MajorMiseries
             if (HasAffliction<CorpseSicknessAffliction>())
                 return;
 
-            bool nearSource = TryGetCurrentCorpseExposureGainPerHour(
-                out float gainPerHour,
-                out string sourceLabel,
-                out float closestDistance);
+            bool nearSource = TryGetCurrentCorpseExposureGainPerHour(out float gainPerHour, out string sourceLabel, out float closestDistance);
 
             UpdateCorpseSourceLoggingState(nearSource, sourceLabel, closestDistance, gainPerHour);
 
@@ -2187,19 +2258,13 @@ namespace MajorMiseries
 
             if (nearSource)
             {
-                Core.State.CorpseExposure = Mathf.Clamp(
-                    Core.State.CorpseExposure + (gameHoursPassed * gainPerHour),
-                    0f,
-                    CORPSE_EXPOSURE_MAX);
+                Core.State.CorpseExposure = Mathf.Clamp(Core.State.CorpseExposure + (gameHoursPassed * gainPerHour), 0f, CORPSE_EXPOSURE_MAX);
             }
             else
             {
                 float decayPerHour = GetCorpseExposureDecayPerHour();
 
-                Core.State.CorpseExposure = Mathf.Clamp(
-                    Core.State.CorpseExposure - (gameHoursPassed * decayPerHour),
-                    0f,
-                    CORPSE_EXPOSURE_MAX);
+                Core.State.CorpseExposure = Mathf.Clamp(Core.State.CorpseExposure - (gameHoursPassed * decayPerHour), 0f, CORPSE_EXPOSURE_MAX);
             }
 
             if (!Mathf.Approximately(oldExposure, Core.State.CorpseExposure))

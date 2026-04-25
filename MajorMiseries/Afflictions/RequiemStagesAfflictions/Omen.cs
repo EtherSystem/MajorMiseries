@@ -3,27 +3,27 @@ using AfflictionComponent.Enums;
 using AfflictionComponent.Interfaces;
 using MajorMiseries.Resources.Localization;
 
-namespace MajorMiseries.Afflictions
+namespace MajorMiseries.Afflictions.RequiemStagesAfflictions
 {
-    internal class Knell
+    internal class Omen
     {
-        public class KnellAffliction : CustomAffliction, IDuration, IRemedies, IInstance, ILocalizableAffliction
+        public class OmenAffliction : CustomAffliction, IDuration, IRemedies, IInstance, ILocalizableAffliction
         {
-            private const string NAME_KEY = "GAMEPLAY_KnellName";
-            private const string CAUSE_KEY = "GAMEPLAY_KnellCause";
-            private const string DESC_KEY = "GAMEPLAY_KnellDescription";
+            private const string NAME_KEY = "GAMEPLAY_OmenName";
+            private const string CAUSE_KEY = "GAMEPLAY_OmenCause";
+            private const string DESC_KEY = "GAMEPLAY_OmenDescription";
 
-            private const string ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.Knell.png";
-            private const string ALT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Alt.Knell_ALT.png";
+            private const string ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.Omen.png";
+            private const string ALT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Alt.Omen_ALT.png";
 
             public InstanceType Type { get; set; } = InstanceType.Single;
             public void OnFoundExistingInstance(CustomAffliction existingAffliction)
             {
-                if (existingAffliction is KnellAffliction knell)
+                if (existingAffliction is OmenAffliction omen)
                 {
-                    knell.ResetAffliction(resetRemedies: false);
+                    omen.ResetAffliction(resetRemedies: false);
                     var now = GameManager.GetTimeOfDayComponent().GetHoursPlayedNotPaused();
-                    knell.EndTime = now + knell.Duration;
+                    omen.EndTime = now + omen.Duration;
                 }
             }
 
@@ -35,8 +35,8 @@ namespace MajorMiseries.Afflictions
 
             public bool InstantHeal { get; set; } = true;
 
-            //public KnellAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
-            public KnellAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, "ico_injury_BrokenBody", bodyArea)
+            //public OmenAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
+            public OmenAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, "ico_injury_BrokenBody", bodyArea)
             {
             }
 
@@ -64,7 +64,7 @@ namespace MajorMiseries.Afflictions
                 m_Description = Localization.Get(DESC_KEY);
                 m_DescriptionNoHeal = null;
 
-                Core.Log($"Knell refresh -> '{oldName}' => '{m_Name}'");
+                Core.Log($"Omen refresh -> '{oldName}' => '{m_Name}'");
             }
         }
     }

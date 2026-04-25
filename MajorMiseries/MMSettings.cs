@@ -201,6 +201,13 @@
 
             base.OnChange(field, oldValue, newValue);
 
+            bool requiemStagesJustDisabled = field.Name == nameof(EnableRequiemStages) && oldValue is bool oldEnabled && newValue is bool newEnabled && oldEnabled && !newEnabled;
+
+            if (requiemStagesJustDisabled)
+            {
+                AfflictionLogic.LogRequiemStagesDisabledByPlayer();
+            }
+
             bool requiresStageReapply =
                 field.Name == nameof(EnableRequiemStages) ||
                 field.Name == nameof(CustomizeStageThresholds) ||
