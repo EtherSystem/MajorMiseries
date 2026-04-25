@@ -414,39 +414,75 @@
 
     "GAMEPLAY_SevereSprainCause": {
         "English": "Repeated sprains",
-        "French (France)": "Entorses répétées"
+        "French (France)": "Entorses répétées",
+        "Spanish (Spain)": "Esguinces repetidos",
+        "German": "Wiederholte Verstauchungen",
+        "Turkish": "Tekrarlayan burkulmalar",
+        "Russian": "Повторные растяжения связок"
     },
     "GAMEPLAY_SevereWristSprainRiskName": {
         "English": "Severe Wrist Sprain Risk",
-        "French (France)": "Risque d'entorse grave du poignet"
+        "French (France)": "Risque d'entorse grave du poignet",
+        "Spanish (Spain)": "Riesgo de esguince grave de muñeca",
+        "German": "Risiko einer schweren Handgelenksverstauchung",
+        "Turkish": "Ciddi el bileği burkulması riski",
+        "Russian": "Риск серьёзного растяжения запястья"
     },
     "GAMEPLAY_SevereAnkleSprainRiskName": {
         "English": "Severe Ankle Sprain Risk",
-        "French (France)": "Risque d'entorse grave de la cheville"
+        "French (France)": "Risque d'entorse grave de la cheville",
+        "Spanish (Spain)": "Riesgo de esguince grave de tobillo",
+        "German": "Risiko einer schweren Knöchelverstauchung",
+        "Turkish": "Ciddi ayak bileği burkulması riski",
+        "Russian": "Риск серьёзного растяжения лодыжки"
     },
     "GAMEPLAY_SevereWristSprainRiskDescription": {
-        "English": "This wrist has been strained repeatedly. Another sprain soon could turn into a more serious injury.",
-        "French (France)": "Ce poignet a été trop sollicité. Une nouvelle entorse prochainement pourrait provoquer une blessure plus sérieuse."
+        "English": "This wrist has been weakened by repeated trauma. Another sprain soon could turn it into a much more serious injury.",
+        "French (France)": "Ce poignet a été fragilisé par des traumatismes répétés. Une nouvelle entorse prochainement pourrait provoquer une blessure bien plus sérieuse.",
+        "Spanish (Spain)": "Esta muñeca se ha debilitado por traumatismos repetidos. Otro esguince pronto podría provocar una lesión mucho más grave.",
+        "German": "Dieses Handgelenk wurde durch wiederholte Verletzungen geschwächt. Eine weitere Verstauchung in nächster Zeit könnte zu einer deutlich schwereren Verletzung führen.",
+        "Turkish": "Bu el bileği tekrarlayan travmalar nedeniyle zayıfladı. Yakında yaşanacak başka bir burkulma çok daha ciddi bir yaralanmaya yol açabilir.",
+        "Russian": "Это запястье ослабло из-за повторных травм. Ещё одно растяжение в ближайшее время может привести к гораздо более серьёзной травме."
     },
     "GAMEPLAY_SevereAnkleSprainRiskDescription": {
-        "English": "This ankle has been strained repeatedly. Another sprain soon could turn into a more serious injury.",
-        "French (France)": "Cette cheville a été trop sollicitée. Une nouvelle entorse prochainement pourrait provoquer une blessure plus sérieuse."
+        "English": "This ankle has been weakened by repeated trauma. Another sprain soon could turn it into a much more serious injury.",
+        "French (France)": "Cette cheville a été fragilisée par des traumatismes répétés. Une nouvelle entorse prochainement pourrait provoquer une blessure bien plus sérieuse.",
+        "Spanish (Spain)": "Este tobillo se ha debilitado por traumatismos repetidos. Otro esguince pronto podría provocar una lesión mucho más grave.",
+        "German": "Dieser Knöchel wurde durch wiederholte Verletzungen geschwächt. Eine weitere Verstauchung in nächster Zeit könnte zu einer deutlich schwereren Verletzung führen.",
+        "Turkish": "Bu ayak bileği tekrarlayan travmalar nedeniyle zayıfladı. Yakında yaşanacak başka bir burkulma çok daha ciddi bir yaralanmaya yol açabilir.",
+        "Russian": "Эта лодыжка ослабла из-за повторных травм. Ещё одно растяжение в ближайшее время может привести к гораздо более серьёзной травме."
     },
     "GAMEPLAY_SevereWristSprainName": {
         "English": "Severe Wrist Sprain",
-        "French (France)": "Entorse grave du poignet"
+        "French (France)": "Entorse grave du poignet",
+        "Spanish (Spain)": "Esguince grave de muñeca",
+        "German": "Schwere Handgelenksverstauchung",
+        "Turkish": "Ciddi el bileği burkulması",
+        "Russian": "Серьёзное растяжение запястья"
     },
     "GAMEPLAY_SevereAnkleSprainName": {
         "English": "Severe Ankle Sprain",
-        "French (France)": "Entorse grave de la cheville"
+        "French (France)": "Entorse grave de la cheville",
+        "Spanish (Spain)": "Esguince grave de tobillo",
+        "German": "Schwere Knöchelverstauchung",
+        "Turkish": "Ciddi ayak bileği burkulması",
+        "Russian": "Серьёзное растяжение лодыжки"
     },
     "GAMEPLAY_SevereWristSprainDescription": {
         "English": "Repeated trauma has turned a simple wrist sprain into a serious injury. Treatment can stabilize it, but only time and rest will heal it.",
-        "French (France)": "Des traumatismes répétés ont transformé une simple entorse du poignet en blessure sérieuse. Les soins peuvent la stabiliser, mais seuls le temps et le repos permettront de guérir."
+        "French (France)": "Des traumatismes répétés ont transformé une simple entorse du poignet en blessure sérieuse. Les soins peuvent la stabiliser, mais seuls le temps et le repos permettront de guérir.",
+        "Spanish (Spain)": "Los traumatismos repetidos han convertido un simple esguince de muñeca en una lesión grave. El tratamiento puede estabilizarla, pero solo el tiempo y el reposo permitirán que sane.",
+        "German": "Wiederholte Verletzungen haben eine einfache Handgelenksverstauchung zu einer schweren Verletzung gemacht. Behandlung kann sie stabilisieren, aber nur Zeit und Ruhe werden sie heilen.",
+        "Turkish": "Tekrarlayan travmalar basit bir el bileği burkulmasını ciddi bir yaralanmaya dönüştürdü. Tedavi onu stabilize edebilir, ancak iyileşmesini yalnızca zaman ve dinlenme sağlar.",
+        "Russian": "Повторные травмы превратили обычное растяжение запястья в серьёзную травму. Лечение может стабилизировать его, но вылечить его смогут только время и покой."
     },
     "GAMEPLAY_SevereAnkleSprainDescription": {
         "English": "Repeated trauma has turned a simple ankle sprain into a serious injury. Treatment can stabilize it, but only time and rest will heal it.",
-        "French (France)": "Des traumatismes répétés ont transformé une simple entorse de la cheville en blessure sérieuse. Les soins peuvent la stabiliser, mais seuls le temps et le repos permettront de guérir."
+        "French (France)": "Des traumatismes répétés ont transformé une simple entorse de la cheville en blessure sérieuse. Les soins peuvent la stabiliser, mais seuls le temps et le repos permettront de guérir.",
+        "Spanish (Spain)": "Los traumatismos repetidos han convertido un simple esguince de tobillo en una lesión grave. El tratamiento puede estabilizarla, pero solo el tiempo y el reposo permitirán que sane.",
+        "German": "Wiederholte Verletzungen haben eine einfache Knöchelverstauchung zu einer schweren Verletzung gemacht. Behandlung kann sie stabilisieren, aber nur Zeit und Ruhe werden sie heilen.",
+        "Turkish": "Tekrarlayan travmalar basit bir ayak bileği burkulmasını ciddi bir yaralanmaya dönüştürdü. Tedavi onu stabilize edebilir, ancak iyileşmesini yalnızca zaman ve dinlenme sağlar.",
+        "Russian": "Повторные травмы превратили обычное растяжение лодыжки в серьёзную травму. Лечение может стабилизировать её, но вылечить её смогут только время и покой."
     },
 
     "GAMEPLAY_BlackLungSleepWakeup": {
