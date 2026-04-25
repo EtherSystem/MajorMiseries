@@ -16,6 +16,8 @@ using static MajorMiseries.Afflictions.COExposure;
 using static MajorMiseries.Afflictions.COPoisoning;
 using static MajorMiseries.Afflictions.CorpseSicknessRisk;
 using static MajorMiseries.Afflictions.CorpseSickness;
+using static MajorMiseries.Afflictions.SevereAnkleSprain;
+using static MajorMiseries.Afflictions.SevereWristSprain;
 using Random = UnityEngine.Random;
 
 namespace MajorMiseries
@@ -579,6 +581,7 @@ namespace MajorMiseries
             SyncCarbonMonoxideSystem();
             SyncBlackLungSystem();
             SyncCorpseSicknessSystem();
+            SevereSprainLogic.SyncFromState();
             ForceRefreshEffects();
         }
 
@@ -1088,13 +1091,15 @@ namespace MajorMiseries
         internal static bool ShouldBlockSprint()
         {
             RefreshEffectsIfNeeded();
-            return _cache.BrokenLegCount > 0;
+
+            return _cache.BrokenLegCount > 0 || _cache.SevereAnkleSprainCount > 0;
         }
 
         internal static bool ShouldBlockClimbing()
         {
             RefreshEffectsIfNeeded();
-            return _cache.BrokenLegCount > 0 || _cache.BrokenArmCount > 0;
+
+            return _cache.BrokenLegCount > 0 || _cache.BrokenArmCount > 0 || _cache.SevereAnkleSprainCount > 0 || _cache.SevereWristSprainCount > 0;
         }
 
         internal static float GetMovementSpeedMultiplier()
@@ -1107,6 +1112,8 @@ namespace MajorMiseries
                 multiplier *= 0.45f;
             else if (_cache.BrokenLegCount > 0)
                 multiplier *= 0.65f;
+            else if (_cache.SevereAnkleSprainCount > 0)
+                multiplier *= 0.75f;
 
             if (HasStageEffect(RequiemStage.Knell))
                 multiplier *= 0.9f;
@@ -1124,6 +1131,9 @@ namespace MajorMiseries
             if (_cache.BrokenLegCount > 0)
                 return 1.5f;
 
+            if (_cache.SevereAnkleSprainCount > 0)
+                return 1.35f;
+
             return 1f;
         }
 
@@ -1131,39 +1141,51 @@ namespace MajorMiseries
         {
             RefreshEffectsIfNeeded();
 
+            float multiplier = 1f;
+
             if (_cache.BrokenArmLeft && _cache.BrokenArmRight)
-                return 2.0f;
+                multiplier = Mathf.Max(multiplier, 2.0f);
+            else if (_cache.BrokenArmCount > 0)
+                multiplier = Mathf.Max(multiplier, 1.5f);
 
-            if (_cache.BrokenArmCount > 0)
-                return 1.5f;
+            if (_cache.SevereWristSprainCount > 0)
+                multiplier = Mathf.Max(multiplier, 1.35f);
 
-            return 1f;
+            return multiplier;
         }
 
         internal static float GetAimSwayIncreaseMultiplier()
         {
             RefreshEffectsIfNeeded();
 
+            float multiplier = 1f;
+
             if (_cache.BrokenArmLeft && _cache.BrokenArmRight)
-                return 3f;
+                multiplier = Mathf.Max(multiplier, 3f);
+            else if (_cache.BrokenArmCount > 0)
+                multiplier = Mathf.Max(multiplier, 2f);
 
-            if (_cache.BrokenArmCount > 0)
-                return 2f;
+            if (_cache.SevereWristSprainCount > 0)
+                multiplier = Mathf.Max(multiplier, 2.5f);
 
-            return 1f;
+            return multiplier;
         }
 
         internal static float GetAimSwayDecreaseMultiplier()
         {
             RefreshEffectsIfNeeded();
 
+            float multiplier = 1f;
+
             if (_cache.BrokenArmLeft && _cache.BrokenArmRight)
-                return 0.45f;
+                multiplier = Mathf.Min(multiplier, 0.45f);
+            else if (_cache.BrokenArmCount > 0)
+                multiplier = Mathf.Min(multiplier, 0.65f);
 
-            if (_cache.BrokenArmCount > 0)
-                return 0.65f;
+            if (_cache.SevereWristSprainCount > 0)
+                multiplier = Mathf.Min(multiplier, 0.5f);
 
-            return 1f;
+            return multiplier;
         }
 
         // ====================================================================
@@ -1186,6 +1208,9 @@ namespace MajorMiseries
             public bool BrokenArmRight;
             public bool BrokenLegLeft;
             public bool BrokenLegRight;
+
+            public int SevereWristSprainCount;
+            public int SevereAnkleSprainCount;
 
             public void Reset()
             {
@@ -1238,6 +1263,14 @@ namespace MajorMiseries
 
                     case ScarredFleshAffliction:
                         _cache.ScarredFleshCount++;
+                        break;
+
+                    case SevereWristSprainAffliction:
+                        _cache.SevereWristSprainCount++;
+                        break;
+
+                    case SevereAnkleSprainAffliction:
+                        _cache.SevereAnkleSprainCount++;
                         break;
 
                     case BrokenArmAffliction brokenArm:
@@ -1904,7 +1937,7 @@ namespace MajorMiseries
 
         private static void LogCorpseDebug(string message)
         {
-            Core.Log($"[CorpseSickness] {message}");
+            Core.Log($"{message}");
         }
 
         private static void UpdateCorpseSourceLoggingState(bool nearSource, string sourceLabel, float closestDistance, float gainPerHour)
@@ -2212,7 +2245,7 @@ namespace MajorMiseries
 
             try
             {
-                GameObject go = bodyHarvest != null ? bodyHarvest.gameObject : null;
+                GameObject go = bodyHarvest?.gameObject;
                 if (go != null)
                     id = go.GetInstanceID();
             }
@@ -2560,6 +2593,99 @@ namespace MajorMiseries
         {
             Condition? condition = GameManager.GetConditionComponent();
             return condition != null && condition.HasSpecificAffliction(AfflictionType.WeakJoints);
+        }
+
+        internal static bool HasSevereAnkleSprain()
+        {
+            RefreshEffectsIfNeeded();
+            return _cache.SevereAnkleSprainCount > 0;
+        }
+
+        internal static bool HasSevereWristSprain()
+        {
+            RefreshEffectsIfNeeded();
+            return _cache.SevereWristSprainCount > 0;
+        }
+
+        internal static int GetSevereWristSprainCount()
+        {
+            RefreshEffectsIfNeeded();
+            return _cache.SevereWristSprainCount;
+        }
+
+        internal static bool ShouldBlockWeaponEquip(GearItem? gearItem)
+        {
+            if (gearItem == null)
+                return false;
+
+            RefreshEffectsIfNeeded();
+
+            int wristCount = _cache.SevereWristSprainCount;
+            if (wristCount <= 0)
+                return false;
+
+            if (!IsWeapon(gearItem))
+                return false;
+
+            if (wristCount >= 2)
+                return true;
+
+            return IsTwoHandedWeapon(gearItem);
+        }
+
+        private static readonly HashSet<string> s_OneHandedWeaponGearNames = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "GEAR_RevolverGreen",
+            "GEAR_RevolverFancy",
+            "GEAR_RevolverStubNosed",
+            "GEAR_Revolver",
+        };
+
+        private static readonly HashSet<string> s_TwoHandedWeaponGearNames = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "GEAR_Rifle_Barbs",
+            "GEAR_Rifle_Trader",
+            "GEAR_Rifle_Curators",
+            "GEAR_Rifle_Vaughns",
+            "GEAR_Rifle",
+
+            "GEAR_Bow_Woodwrights",
+            "GEAR_Bow_Bushcraft",
+            "GEAR_Bow",
+
+            "GEAR_Shotgun", // yep, I look at you guys from the team shotgun
+        };
+
+        private static bool IsWeapon(GearItem gearItem)
+        {
+            string gearName = GetCleanGearName(gearItem);
+
+            return s_OneHandedWeaponGearNames.Contains(gearName) || s_TwoHandedWeaponGearNames.Contains(gearName) || gearItem.m_GunItem != null || gearItem.m_BowItem != null;
+        }
+
+        private static bool IsTwoHandedWeapon(GearItem gearItem)
+        {
+            string gearName = GetCleanGearName(gearItem);
+
+            if (s_OneHandedWeaponGearNames.Contains(gearName))
+                return false;
+
+            if (s_TwoHandedWeaponGearNames.Contains(gearName))
+                return true;
+
+            if (gearItem.m_BowItem != null)
+                return true;
+
+            if (gearItem.m_GunItem != null)
+                return true;
+
+            return false;
+        }
+
+        private static string GetCleanGearName(GearItem gearItem)
+        {
+            string name = gearItem.name ?? "";
+            return name.Replace("(Clone)", "").Trim();
         }
 
         private static bool RollChance(float chance)

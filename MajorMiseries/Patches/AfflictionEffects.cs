@@ -29,6 +29,8 @@ namespace MajorMiseries.Patches
 
         private static float _respiratoryEffectTickTimer = 0f;
 
+        private static float _lastSevereWristWeaponMessageTime = -999f;
+
         private static bool _blackLungWasSleeping = false;
         private static bool _blackLungWakeQueued = false;
         private static bool _blackLungCoughStopPending = false;
@@ -48,6 +50,21 @@ namespace MajorMiseries.Patches
 
             string lower = scene.ToLowerInvariant();
             return !lower.Contains("menu") && !lower.Contains("boot") && lower != "empty";
+        }
+
+        private static void ShowSevereWristWeaponEquipBlockedMessage()
+        {
+            if (Time.realtimeSinceStartup - _lastSevereWristWeaponMessageTime < 1.5f)
+                return;
+
+            _lastSevereWristWeaponMessageTime = Time.realtimeSinceStartup;
+
+            GameAudioManager.PlayGUIError();
+
+            if (AfflictionLogic.GetSevereWristSprainCount() >= 2)
+                HUDMessage.AddMessage(Localization.Get("GAMEPLAY_SevereWristNoWeaponEquipAny"), 4, false);
+            else
+                HUDMessage.AddMessage(Localization.Get("GAMEPLAY_SevereWristNoWeaponEquipTwoHanded"), 4, false);
         }
 
         private static void CacheRespiratoryMovementBaseline(PlayerMovement movement)
@@ -145,6 +162,22 @@ namespace MajorMiseries.Patches
             cameraStatus.m_HeadacheSinSpeed = Mathf.Max(cameraStatus.m_HeadacheSinSpeed, headacheSinSpeed);
             cameraStatus.m_HeadacheVignetteIntensity = Mathf.Max(cameraStatus.m_HeadacheVignetteIntensity, headacheVignetteIntensity);
             cameraStatus.m_SprainVignetteColor = vignetteColor;
+        }
+
+        private static void ApplySevereSprainCameraEffects()
+        {
+            if (!IsGameplayScene())
+                return;
+
+            if (!AfflictionLogic.HasSevereAnkleSprain())
+                return;
+
+            CameraStatusEffects? cameraStatus = GameManager.GetCameraStatusEffects();
+            if (cameraStatus == null)
+                return;
+
+            cameraStatus.m_SprainTarget = Mathf.Max(cameraStatus.m_SprainTarget, 0.25f);
+            cameraStatus.m_SprainVignetteColor = Color.white;
         }
 
         private static void UpdateRespiratoryTimedEffects(Condition condition, float gameHoursPassed)
@@ -402,7 +435,7 @@ namespace MajorMiseries.Patches
         }
 
         [HarmonyPatch(typeof(PlayerClimbRope), nameof(PlayerClimbRope.BeginClimbing))]
-        internal static class BlockRopeClimbBecauseOfBrokenLimbPatch
+        internal static class BlockRopeClimbBecauseOfInjuryPatch
         {
             private static bool Prefix()
             {
@@ -410,7 +443,42 @@ namespace MajorMiseries.Patches
                     return true;
 
                 GameAudioManager.PlayGUIError();
-                HUDMessage.AddMessage(Localization.Get("GAMEPLAY_BrokenLimbNoRopeClimb"), 4, false);
+
+                if (AfflictionLogic.HasSevereAnkleSprain() || AfflictionLogic.HasSevereWristSprain())
+                    HUDMessage.AddMessage(Localization.Get("GAMEPLAY_SevereSprainNoRopeClimb"), 4, false);
+                else
+                    HUDMessage.AddMessage(Localization.Get("GAMEPLAY_BrokenLimbNoRopeClimb"), 4, false);
+
+                return false;
+            }
+        }
+
+        [HarmonyPatch(typeof(PlayerManager), nameof(PlayerManager.UseWeaponInventoryItem))]
+        internal static class BlockWeaponInventoryEquipBecauseOfSevereWristPatch
+        {
+            private static bool Prefix(GearItem gi, ref bool __result)
+            {
+                if (!AfflictionLogic.ShouldBlockWeaponEquip(gi))
+                    return true;
+
+                ShowSevereWristWeaponEquipBlockedMessage();
+                __result = false;
+                return false;
+            }
+        }
+
+        [HarmonyPatch(typeof(PlayerManager), nameof(PlayerManager.EquipItem), typeof(GearItem), typeof(bool))]
+        internal static class BlockDirectWeaponEquipBecauseOfSevereWristPatch
+        {
+            private static bool Prefix(GearItem gi, bool fromDeserialize)
+            {
+                if (fromDeserialize)
+                    return true;
+
+                if (!AfflictionLogic.ShouldBlockWeaponEquip(gi))
+                    return true;
+
+                ShowSevereWristWeaponEquipBlockedMessage();
                 return false;
             }
         }
@@ -603,6 +671,7 @@ namespace MajorMiseries.Patches
                     return;
 
                 ApplyRespiratoryCameraEffects();
+                ApplySevereSprainCameraEffects();
 
                 _respiratoryEffectTickTimer += Time.deltaTime;
                 if (_respiratoryEffectTickTimer < 1f)

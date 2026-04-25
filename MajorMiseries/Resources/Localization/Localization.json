@@ -411,6 +411,44 @@
         "Russian": "Запах смерти сделал вас больным. Вы чувствуете слабость и жар, и ваше состояние будет постепенно ухудшаться, пока недуг не отступит."
     },
 
+
+    "GAMEPLAY_SevereSprainCause": {
+        "English": "Repeated sprains",
+        "French (France)": "Entorses répétées"
+    },
+    "GAMEPLAY_SevereWristSprainRiskName": {
+        "English": "Severe Wrist Sprain Risk",
+        "French (France)": "Risque d'entorse grave du poignet"
+    },
+    "GAMEPLAY_SevereAnkleSprainRiskName": {
+        "English": "Severe Ankle Sprain Risk",
+        "French (France)": "Risque d'entorse grave de la cheville"
+    },
+    "GAMEPLAY_SevereWristSprainRiskDescription": {
+        "English": "This wrist has been strained repeatedly. Another sprain soon could turn into a more serious injury.",
+        "French (France)": "Ce poignet a été trop sollicité. Une nouvelle entorse prochainement pourrait provoquer une blessure plus sérieuse."
+    },
+    "GAMEPLAY_SevereAnkleSprainRiskDescription": {
+        "English": "This ankle has been strained repeatedly. Another sprain soon could turn into a more serious injury.",
+        "French (France)": "Cette cheville a été trop sollicitée. Une nouvelle entorse prochainement pourrait provoquer une blessure plus sérieuse."
+    },
+    "GAMEPLAY_SevereWristSprainName": {
+        "English": "Severe Wrist Sprain",
+        "French (France)": "Entorse grave du poignet"
+    },
+    "GAMEPLAY_SevereAnkleSprainName": {
+        "English": "Severe Ankle Sprain",
+        "French (France)": "Entorse grave de la cheville"
+    },
+    "GAMEPLAY_SevereWristSprainDescription": {
+        "English": "Repeated trauma has turned a simple wrist sprain into a serious injury. Treatment can stabilize it, but only time and rest will heal it.",
+        "French (France)": "Des traumatismes répétés ont transformé une simple entorse du poignet en blessure sérieuse. Les soins peuvent la stabiliser, mais seuls le temps et le repos permettront de guérir."
+    },
+    "GAMEPLAY_SevereAnkleSprainDescription": {
+        "English": "Repeated trauma has turned a simple ankle sprain into a serious injury. Treatment can stabilize it, but only time and rest will heal it.",
+        "French (France)": "Des traumatismes répétés ont transformé une simple entorse de la cheville en blessure sérieuse. Les soins peuvent la stabiliser, mais seuls le temps et le repos permettront de guérir."
+    },
+
     "GAMEPLAY_BlackLungSleepWakeup": {
         "English": "A violent coughing fit wakes you up.",
         "French (France)": "Une violente quinte de toux vous réveille.",
@@ -427,5 +465,32 @@
         "German": "Mit einer gebrochenen Gliedmaße kannst du keine Seile erklimmen.",
         "Turkish": "Kırık bir uzuvla iplere tırmanamazsın.",
         "Russian": "Со сломанной конечностью вы не можете взбираться по верёвкам."
+    },
+
+    "GAMEPLAY_SevereSprainNoRopeClimb": {
+        "English": "You cannot climb ropes with a severe sprain.",
+        "French (France)": "Vous ne pouvez pas grimper aux cordes avec une entorse grave.",
+        "Spanish (Spain)": "No puedes trepar cuerdas con un esguince grave.",
+        "German": "Mit einer schweren Verstauchung kannst du nicht an Seilen klettern.",
+        "Turkish": "Ciddi bir burkulmayla iplere tırmanamazsın.",
+        "Russian": "С серьёзным растяжением вы не можете взбираться по верёвкам."
+    },
+
+    "GAMEPLAY_SevereWristNoWeaponEquipTwoHanded": {
+        "English": "Your wrist is too badly injured to equip a two-handed weapon.",
+        "French (France)": "Votre poignet est trop gravement blessé pour équiper une arme à deux mains.",
+        "Spanish (Spain)": "Tienes la muñeca demasiado lesionada para equipar un arma a dos manos.",
+        "German": "Dein Handgelenk ist zu schwer verletzt, um eine Zweihandwaffe auszurüsten.",
+        "Turkish": "Bileğin iki elle kullanılan bir silah kuşanamayacak kadar kötü yaralanmış.",
+        "Russian": "Ваше запястье слишком серьёзно повреждено, чтобы взять двуручное оружие."
+    },
+
+    "GAMEPLAY_SevereWristNoWeaponEquipAny": {
+        "English": "Your wrists are too badly injured to equip a weapon.",
+        "French (France)": "Vos poignets sont trop gravement blessés pour équiper une arme.",
+        "Spanish (Spain)": "Tienes las muñecas demasiado lesionadas para equipar un arma.",
+        "German": "Deine Handgelenke sind zu schwer verletzt, um eine Waffe auszurüsten.",
+        "Turkish": "Bileklerin silah kuşanamayacak kadar kötü yaralanmış.",
+        "Russian": "Ваши запястья слишком серьёзно повреждены, чтобы взять оружие."
     }
 }

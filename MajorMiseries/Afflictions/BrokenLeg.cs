@@ -7,7 +7,7 @@ namespace MajorMiseries.Afflictions
 {
     internal class BrokenLeg
     {
-        public class BrokenLegAffliction : CustomAffliction, IDuration, IRemedies, IInstance, ILocalizableAffliction
+        public class BrokenLegAffliction : CustomAffliction, IDuration, IRemedies, IInstance, ILocalizableAffliction, ILimp
         {
             private const string NAME_KEY = "GAMEPLAY_BrokenLegName";
             private const string DEFAULT_CAUSE_KEY = "GAMEPLAY_BrokenLegCause";
@@ -22,6 +22,7 @@ namespace MajorMiseries.Afflictions
 
             public float Duration { get; set; }
             public float EndTime { get; set; }
+            bool ILimp.IsActive { get; set; } = true;
 
             public Tuple<string, int, int>[] RemedyItems { get; set; } =
             {

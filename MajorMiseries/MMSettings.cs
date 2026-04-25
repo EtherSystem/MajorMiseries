@@ -81,6 +81,18 @@
         public bool EnableCarbonMonoxide = true;
 
 
+        [Section("Severe Sprains")]
+
+        [Name("Enable Severe Sprains")]
+        [Description("Enable or disable the severe sprain recurrence system.")]
+        public bool EnableSevereSprains = true;
+
+        [Name("Severe Sprain Preset")]
+        [Description("Choose how quickly repeated sprains can become severe.")]
+        [Choice("Forgiving", "Standard", "Harsh", "Brutal")]
+        public int SevereSprainPreset = 1;
+
+
         [Section("Affliction Systems")]
 
         [Name("Enable Scarred Flesh")]
@@ -187,6 +199,11 @@
                 Settings.UpdateBlackLungVisibility();
             }
 
+            if (field.Name == nameof(EnableSevereSprains))
+            {
+                Settings.UpdateSevereSprainVisibility();
+            }
+
             if (field.Name == nameof(EnableCorpseSickness))
             {
                 Settings.UpdateCorpseSicknessVisibility();
@@ -226,7 +243,9 @@
                 field.Name == nameof(EnableSepsis) ||
                 field.Name == nameof(EnableCarbonMonoxide) ||
                 field.Name == nameof(EnableBlackLung) ||
-                field.Name == nameof(EnableCorpseSickness);
+                field.Name == nameof(EnableCorpseSickness) ||
+                field.Name == nameof(EnableSevereSprains) ||
+                field.Name == nameof(SevereSprainPreset);
 
             if (requiresRuntimeSync)
             {
@@ -247,6 +266,7 @@
             UpdateStageThresholdVisibility();
             UpdateBlackLungVisibility();
             UpdateCorpseSicknessVisibility();
+            UpdateSevereSprainVisibility();
             UpdateShinyAfflictionIconChanceVisibility();
         }
 
@@ -265,6 +285,13 @@
             bool showBlackLungDuration = options.EnableBlackLung;
 
             options.SetFieldVisible(nameof(options.BlackLungDurationMode), showBlackLungDuration);
+        }
+
+        internal static void UpdateSevereSprainVisibility()
+        {
+            bool showSevereSprainSettings = options.EnableSevereSprains;
+
+            options.SetFieldVisible(nameof(options.SevereSprainPreset), showSevereSprainSettings);
         }
 
         internal static void UpdateCorpseSicknessVisibility()

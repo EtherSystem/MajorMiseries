@@ -27,8 +27,9 @@ namespace MajorMiseries.Persistence
                     $"HrsSinceLastPredatorKill:{Core.State.HoursSinceLastPredatorKill:0.###} | " +
                     $"BlackLungExposure:{Core.State.BlackLungExposure:0.###} | " +
                     $"CorpseExposure:{Core.State.CorpseExposure:0.###} | " +
-                    $"ScarredFleshHistory:{Core.State.ScarredFleshHistoryCount}"
-                );
+                    $"ScarredFleshHistory:{Core.State.ScarredFleshHistoryCount} | " +
+                    $"Sprains:LW={Core.State.LeftWristSprainCount},RW={Core.State.RightWristSprainCount},LA={Core.State.LeftAnkleSprainCount},RA={Core.State.RightAnkleSprainCount}"
+);
             }
         }
 
@@ -66,8 +67,9 @@ namespace MajorMiseries.Persistence
                     $"HrsSinceLastPredatorKill:{Core.State.HoursSinceLastPredatorKill:0.###} | " +
                     $"BlackLungExposure:{Core.State.BlackLungExposure:0.###} | " +
                     $"CorpseExposure:{Core.State.CorpseExposure:0.###} | " +
-                    $"ScarredFleshHistory:{Core.State.ScarredFleshHistoryCount}"
-                );
+                    $"ScarredFleshHistory:{Core.State.ScarredFleshHistoryCount} | " +
+                    $"Sprains:LW={Core.State.LeftWristSprainCount},RW={Core.State.RightWristSprainCount},LA={Core.State.LeftAnkleSprainCount},RA={Core.State.RightAnkleSprainCount}"
+);
             }
         }
 
@@ -88,6 +90,11 @@ namespace MajorMiseries.Persistence
             Core.State.BlackLungExposure = Mathf.Clamp(Core.State.BlackLungExposure, 0f, AfflictionLogic.GetBlackLungExposureMax());
             Core.State.ScarredFleshHistoryCount = Mathf.Max(0, Core.State.ScarredFleshHistoryCount);
             Core.State.CorpseExposure = Mathf.Clamp(Core.State.CorpseExposure, 0f, AfflictionLogic.GetCorpseExposureMax());
+
+            Core.State.LeftWristSprainCount = Mathf.Max(0, Core.State.LeftWristSprainCount);
+            Core.State.RightWristSprainCount = Mathf.Max(0, Core.State.RightWristSprainCount);
+            Core.State.LeftAnkleSprainCount = Mathf.Max(0, Core.State.LeftAnkleSprainCount);
+            Core.State.RightAnkleSprainCount = Mathf.Max(0, Core.State.RightAnkleSprainCount);
         }
     }
 

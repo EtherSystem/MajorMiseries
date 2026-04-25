@@ -7,6 +7,22 @@
         public float BlackLungExposure = 0f;
         public int ScarredFleshHistoryCount = 0;
         public float CorpseExposure = 0f;
+
+        public int LeftWristSprainCount = 0;
+        public float LeftWristSprainWindowHours = 0f;
+        public float LeftWristSevereSprainRisk = 0f;
+
+        public int RightWristSprainCount = 0;
+        public float RightWristSprainWindowHours = 0f;
+        public float RightWristSevereSprainRisk = 0f;
+
+        public int LeftAnkleSprainCount = 0;
+        public float LeftAnkleSprainWindowHours = 0f;
+        public float LeftAnkleSevereSprainRisk = 0f;
+
+        public int RightAnkleSprainCount = 0;
+        public float RightAnkleSprainWindowHours = 0f;
+        public float RightAnkleSevereSprainRisk = 0f;
     }
 
     internal enum RequiemStage

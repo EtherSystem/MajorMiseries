@@ -15,6 +15,10 @@ using static MajorMiseries.Afflictions.Sepsis;
 using static MajorMiseries.Afflictions.SepsisRisk;
 using static MajorMiseries.Afflictions.CorpseSicknessRisk;
 using static MajorMiseries.Afflictions.CorpseSickness;
+using static MajorMiseries.Afflictions.SevereWristSprainRisk;
+using static MajorMiseries.Afflictions.SevereAnkleSprainRisk;
+using static MajorMiseries.Afflictions.SevereWristSprain;
+using static MajorMiseries.Afflictions.SevereAnkleSprain;
 using Random = UnityEngine.Random;
 
 namespace MajorMiseries
@@ -104,6 +108,46 @@ namespace MajorMiseries
                 new CorpseSicknessAffliction(AfflictionBodyArea.Head, Random.Range(48f, 96f)).Start();
             }));
 
+            uConsole.RegisterCommand("mm_sprain_risk_wrist_left", new Action(() =>
+            {
+                SevereSprainLogic.DevApplyRisk(SevereSprainKind.Wrist, AfflictionBodyArea.HandLeft);
+            }));
+
+            uConsole.RegisterCommand("mm_sprain_risk_wrist_right", new Action(() =>
+            {
+                SevereSprainLogic.DevApplyRisk(SevereSprainKind.Wrist, AfflictionBodyArea.HandRight);
+            }));
+
+            uConsole.RegisterCommand("mm_sprain_risk_ankle_left", new Action(() =>
+            {
+                SevereSprainLogic.DevApplyRisk(SevereSprainKind.Ankle, AfflictionBodyArea.FootLeft);
+            }));
+
+            uConsole.RegisterCommand("mm_sprain_risk_ankle_right", new Action(() =>
+            {
+                SevereSprainLogic.DevApplyRisk(SevereSprainKind.Ankle, AfflictionBodyArea.FootRight);
+            }));
+
+            uConsole.RegisterCommand("mm_severe_sprain_wrist_left", new Action(() =>
+            {
+                SevereSprainLogic.DevApplySevereSprain(SevereSprainKind.Wrist, AfflictionBodyArea.HandLeft);
+            }));
+
+            uConsole.RegisterCommand("mm_severe_sprain_wrist_right", new Action(() =>
+            {
+                SevereSprainLogic.DevApplySevereSprain(SevereSprainKind.Wrist, AfflictionBodyArea.HandRight);
+            }));
+
+            uConsole.RegisterCommand("mm_severe_sprain_ankle_left", new Action(() =>
+            {
+                SevereSprainLogic.DevApplySevereSprain(SevereSprainKind.Ankle, AfflictionBodyArea.FootLeft);
+            }));
+
+            uConsole.RegisterCommand("mm_severe_sprain_ankle_right", new Action(() =>
+            {
+                SevereSprainLogic.DevApplySevereSprain(SevereSprainKind.Ankle, AfflictionBodyArea.FootRight);
+            }));
+
             uConsole.RegisterCommand("maj_afflictions_cure", new Action(() =>
             {
                 var mgr = AfflictionManager.GetAfflictionManagerInstance();
@@ -128,7 +172,11 @@ namespace MajorMiseries
                         || a is COExposureAffliction
                         || a is COPoisoningAffliction
                         || a is CorpseSicknessRiskAffliction
-                        || a is CorpseSicknessAffliction)
+                        || a is CorpseSicknessAffliction
+                        || a is SevereWristSprainRiskAffliction
+                        || a is SevereAnkleSprainRiskAffliction
+                        || a is SevereWristSprainAffliction
+                        || a is SevereAnkleSprainAffliction)
                     {
                         a.Cure();
                     }

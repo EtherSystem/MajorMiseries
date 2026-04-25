@@ -149,6 +149,7 @@ namespace MajorMiseries
             AfflictionLogic.UpdateBlackLungExposure(gameHoursPassed);
             AfflictionLogic.UpdateCOExposure(gameHoursPassed);
             AfflictionLogic.UpdateCorpseExposure(gameHoursPassed);
+            SevereSprainLogic.Update(gameHoursPassed);
         }
     }
 }
