@@ -528,5 +528,80 @@
         "German": "Deine Handgelenke sind zu schwer verletzt, um eine Waffe auszurüsten.",
         "Turkish": "Bileklerin silah kuşanamayacak kadar kötü yaralanmış.",
         "Russian": "Ваши запястья слишком серьёзно повреждены, чтобы взять оружие."
+    },
+
+
+
+    "GAMEPLAY_HomeComfortName": {
+        "English": "Home Comfort",
+        "French (France)": "Confort du foyer",
+        "Spanish (Spain)": "Comodidad del hogar",
+        "German": "Heimische Geborgenheit",
+        "Turkish": "Yuvanın Rahatlığı",
+        "Russian": "Домашний уют"
+    },
+    "GAMEPLAY_HomeComfortCause": {
+        "English": "Familiar surroundings",
+        "French (France)": "Environnement familier",
+        "Spanish (Spain)": "Entorno familiar",
+        "German": "Vertraute Umgebung",
+        "Turkish": "Tanıdık çevre",
+        "Russian": "Знакомая обстановка"
+    },
+    "GAMEPLAY_HomeComfortDescription": {
+        "English": "This place feels familiar. Survival feels a little easier to endure here.",
+        "French (France)": "Cet endroit vous est familier. La survie vous semble un peu plus facile à supporter ici.",
+        "Spanish (Spain)": "Este lugar te resulta familiar. Sobrevivir aquí parece un poco más llevadero.",
+        "German": "Dieser Ort ist dir vertraut. Das Überleben fühlt sich hier etwas leichter zu ertragen an.",
+        "Turkish": "Burası size tanıdık geliyor. Hayatta kalmak burada biraz daha katlanılabilir hissettiriyor.",
+        "Russian": "Это место кажется вам знакомым. Здесь выживание становится немного легче переносить."
+    },
+    "GAMEPLAY_HomeSicknessName": {
+        "English": "Home Sickness",
+        "French (France)": "Mal du pays",
+        "Spanish (Spain)": "Nostalgia del hogar",
+        "German": "Heimweh",
+        "Turkish": "Yurt Özlemi",
+        "Russian": "Тоска по дому"
+    },
+    "GAMEPLAY_HomeSicknessCause": {
+        "English": "You miss your home...",
+        "French (France)": "Votre maison vous manque...",
+        "Spanish (Spain)": "Echas de menos tu hogar...",
+        "German": "Du vermisst dein Zuhause...",
+        "Turkish": "Evinizi özlüyorsunuz...",
+        "Russian": "Вы скучаете по дому..."
+    },
+    "GAMEPLAY_HomeSicknessDescription": {
+        "English": "Being away from your home for too long is starting to weigh on you. You tire more quickly.",
+        "French (France)": "Être loin de votre maison depuis trop longtemps commence à vous peser. Vous vous fatiguez plus rapidement.",
+        "Spanish (Spain)": "Llevas demasiado tiempo lejos de tu hogar y eso empieza a pesarte. Te cansas más rápido.",
+        "German": "Du bist schon zu lange von deinem Zuhause fort, und das beginnt dich zu belasten. Du ermüdest schneller.",
+        "Turkish": "Evinizden çok uzun süredir uzakta olmak üzerinizde ağırlık yapmaya başladı. Daha çabuk yoruluyorsunuz.",
+        "Russian": "Слишком долгое отсутствие дома начинает тяготить вас. Вы устаете быстрее."
+    },
+    "GAMEPLAY_RegionalDistressName": {
+        "English": "Regional Distress",
+        "French (France)": "Détresse régionale",
+        "Spanish (Spain)": "Malestar regional",
+        "German": "Regionale Beklemmung",
+        "Turkish": "Bölgesel Huzursuzluk",
+        "Russian": "Региональная тревога"
+    },
+    "GAMEPLAY_RegionalDistressCause": {
+        "English": "You don't like this region",
+        "French (France)": "Vous n'aimez pas cette région",
+        "Spanish (Spain)": "No te gusta esta región",
+        "German": "Du magst diese Region nicht",
+        "Turkish": "Bu bölgeyi sevmiyorsunuz",
+        "Russian": "Вам не нравится этот регион"
+    },
+    "GAMEPLAY_RegionalDistressDescription": {
+        "English": "Something about this region makes you uneasy. You don't like it here. The longer you stay, the heavier that discomfort will become.",
+        "French (France)": "Quelque chose dans cette région vous met mal à l'aise, vous ne l'aimez pas. Plus vous y resterez, plus ce malaise deviendra pesant.",
+        "Spanish (Spain)": "Algo en esta región te incomoda. No te gusta estar aquí. Cuanto más tiempo te quedes, más pesado se volverá ese malestar.",
+        "German": "Etwas an dieser Region macht dich unruhig. Du magst es hier nicht. Je länger du bleibst, desto schwerer wird dieses Unbehagen.",
+        "Turkish": "Bu bölgede bir şey sizi huzursuz ediyor. Burayı sevmiyorsunuz. Ne kadar uzun kalırsanız, bu rahatsızlık o kadar ağırlaşacak.",
+        "Russian": "Что-то в этом регионе вызывает у вас тревогу. Вам здесь не нравится. Чем дольше вы останетесь, тем сильнее будет становиться это чувство."
     }
 }

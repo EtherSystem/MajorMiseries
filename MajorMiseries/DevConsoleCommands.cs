@@ -4,8 +4,13 @@ using static MajorMiseries.Afflictions.BlackLung;
 using static MajorMiseries.Afflictions.BlackLungRisk;
 using static MajorMiseries.Afflictions.BrokenArm;
 using static MajorMiseries.Afflictions.BrokenLeg;
+using static MajorMiseries.Afflictions.Buffs.HomeComfort;
 using static MajorMiseries.Afflictions.COExposure;
 using static MajorMiseries.Afflictions.COPoisoning;
+using static MajorMiseries.Afflictions.CorpseSickness;
+using static MajorMiseries.Afflictions.CorpseSicknessRisk;
+using static MajorMiseries.Afflictions.HomeSickness;
+using static MajorMiseries.Afflictions.RegionalDistress;
 using static MajorMiseries.Afflictions.RequiemStagesAfflictions.Dirge;
 using static MajorMiseries.Afflictions.RequiemStagesAfflictions.Knell;
 using static MajorMiseries.Afflictions.RequiemStagesAfflictions.Omen;
@@ -13,12 +18,10 @@ using static MajorMiseries.Afflictions.RequiemStagesAfflictions.Requiem;
 using static MajorMiseries.Afflictions.ScarredFlesh;
 using static MajorMiseries.Afflictions.Sepsis;
 using static MajorMiseries.Afflictions.SepsisRisk;
-using static MajorMiseries.Afflictions.CorpseSicknessRisk;
-using static MajorMiseries.Afflictions.CorpseSickness;
-using static MajorMiseries.Afflictions.SevereWristSprainRisk;
+using static MajorMiseries.Afflictions.SevereAnkleSprain;
 using static MajorMiseries.Afflictions.SevereAnkleSprainRisk;
 using static MajorMiseries.Afflictions.SevereWristSprain;
-using static MajorMiseries.Afflictions.SevereAnkleSprain;
+using static MajorMiseries.Afflictions.SevereWristSprainRisk;
 using Random = UnityEngine.Random;
 
 namespace MajorMiseries
@@ -148,6 +151,38 @@ namespace MajorMiseries
                 SevereSprainLogic.DevApplySevereSprain(SevereSprainKind.Ankle, AfflictionBodyArea.FootRight);
             }));
 
+            uConsole.RegisterCommand("homesickness", new Action(() =>
+            {
+                new HomeSicknessAffliction(AfflictionBodyArea.Head).Start();
+            }));
+
+            uConsole.RegisterCommand("regionaldistress", new Action(() =>
+            {
+                new RegionalDistressAffliction(AfflictionBodyArea.Head).Start();
+            }));
+
+            uConsole.RegisterCommand("homecomfort", new Action(() =>
+            {
+                new HomeComfortBuff(AfflictionBodyArea.Head).Start();
+            }));
+
+            uConsole.RegisterCommand("homecomfort_cure", new Action(() =>
+            {
+                var mgr = AfflictionManager.GetAfflictionManagerInstance();
+                if (mgr?.m_Afflictions == null) return;
+
+                for (int i = mgr.m_Afflictions.Count - 1; i >= 0; i--)
+                {
+                    var a = mgr.m_Afflictions[i];
+                    if (a == null) continue;
+
+                    if (a is HomeComfortBuff)
+                    {
+                        a.Cure();
+                    }
+                }
+            }));
+
             uConsole.RegisterCommand("maj_afflictions_cure", new Action(() =>
             {
                 var mgr = AfflictionManager.GetAfflictionManagerInstance();
@@ -176,7 +211,10 @@ namespace MajorMiseries
                         || a is SevereWristSprainRiskAffliction
                         || a is SevereAnkleSprainRiskAffliction
                         || a is SevereWristSprainAffliction
-                        || a is SevereAnkleSprainAffliction)
+                        || a is SevereAnkleSprainAffliction
+                        || a is HomeSicknessAffliction
+                        || a is RegionalDistressAffliction
+                        || a is HomeComfortBuff)
                     {
                         a.Cure();
                     }

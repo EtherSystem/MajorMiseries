@@ -8,6 +8,13 @@
         public int ScarredFleshHistoryCount = 0;
         public float CorpseExposure = 0f;
 
+        public string LastKnownLogicalRegion = "";
+        public string CurrentLogicalRegion = "";
+        public string ConfiguredHomeRegion = "";
+        public string ConfiguredRegionalDistressRegion = "";
+        public float HomeSicknessHoursAway = 0f;
+        public float RegionalDistressHoursInRegion = 0f;
+
         public int LeftWristSprainCount = 0;
         public float LeftWristSprainWindowHours = 0f;
         public float LeftWristSevereSprainRisk = 0f;

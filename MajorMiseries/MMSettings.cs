@@ -20,22 +20,22 @@
         [Name("Omen threshold")]
         [Description("Days survived before Omen starts.")]
         [Slider(1, 365, 365, NumberFormat = "{0:0}d")]
-        public int OmenThreshold = 1;
+        public int OmenThreshold = 10;
 
         [Name("Dirge threshold")]
         [Description("Days survived before Dirge starts.")]
-        [Slider(1, 365, 365, NumberFormat = "{0:0}d")]
-        public int DirgeThreshold = 2;
+        [Slider(2, 365, 364, NumberFormat = "{0:0}d")]
+        public int DirgeThreshold = 20;
 
         [Name("Knell threshold")]
         [Description("Days survived before Knell starts.")]
-        [Slider(1, 365, 365, NumberFormat = "{0:0}d")]
-        public int KnellThreshold = 3;
+        [Slider(3, 365, 363, NumberFormat = "{0:0}d")]
+        public int KnellThreshold = 35;
 
         [Name("Requiem threshold")]
         [Description("Days survived before Requiem starts.")]
-        [Slider(1, 365, 365, NumberFormat = "{0:0}d")]
-        public int RequiemThreshold = 4;
+        [Slider(4, 365, 362, NumberFormat = "{0:0}d")]
+        public int RequiemThreshold = 50;
 
 
         [Section("Predator Related Afflictions")]
@@ -139,6 +139,74 @@
         public int AnimalCarcassHoursToRisk = 5;
 
 
+        [Section("Regional Afflictions")]
+
+        [Name("Enable Regional Afflictions")]
+        [Description("Enable or disable Home Sickness, Home Comfort, and Regional Distress.")]
+        public bool EnableRegionalAfflictions = true;
+
+        [Name("Home Region")]
+        [Description("A region where you feel at home.")]
+        [Choice("None",
+            "Mystery Lake",
+            "Coastal Highway",
+            "Pleasant Valley",
+            "Mountain Town",
+            "Forlorn Muskeg",
+            "Broken Railroad",
+            "Desolation Point",
+            "Timberwolf Mountain",
+            "Ash Canyon",
+            "Hushed River Valley",
+            "Bleak Inlet",
+            "Blackrock",
+            "Forsaken Airfield",
+            "Zone of Contamination",
+            "Sundered Pass",
+            "Transfer Pass"
+        )]
+        public int HomeRegion = 0;
+
+        [Name("Home Sickness Delay")]
+        [Description("Hours spent away from the home region before Home Sickness appears.")]
+        [Slider(1f, 336f, 336, NumberFormat = "{0:0}h")]
+        public int HomeSicknessDelayHours = 72;
+
+        [Name("Regional Distress Region")]
+        [Description("Region where you feel uncomfortable. This cannot affect your home region.")]
+        [Choice(
+            "None",
+            "Mystery Lake",
+            "Coastal Highway",
+            "Pleasant Valley",
+            "Mountain Town",
+            "Forlorn Muskeg",
+            "Broken Railroad",
+            "Desolation Point",
+            "Timberwolf Mountain",
+            "Ash Canyon",
+            "Hushed River Valley",
+            "Bleak Inlet",
+            "Blackrock",
+            "Forsaken Airfield",
+            "Zone of Contamination",
+            "Sundered Pass",
+            "Keeper's Pass South",
+            "Ravine",
+            "Keeper's Pass North",
+            "Winding River",
+            "Crumbling Highway",
+            "Transfer Pass",
+            "Far Territory Cave System"
+        )]
+        public int RegionalDistressRegion = 0;
+
+        [Name("Regional Distress Delay")]
+        [Description("Hours spent in the distress region before Regional Distress appears.")]
+        [Slider(1f, 336f, 336, NumberFormat = "{0:0}h")]
+        public int RegionalDistressDelayHours = 72;
+
+
         [Section("Advanced")]
 
         //[Name("Hunger lock arc rotation")]
@@ -209,6 +277,19 @@
                 Settings.UpdateCorpseSicknessVisibility();
             }
 
+            bool regionalSettingChanged =
+                field.Name == nameof(EnableRegionalAfflictions) ||
+                field.Name == nameof(HomeRegion) ||
+                field.Name == nameof(HomeSicknessDelayHours) ||
+                field.Name == nameof(RegionalDistressRegion) ||
+                field.Name == nameof(RegionalDistressDelayHours);
+
+            if (regionalSettingChanged)
+            {
+                Settings.UpdateRegionalAfflictionVisibility();
+                RegionalAfflictionLogic.RequestSettingsSync();
+            }
+
             if (field.Name == nameof(RevealShinyAfflictionIconChance1) ||
                 field.Name == nameof(RevealShinyAfflictionIconChance2) ||
                 field.Name == nameof(RevealShinyAfflictionIconChance3))
@@ -267,6 +348,7 @@
             UpdateBlackLungVisibility();
             UpdateCorpseSicknessVisibility();
             UpdateSevereSprainVisibility();
+            UpdateRegionalAfflictionVisibility();
             UpdateShinyAfflictionIconChanceVisibility();
         }
 
@@ -304,6 +386,16 @@
             options.SetFieldVisible(nameof(options.AnimalCarcassExposureRadiusMeters), showCorpseSicknessSettings);
             options.SetFieldVisible(nameof(options.HumanCorpseHoursToRisk), showCorpseSicknessSettings);
             options.SetFieldVisible(nameof(options.AnimalCarcassHoursToRisk), showCorpseSicknessSettings);
+        }
+
+        internal static void UpdateRegionalAfflictionVisibility()
+        {
+            bool showRegionalSettings = options.EnableRegionalAfflictions;
+
+            options.SetFieldVisible(nameof(options.HomeRegion), showRegionalSettings);
+            options.SetFieldVisible(nameof(options.HomeSicknessDelayHours), showRegionalSettings && options.HomeRegion > 0);
+            options.SetFieldVisible(nameof(options.RegionalDistressRegion), showRegionalSettings);
+            options.SetFieldVisible(nameof(options.RegionalDistressDelayHours), showRegionalSettings && options.RegionalDistressRegion > 0);
         }
 
         internal static void UpdateShinyAfflictionIconChanceVisibility()

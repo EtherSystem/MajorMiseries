@@ -18,6 +18,9 @@ using static MajorMiseries.Afflictions.CorpseSicknessRisk;
 using static MajorMiseries.Afflictions.CorpseSickness;
 using static MajorMiseries.Afflictions.SevereAnkleSprain;
 using static MajorMiseries.Afflictions.SevereWristSprain;
+using static MajorMiseries.Afflictions.Buffs.HomeComfort;
+using static MajorMiseries.Afflictions.HomeSickness;
+using static MajorMiseries.Afflictions.RegionalDistress;
 using Random = UnityEngine.Random;
 
 namespace MajorMiseries
@@ -1048,7 +1051,20 @@ namespace MajorMiseries
 
         internal static float GetSleepFatigueRecoveryMultiplier()
         {
-            return HasStageEffect(RequiemStage.Omen) ? 0.5f : 1f;
+            RefreshEffectsIfNeeded();
+
+            float multiplier = HasStageEffect(RequiemStage.Omen) ? 0.5f : 1f;
+
+            if (_cache.HomeComfort)
+                multiplier *= RegionalAfflictionLogic.HOME_COMFORT_SLEEP_RECOVERY_MULTIPLIER;
+
+            if (_cache.HomeSickness)
+                multiplier *= RegionalAfflictionLogic.HOME_SICKNESS_SLEEP_RECOVERY_MULTIPLIER;
+
+            if (_cache.RegionalDistress)
+                multiplier *= RegionalAfflictionLogic.REGIONAL_DISTRESS_SLEEP_RECOVERY_MULTIPLIER;
+
+            return multiplier;
         }
 
         internal static int GetAdjustedMaxSleepHours(int vanillaMaxHours)
@@ -1125,16 +1141,25 @@ namespace MajorMiseries
         {
             RefreshEffectsIfNeeded();
 
+            float multiplier = 1f;
+
             if (_cache.BrokenLegLeft && _cache.BrokenLegRight)
-                return 2.0f;
+                multiplier *= 2.0f;
+            else if (_cache.BrokenLegCount > 0)
+                multiplier *= 1.5f;
+            else if (_cache.SevereAnkleSprainCount > 0)
+                multiplier *= 1.35f;
 
-            if (_cache.BrokenLegCount > 0)
-                return 1.5f;
+            if (_cache.HomeComfort)
+                multiplier *= RegionalAfflictionLogic.HOME_COMFORT_MOVEMENT_FATIGUE_MULTIPLIER;
 
-            if (_cache.SevereAnkleSprainCount > 0)
-                return 1.35f;
+            if (_cache.HomeSickness)
+                multiplier *= RegionalAfflictionLogic.HOME_SICKNESS_MOVEMENT_FATIGUE_MULTIPLIER;
 
-            return 1f;
+            if (_cache.RegionalDistress)
+                multiplier *= RegionalAfflictionLogic.REGIONAL_DISTRESS_MOVEMENT_FATIGUE_MULTIPLIER;
+
+            return multiplier;
         }
 
         internal static float GetCraftingTimeMultiplier()
@@ -1212,6 +1237,10 @@ namespace MajorMiseries
             public int SevereWristSprainCount;
             public int SevereAnkleSprainCount;
 
+            public bool HomeComfort;
+            public bool HomeSickness;
+            public bool RegionalDistress;
+
             public void Reset()
             {
                 this = default;
@@ -1271,6 +1300,18 @@ namespace MajorMiseries
 
                     case SevereAnkleSprainAffliction:
                         _cache.SevereAnkleSprainCount++;
+                        break;
+
+                    case HomeComfortBuff:
+                        _cache.HomeComfort = true;
+                        break;
+
+                    case HomeSicknessAffliction:
+                        _cache.HomeSickness = true;
+                        break;
+
+                    case RegionalDistressAffliction:
+                        _cache.RegionalDistress = true;
                         break;
 
                     case BrokenArmAffliction brokenArm:

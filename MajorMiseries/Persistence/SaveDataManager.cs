@@ -8,6 +8,12 @@ namespace MajorMiseries.Persistence
         private static readonly ModDataManager _manager = new("MajorMiseries", false);
         private const string SUFFIX = "mmdata";
 
+        private static string GetCurrentSceneLogName()
+        {
+            string scene = GameManager.m_ActiveScene;
+            return string.IsNullOrEmpty(scene) ? "Unknown" : scene;
+        }
+
         private static void EnsureState()
         {
             Core.State ??= new MMState();
@@ -23,13 +29,19 @@ namespace MajorMiseries.Persistence
             if (Settings.options.IsLogging && Core.Instance != null)
             {
                 Core.Instance.LoggerInstance.Msg(
-                    $"Saved -> PredatorHostility:{Core.State.PredatorHostility:0.###} | " +
+                    $"Saved -> " +
+                    $"Scene:{GetCurrentSceneLogName()} | " +
+                    $"Region:{RegionalAfflictionLogic.GetRegionLogName(Core.State.CurrentLogicalRegion)} | " +
+                    $"LastKnownRegion:{RegionalAfflictionLogic.GetRegionLogName(Core.State.LastKnownLogicalRegion)} | " +
+                    $"HomeAway:{Core.State.HomeSicknessHoursAway:0.###} | " +
+                    $"RegionalDistress:{Core.State.RegionalDistressHoursInRegion:0.###} | " +
+                    $"PredatorHostility:{Core.State.PredatorHostility:0.###} | " +
                     $"HrsSinceLastPredatorKill:{Core.State.HoursSinceLastPredatorKill:0.###} | " +
                     $"BlackLungExposure:{Core.State.BlackLungExposure:0.###} | " +
                     $"CorpseExposure:{Core.State.CorpseExposure:0.###} | " +
                     $"ScarredFleshHistory:{Core.State.ScarredFleshHistoryCount} | " +
                     $"Sprains:LW={Core.State.LeftWristSprainCount},RW={Core.State.RightWristSprainCount},LA={Core.State.LeftAnkleSprainCount},RA={Core.State.RightAnkleSprainCount}"
-);
+                );
             }
         }
 
@@ -63,13 +75,19 @@ namespace MajorMiseries.Persistence
             if (Settings.options.IsLogging && Core.Instance != null)
             {
                 Core.Instance.LoggerInstance.Msg(
-                    $"Loaded -> PredatorHostility:{Core.State.PredatorHostility:0.###} | " +
+                    $"Loaded -> " +
+                    $"Scene:{GetCurrentSceneLogName()} | " +
+                    $"Region:{RegionalAfflictionLogic.GetRegionLogName(Core.State.CurrentLogicalRegion)} | " +
+                    $"LastKnownRegion:{RegionalAfflictionLogic.GetRegionLogName(Core.State.LastKnownLogicalRegion)} | " +
+                    $"HomeAway:{Core.State.HomeSicknessHoursAway:0.###} | " +
+                    $"RegionalDistress:{Core.State.RegionalDistressHoursInRegion:0.###} | " +
+                    $"PredatorHostility:{Core.State.PredatorHostility:0.###} | " +
                     $"HrsSinceLastPredatorKill:{Core.State.HoursSinceLastPredatorKill:0.###} | " +
                     $"BlackLungExposure:{Core.State.BlackLungExposure:0.###} | " +
                     $"CorpseExposure:{Core.State.CorpseExposure:0.###} | " +
                     $"ScarredFleshHistory:{Core.State.ScarredFleshHistoryCount} | " +
                     $"Sprains:LW={Core.State.LeftWristSprainCount},RW={Core.State.RightWristSprainCount},LA={Core.State.LeftAnkleSprainCount},RA={Core.State.RightAnkleSprainCount}"
-);
+                );
             }
         }
 
@@ -95,6 +113,13 @@ namespace MajorMiseries.Persistence
             Core.State.RightWristSprainCount = Mathf.Max(0, Core.State.RightWristSprainCount);
             Core.State.LeftAnkleSprainCount = Mathf.Max(0, Core.State.LeftAnkleSprainCount);
             Core.State.RightAnkleSprainCount = Mathf.Max(0, Core.State.RightAnkleSprainCount);
+
+            Core.State.LastKnownLogicalRegion ??= string.Empty;
+            Core.State.CurrentLogicalRegion ??= string.Empty;
+            Core.State.ConfiguredHomeRegion ??= string.Empty;
+            Core.State.ConfiguredRegionalDistressRegion ??= string.Empty;
+            Core.State.HomeSicknessHoursAway = Mathf.Max(0f, Core.State.HomeSicknessHoursAway);
+            Core.State.RegionalDistressHoursInRegion = Mathf.Max(0f, Core.State.RegionalDistressHoursInRegion);
         }
     }
 

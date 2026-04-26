@@ -26,6 +26,10 @@ namespace MajorMiseries.Afflictions
             private float m_SuppressedUntilTime = -1f;
             private bool m_HasShownDoseExpiredMessage = false;
             private float m_LastWholeMinute = -1f;
+            private const float DRAIN_LOG_INTERVAL_MINUTES = 60f;
+
+            private float m_DrainLogHpLoss = 0f;
+            private float m_DrainLogMinutes = 0f;
 
             public static bool IsActive { get; private set; } = false;
 
@@ -72,6 +76,8 @@ namespace MajorMiseries.Afflictions
                     return;
                 }
 
+                FlushDrainLog();
+
                 float now = GameManager.GetTimeOfDayComponent().GetHoursPlayedNotPaused();
                 m_SuppressedUntilTime = now + DOSE_DURATION_HOURS;
                 m_HasShownDoseExpiredMessage = false;
@@ -82,6 +88,8 @@ namespace MajorMiseries.Afflictions
 
             public void OnCure()
             {
+                FlushDrainLog();
+
                 IsActive = false;
                 CustomAffliction.ResetRemedyItems(this);
             }
@@ -107,6 +115,8 @@ namespace MajorMiseries.Afflictions
 
                 if (!IsTreatmentActive(now) && m_SuppressedUntilTime > 0f && !m_HasShownDoseExpiredMessage)
                 {
+                    FlushDrainLog();
+
                     m_HasShownDoseExpiredMessage = true;
                     m_SuppressedUntilTime = -1f;
 
@@ -169,7 +179,21 @@ namespace MajorMiseries.Afflictions
 
                 cond.AddHealth(-hpLoss, DamageSource.Unspecified);
 
-                Core.Log($"Sepsis drain: {hpLoss:0.###} HP over {minuteDelta:0} min ({hpPerHour:0.##}/h)");
+                m_DrainLogHpLoss += hpLoss;
+                m_DrainLogMinutes += minuteDelta;
+
+                if (m_DrainLogMinutes >= DRAIN_LOG_INTERVAL_MINUTES) FlushDrainLog();
+            }
+
+            private void FlushDrainLog()
+            {
+                if (m_DrainLogMinutes <= 0f || m_DrainLogHpLoss <= 0f)
+                    return;
+
+                Core.Log($"Sepsis drain: {m_DrainLogHpLoss:0.###} HP over {m_DrainLogMinutes:0} min.");
+
+                m_DrainLogHpLoss = 0f;
+                m_DrainLogMinutes = 0f;
             }
 
             public void RefreshLocalization()

@@ -22,7 +22,7 @@ namespace MajorMiseries.Afflictions
 
             public float Duration { get; set; }
             public float EndTime { get; set; }
-            bool ILimp.IsActive { get; set; } = true;
+            public bool IsLimping { get; set; } = true;
 
             public Tuple<string, int, int>[] RemedyItems { get; set; } =
             {
