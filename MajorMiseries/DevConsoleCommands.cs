@@ -183,6 +183,96 @@ namespace MajorMiseries
                 }
             }));
 
+
+            uConsole.RegisterCommand("maj_afflictionsrisk", new Action(() =>
+            {
+                new SepsisRiskAffliction(AfflictionBodyArea.Chest)
+                {
+                    DebugForced = true,
+                    DebugRiskValue = 50f
+                }.Start();
+
+                new BlackLungRiskAffliction(AfflictionBodyArea.Chest)
+                {
+                    DebugForced = true,
+                    DebugRiskValue = 50f
+                }.Start();
+
+                new COExposureAffliction(AfflictionBodyArea.Chest)
+                {
+                    DebugForced = true,
+                    DebugRiskValue = 50f
+                }.Start();
+
+                new CorpseSicknessRiskAffliction(AfflictionBodyArea.Head)
+                {
+                    DebugForced = true,
+                    DebugRiskValue = 50f
+                }.Start();
+
+                new SevereWristSprainRiskAffliction(AfflictionBodyArea.HandLeft)
+                {
+                    DebugForced = true,
+                    DebugRiskValue = 50f
+                }.Start();
+
+                new SevereAnkleSprainRiskAffliction(AfflictionBodyArea.FootLeft)
+                {
+                    DebugForced = true,
+                    DebugRiskValue = 50f
+                }.Start();
+
+                uConsole.Log("MajorMiseries risk afflictions applied in debug mode.");
+            }));
+
+            uConsole.RegisterCommand("maj_afflictions", new Action(() =>
+            {
+                new ScarredFleshAffliction(AfflictionBodyArea.Chest).Start();
+
+                new BrokenLegAffliction(
+                    AfflictionBodyArea.LegLeft,
+                    Settings.options.BrokenLimbDurationMode == 1 ? 201.6f : 2016f
+                ).Start();
+
+                new BrokenArmAffliction(
+                    AfflictionBodyArea.ArmLeft,
+                    Settings.options.BrokenLimbDurationMode == 1 ? 134.4f : 1344f
+                ).Start();
+
+                new SepsisAffliction(AfflictionBodyArea.Chest).Start();
+
+                new BlackLungAffliction(
+                    AfflictionBodyArea.Chest,
+                    Settings.options.BlackLungDurationMode == 1 ? 360f : 3600f
+                ).Start();
+
+                new COPoisoningAffliction(AfflictionBodyArea.Chest, 12f).Start();
+
+                new CorpseSicknessAffliction(AfflictionBodyArea.Head, 72f).Start();
+
+                new SevereWristSprainAffliction(
+                    AfflictionBodyArea.HandLeft,
+                    SevereSprainLogic.SevereSprainDurationHours
+                ).Start();
+
+                new SevereAnkleSprainAffliction(
+                    AfflictionBodyArea.FootLeft,
+                    SevereSprainLogic.SevereSprainDurationHours
+                ).Start();
+
+                new HomeSicknessAffliction(AfflictionBodyArea.Head)
+                {
+                    DebugForced = true
+                }.Start();
+
+                new RegionalDistressAffliction(AfflictionBodyArea.Head)
+                {
+                    DebugForced = true
+                }.Start();
+
+                uConsole.Log("MajorMiseries afflictions applied in debug mode.");
+            }));
+
             uConsole.RegisterCommand("maj_afflictions_cure", new Action(() =>
             {
                 var mgr = AfflictionManager.GetAfflictionManagerInstance();

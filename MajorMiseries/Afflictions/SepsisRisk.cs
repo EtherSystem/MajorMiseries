@@ -26,6 +26,8 @@ namespace MajorMiseries.Afflictions
 
             public InstanceType Type { get; set; } = InstanceType.Open;
             public bool Risk { get; set; } = true;
+            public bool DebugForced { get; set; } = false;
+            public float DebugRiskValue { get; set; } = 50f;
 
             public Tuple<string, int, int>[] RemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
             public Tuple<string, int, int>[] AltRemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
@@ -57,12 +59,15 @@ namespace MajorMiseries.Afflictions
                 // When the affliction is cured, apply this code
             }
 
-            public float GetRiskValue() => m_RiskValue;
+            public float GetRiskValue() => DebugForced ? DebugRiskValue : m_RiskValue;
 
             public override void OnUpdate()
             {
                 Panel_FirstAid firstAid = InterfaceManager.GetPanel<Panel_FirstAid>();
                 if (firstAid != null && firstAid.isActiveAndEnabled)
+                    return;
+
+                if (DebugForced)
                     return;
 
                 if (!Settings.options.EnableSepsis)

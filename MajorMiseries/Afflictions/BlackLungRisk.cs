@@ -25,6 +25,8 @@ namespace MajorMiseries.Afflictions
 
             public InstanceType Type { get; set; } = InstanceType.Single;
             public bool Risk { get; set; } = true;
+            public bool DebugForced { get; set; } = false;
+            public float DebugRiskValue { get; set; } = 50f;
 
             public Tuple<string, int, int>[] RemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
             public Tuple<string, int, int>[] AltRemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
@@ -52,11 +54,14 @@ namespace MajorMiseries.Afflictions
                 IsActive = false;
             }
 
-            public float GetRiskValue() => m_RiskValue;
+            public float GetRiskValue() => DebugForced ? DebugRiskValue : m_RiskValue;
 
             public override void OnUpdate()
             {
                 IsActive = true;
+
+                if (DebugForced)
+                    return;
 
                 if (!Settings.options.EnableBlackLung)
                 {

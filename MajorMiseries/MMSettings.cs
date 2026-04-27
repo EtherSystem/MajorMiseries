@@ -163,7 +163,12 @@
             "Forsaken Airfield",
             "Zone of Contamination",
             "Sundered Pass",
-            "Transfer Pass"
+            "Transfer Pass",
+            "TLDev - Forsaken Shore",
+            "TLDev - Mountain Pass",
+            "TLDev - Precarious Causeway",
+            "TLDev - Rocky Thoroughfare",
+            "TLDev - Shattered Marsh"
         )]
         public int HomeRegion = 0;
 
@@ -197,7 +202,12 @@
             "Winding River",
             "Crumbling Highway",
             "Transfer Pass",
-            "Far Territory Cave System"
+            "Far Territory Cave System",
+            "TLDev - Forsaken Shore",
+            "TLDev - Mountain Pass",
+            "TLDev - Precarious Causeway",
+            "TLDev - Rocky Thoroughfare",
+            "TLDev - Shattered Marsh"
         )]
         public int RegionalDistressRegion = 0;
 

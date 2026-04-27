@@ -2,6 +2,7 @@
 using AfflictionComponent.Enums;
 using AfflictionComponent.Interfaces;
 using MajorMiseries.Resources.Localization;
+using static MajorMiseries.Afflictions.HomeSickness;
 
 namespace MajorMiseries.Afflictions
 {
@@ -24,6 +25,7 @@ namespace MajorMiseries.Afflictions
             public Tuple<string, int, int>[] AltRemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
 
             public bool InstantHeal { get; set; } = true;
+            public bool DebugForced { get; set; } = false;
 
             //public RegionalDistressAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
             public RegionalDistressAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, "ico_injury_BrokenBody", bodyArea)
@@ -34,6 +36,7 @@ namespace MajorMiseries.Afflictions
             {
                 if (existingAffliction is RegionalDistressAffliction existing)
                 {
+                    existing.DebugForced = DebugForced;
                     existing.ResetAffliction(resetRemedies: false);
                 }
             }
@@ -50,6 +53,9 @@ namespace MajorMiseries.Afflictions
             public override void OnUpdate()
             {
                 IsActive = true;
+
+                if (DebugForced)
+                    return;
 
                 if (!RegionalAfflictionLogic.ShouldRegionalDistressBeActive())
                 {

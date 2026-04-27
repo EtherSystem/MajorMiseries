@@ -20,6 +20,8 @@ namespace MajorMiseries.Afflictions
 
             public InstanceType Type { get; set; } = InstanceType.SingleLocation;
             public bool Risk { get; set; } = true;
+            public bool DebugForced { get; set; } = false;
+            public float DebugRiskValue { get; set; } = 50f;
 
             public Tuple<string, int, int>[] RemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
             public Tuple<string, int, int>[] AltRemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
@@ -42,7 +44,7 @@ namespace MajorMiseries.Afflictions
 
             public float GetRiskValue()
             {
-                return m_RiskValue;
+                return DebugForced ? DebugRiskValue : m_RiskValue;
             }
 
             public void UpdateRiskValue()
@@ -62,6 +64,9 @@ namespace MajorMiseries.Afflictions
 
             public override void OnUpdate()
             {
+                if (DebugForced)
+                    return;
+
                 if (!Settings.options.EnableSevereSprains)
                 {
                     Cure();

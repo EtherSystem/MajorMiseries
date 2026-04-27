@@ -56,6 +56,7 @@ namespace MajorMiseries.Afflictions
                 if (existingAffliction is BrokenLegAffliction brokenLeg)
                 {
                     brokenLeg.ResetAffliction(resetRemedies: true);
+                    brokenLeg.IsLimping = true;
 
                     brokenLeg.Duration = Duration;
                     brokenLeg._causeKey = _causeKey;
@@ -88,7 +89,7 @@ namespace MajorMiseries.Afflictions
 
             public void OnCure()
             {
-                // when the affliction is cured, apply this code
+                IsLimping = false;
             }
 
             public override void OnUpdate()

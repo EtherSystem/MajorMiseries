@@ -41,7 +41,14 @@ namespace MajorMiseries
             "AirfieldRegion",
             "MiningRegion",
             "MountainPassRegion",
-            "HubRegion"
+            "HubRegion",
+
+            // TLDev regions
+            "ModForsakenShore",
+            "ModMountainPass",
+            "ModPrecariousCauseway",
+            "ModRockyThoroughfare",
+            "ModShatteredMarsh"
         };
 
         private static readonly string[] s_RegionalDistressRegionIds =
@@ -78,7 +85,14 @@ namespace MajorMiseries
             // Other transition regions
             "HighwayTransitionZone",
             "HubRegion",
-            "HubCaveTransitionZone"
+            "HubCaveTransitionZone",
+
+            // TLDev regions
+            "ModForsakenShore",
+            "ModMountainPass",
+            "ModPrecariousCauseway",
+            "ModRockyThoroughfare",
+            "ModShatteredMarsh"
         };
 
         private static readonly Dictionary<string, string> s_OutdoorSceneToLogicalRegion = new(StringComparer.OrdinalIgnoreCase)
@@ -95,7 +109,17 @@ namespace MajorMiseries
             { "HubCave", "HubCaveTransitionZone" },
 
             // Keeper's Pass cave between South and North
-            { "CanyonRoadCave", "CanyonRoadCave" }
+            { "CanyonRoadCave", "CanyonRoadCave" },
+
+            // TLDev regions
+            { "ModForsakenShore", "ModForsakenShore" },
+            { "ModMountainPass", "ModMountainPass" },
+            { "ModPrecariousCauseway", "ModPrecariousCauseway" },
+            { "ModRockyThoroughfare", "ModRockyThoroughfare" },
+            { "ModShatteredMarsh", "ModShatteredMarsh" },
+
+            // TLDev "indoor" scenes
+            { "ModPrecariousCavern", "ModPrecariousCauseway" }
         };
 
         internal static string GetHomeRegionId(int choiceIndex)
@@ -585,9 +609,14 @@ namespace MajorMiseries
 
             for (int i = mgr.m_Afflictions.Count - 1; i >= 0; i--)
             {
-                if (mgr.m_Afflictions[i] is TAffliction afflictionObject &&
-                    afflictionObject is CustomAffliction affliction)
+                if (mgr.m_Afflictions[i] is TAffliction afflictionObject && afflictionObject is CustomAffliction affliction)
                 {
+                    if (affliction is HomeSickness.HomeSicknessAffliction { DebugForced: true } ||
+                        affliction is RegionalDistress.RegionalDistressAffliction { DebugForced: true })
+                    {
+                        continue;
+                    }
+
                     affliction.Cure();
                     cured = true;
                 }

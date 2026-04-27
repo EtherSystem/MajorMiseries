@@ -44,6 +44,8 @@ namespace MajorMiseries.Afflictions
                 if (existingAffliction is SevereAnkleSprainAffliction ankle)
                 {
                     ankle.ResetAffliction(resetRemedies: true);
+                    ankle.IsLimping = true;
+
                     ankle.Duration = Duration;
                     ankle.ResetEndTime();
                     Core.Log($"SevereAnkleSprain refreshed on {ankle.m_Location} for {ankle.Duration:0.#} hours");
@@ -66,13 +68,16 @@ namespace MajorMiseries.Afflictions
 
             public void OnCure()
             {
-                // Nothing extra.
+                IsLimping = false;
             }
 
             public override void OnUpdate()
             {
                 if (!Settings.options.EnableSevereSprains)
+                {
+                    IsLimping = false;
                     Cure();
+                }
             }
 
             private void ResetEndTime()
