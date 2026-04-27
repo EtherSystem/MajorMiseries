@@ -401,7 +401,7 @@ namespace MajorMiseries
             if (hostilityAdded <= 0f)
                 return;
 
-            if (Settings.options.PredatorHostilityMode == 2)
+            if (!IsPredatorHostilityEnabled())
                 return;
 
             float before = Core.State.PredatorHostility;
