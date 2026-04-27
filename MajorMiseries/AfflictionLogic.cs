@@ -36,10 +36,7 @@ namespace MajorMiseries
         private const float REFRESH_INTERVAL_SECONDS = 0.25f;
         private static float _lastRefreshUnscaledTime = -999f;
 
-        private const float DEFAULT_OMEN_THRESHOLD_DAYS = 1f;
-        private const float DEFAULT_DIRGE_THRESHOLD_DAYS = 2f;
-        private const float DEFAULT_KNELL_THRESHOLD_DAYS = 3f;
-        private const float DEFAULT_REQUIEM_THRESHOLD_DAYS = 4f;
+        private const float VANILLA_MAX_CONDITION_HP = 100f;
 
         internal static void ResetRuntime()
         {
@@ -50,6 +47,7 @@ namespace MajorMiseries
             s_BlackLungExposureSceneActive = false;
             s_BlackLungExposureSceneName = string.Empty;
             s_BlackLungExposureSceneStartExposure = 0f;
+            ResetBlackLungWorseningLog();
             s_WasPlayerNearCorpseSource = false;
             s_LastCorpseSourceLabel = string.Empty;
             _blackLungSleepTrackingActive = false;
@@ -128,6 +126,7 @@ namespace MajorMiseries
             CureAllStageAfflictions();
             ApplyStage(stage);
             ForceRefreshEffects();
+            ClampConditionToCurrentStageMax(stage);
 
             if (stage != RequiemStage.None)
             {
@@ -193,6 +192,7 @@ namespace MajorMiseries
             CureAllStageAfflictions();
             ApplyStage(stage);
             ForceRefreshEffects();
+            ClampConditionToCurrentStageMax(stage);
 
             Core.Log($"stage synced: {appliedStage} -> {stage}");
         }
@@ -237,21 +237,8 @@ namespace MajorMiseries
             return RequiemStage.None;
         }
 
-        private static void GetConfiguredStageThresholds(
-            out float omenThreshold,
-            out float dirgeThreshold,
-            out float knellThreshold,
-            out float requiemThreshold)
+        private static void GetConfiguredStageThresholds(out float omenThreshold, out float dirgeThreshold, out float knellThreshold, out float requiemThreshold)
         {
-            if (!Settings.options.CustomizeStageThresholds)
-            {
-                omenThreshold = DEFAULT_OMEN_THRESHOLD_DAYS;
-                dirgeThreshold = DEFAULT_DIRGE_THRESHOLD_DAYS;
-                knellThreshold = DEFAULT_KNELL_THRESHOLD_DAYS;
-                requiemThreshold = DEFAULT_REQUIEM_THRESHOLD_DAYS;
-                return;
-            }
-
             omenThreshold = Settings.options.OmenThreshold;
             dirgeThreshold = Mathf.Max(omenThreshold, Settings.options.DirgeThreshold);
             knellThreshold = Mathf.Max(dirgeThreshold, Settings.options.KnellThreshold);
@@ -295,6 +282,27 @@ namespace MajorMiseries
                     Core.Log("requiem applied");
                     break;
             }
+        }
+
+        private static void ClampConditionToCurrentStageMax(RequiemStage stage)
+        {
+            if (stage == RequiemStage.None)
+                return;
+
+            Condition? condition = GameManager.GetConditionComponent();
+            if (condition == null)
+                return;
+
+            float before = condition.m_CurrentHP;
+
+            float adjustedMaxHp = Mathf.Max(1f, VANILLA_MAX_CONDITION_HP + condition.GetAdjustedMaxHPModifier());
+
+            if (before <= adjustedMaxHp)
+                return;
+
+            condition.m_CurrentHP = adjustedMaxHp;
+
+            Core.Log($"stage condition clamp -> {stage}: {before:0.##} -> {condition.m_CurrentHP:0.##} / {adjustedMaxHp:0.##}");
         }
 
         private static void CureAllStageAfflictions()
@@ -363,10 +371,8 @@ namespace MajorMiseries
             return RequiemStagesEffects.GetBasePredatorThreat(stage);
         }
 
-        internal static int GetDynamicPredatorThreatLevel()
+        private static int GetDynamicPredatorThreatLevelFromHeat(float heat)
         {
-            float heat = Core.State.PredatorHostility;
-
             if (heat >= 30f) return 8;
             if (heat >= 20f) return 7;
             if (heat >= 15f) return 6;
@@ -376,6 +382,11 @@ namespace MajorMiseries
             if (heat >= 4f) return 2;
             if (heat >= 2f) return 1;
             return 0;
+        }
+
+        internal static int GetDynamicPredatorThreatLevel()
+        {
+            return GetDynamicPredatorThreatLevelFromHeat(Core.State.PredatorHostility);
         }
 
         internal static int GetTotalPredatorThreatLevel()
@@ -423,7 +434,8 @@ namespace MajorMiseries
 
         internal static void UpdatePredatorHostilityDecay(float gameHoursPassed)
         {
-            if (gameHoursPassed <= 0f) return;
+            if (gameHoursPassed <= 0f)
+                return;
 
             if (Core.State.PredatorHostility <= 0f)
             {
@@ -435,9 +447,12 @@ namespace MajorMiseries
             Core.State.HoursSinceLastPredatorKill += gameHoursPassed;
             Core.Instance?.MarkDirty();
 
-            if (Core.State.HoursSinceLastPredatorKill < PREDATOR_HOSTILITY_DECAY_DELAY_HOURS) return;
+            if (Core.State.HoursSinceLastPredatorKill < PREDATOR_HOSTILITY_DECAY_DELAY_HOURS)
+                return;
 
             float before = Core.State.PredatorHostility;
+            int dynamicThreatBefore = GetDynamicPredatorThreatLevelFromHeat(before);
+
             float decay = PREDATOR_HOSTILITY_DECAY_PER_HOUR * gameHoursPassed;
 
             Core.State.PredatorHostility = Mathf.Max(0f, Core.State.PredatorHostility - decay);
@@ -445,7 +460,13 @@ namespace MajorMiseries
             if (!Mathf.Approximately(before, Core.State.PredatorHostility))
             {
                 Core.Instance?.MarkDirty();
-                Core.Log($"predator hostility decay -> {before:0.##} -> {Core.State.PredatorHostility:0.##}");
+
+                int dynamicThreatAfter = GetDynamicPredatorThreatLevelFromHeat(Core.State.PredatorHostility);
+
+                if (dynamicThreatBefore != dynamicThreatAfter || Core.State.PredatorHostility <= 0f)
+                {
+                    Core.Log($"predator hostility decay -> {before:0.##} -> {Core.State.PredatorHostility:0.##} | DynamicThreat:{dynamicThreatBefore}->{dynamicThreatAfter}");
+                }
             }
 
             if (Core.State.PredatorHostility <= 0f)
@@ -1394,11 +1415,62 @@ namespace MajorMiseries
         private static string s_BlackLungExposureSceneName = string.Empty;
         private static float s_BlackLungExposureSceneStartExposure = 0f;
 
+        private const float BLACK_LUNG_WORSENING_LOG_INTERVAL_HOURS = 1f;
+        private static string s_BlackLungWorseningSceneName = string.Empty;
+        private static float s_BlackLungWorseningLogHoursAdded = 0f;
+        private static float s_BlackLungWorseningLogGameHours = 0f;
+
         internal static float GetBlackLungExposureGainPerHour() => BLACK_LUNG_EXPOSURE_GAIN_PER_HOUR;
         internal static float GetBlackLungExposureDecayPerHour() => BLACK_LUNG_EXPOSURE_DECAY_PER_HOUR;
         internal static float GetBlackLungExposureMax() => BLACK_LUNG_EXPOSURE_MAX;
         internal static float GetBlackLungRiskGainPerHour() => BLACK_LUNG_RISK_GAIN_PER_HOUR;
         internal static float GetBlackLungRiskDecayPerHour() => BLACK_LUNG_RISK_DECAY_PER_HOUR;
+
+        private static void ResetBlackLungWorseningLog()
+        {
+            s_BlackLungWorseningSceneName = string.Empty;
+            s_BlackLungWorseningLogHoursAdded = 0f;
+            s_BlackLungWorseningLogGameHours = 0f;
+        }
+
+        private static void AccumulateBlackLungWorseningLog(string sceneName, float gameHoursPassed, float hoursAdded)
+        {
+            if (gameHoursPassed <= 0f || hoursAdded <= 0f)
+                return;
+
+            if (string.IsNullOrEmpty(s_BlackLungWorseningSceneName))
+            {
+                s_BlackLungWorseningSceneName = sceneName;
+            }
+            else if (!string.Equals(s_BlackLungWorseningSceneName, sceneName, StringComparison.OrdinalIgnoreCase))
+            {
+                FlushBlackLungWorseningLog();
+                s_BlackLungWorseningSceneName = sceneName;
+            }
+
+            s_BlackLungWorseningLogHoursAdded += hoursAdded;
+            s_BlackLungWorseningLogGameHours += gameHoursPassed;
+
+            if (s_BlackLungWorseningLogGameHours >= BLACK_LUNG_WORSENING_LOG_INTERVAL_HOURS)
+                FlushBlackLungWorseningLog();
+        }
+
+        private static void FlushBlackLungWorseningLog()
+        {
+            if (s_BlackLungWorseningLogGameHours <= 0f || s_BlackLungWorseningLogHoursAdded <= 0f)
+            {
+                ResetBlackLungWorseningLog();
+                return;
+            }
+
+            string scenePart = string.IsNullOrEmpty(s_BlackLungWorseningSceneName)
+                ? string.Empty
+                : $" in '{s_BlackLungWorseningSceneName}'";
+
+            Core.Log($"BlackLung worsened by coal exposure{scenePart} -> +{s_BlackLungWorseningLogHoursAdded:0.###}h remaining over {s_BlackLungWorseningLogGameHours * 60f:0} min.");
+
+            ResetBlackLungWorseningLog();
+        }
 
         private static void BeginBlackLungExposureScene(string sceneName)
         {
@@ -1500,11 +1572,17 @@ namespace MajorMiseries
                 {
                     float addedHours = gameHoursPassed * BLACK_LUNG_COAL_SCENE_WORSENING_MULTIPLIER;
                     activeBlackLung.EndTime += addedHours;
-                    Core.Log($"BlackLung worsened by coal exposure -> +{addedHours:0.###}h remaining.");
+                    AccumulateBlackLungWorseningLog(sceneName, gameHoursPassed, addedHours);
+                }
+                else
+                {
+                    FlushBlackLungWorseningLog();
                 }
 
                 return;
             }
+
+            FlushBlackLungWorseningLog();
 
             if (hasBlackLungRisk)
             {

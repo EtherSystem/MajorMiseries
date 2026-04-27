@@ -13,8 +13,8 @@
         [Choice("Only with Requiem Stages", "Always", "Disabled")]
         public int PredatorHostilityMode = 0;
 
-        [Name("Customize Stage Thresholds")]
-        [Description("Override the default day thresholds for Omen, Dirge, Knell, and Requiem.")]
+        [Name("Show Stage Thresholds Customization")]
+        [Description("Show or hide day threshold customization sliders for Omen, Dirge, Knell and Requiem.")]
         public bool CustomizeStageThresholds = false;
 
         [Name("Omen threshold")]
@@ -318,7 +318,6 @@
 
             bool requiresStageReapply =
                 field.Name == nameof(EnableRequiemStages) ||
-                field.Name == nameof(CustomizeStageThresholds) ||
                 field.Name == nameof(OmenThreshold) ||
                 field.Name == nameof(DirgeThreshold) ||
                 field.Name == nameof(KnellThreshold) ||

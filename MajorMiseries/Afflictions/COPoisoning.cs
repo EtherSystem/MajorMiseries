@@ -20,6 +20,9 @@ namespace MajorMiseries.Afflictions
             public const float CONDITION_LOSS_PER_HOUR = 5f;
 
             private float m_LastWholeMinute = -1f;
+            private const float DRAIN_LOG_INTERVAL_MINUTES = 60f;
+            private float m_DrainLogHpLoss = 0f;
+            private float m_DrainLogMinutes = 0f;
 
             public static bool IsActive { get; private set; } = false;
 
@@ -71,6 +74,8 @@ namespace MajorMiseries.Afflictions
 
             public void OnCure()
             {
+                FlushDrainLog();
+
                 IsActive = false;
                 m_LastWholeMinute = -1f;
             }
@@ -139,7 +144,22 @@ namespace MajorMiseries.Afflictions
 
                 condition.AddHealth(-hpLoss, DamageSource.Unspecified);
 
-                Core.Log($"COPoisoning drain: {hpLoss:0.###} HP over {minuteDelta:0} min ({CONDITION_LOSS_PER_HOUR:0.##}/h)");
+                m_DrainLogHpLoss += hpLoss;
+                m_DrainLogMinutes += minuteDelta;
+
+                if (m_DrainLogMinutes >= DRAIN_LOG_INTERVAL_MINUTES)
+                    FlushDrainLog();
+            }
+
+            private void FlushDrainLog()
+            {
+                if (m_DrainLogMinutes <= 0f || m_DrainLogHpLoss <= 0f)
+                    return;
+
+                Core.Log($"COPoisoning drain: {m_DrainLogHpLoss:0.###} HP over {m_DrainLogMinutes:0} min.");
+
+                m_DrainLogHpLoss = 0f;
+                m_DrainLogMinutes = 0f;
             }
 
             public void RefreshLocalization()
