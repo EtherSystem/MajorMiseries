@@ -22,14 +22,6 @@ namespace MajorMiseries.Patches
             private BaseAi? _ai;
             private bool _initialized;
             private AiMode _lastLoggedMode = AiMode.None;
-            private float _nextThinkTime = 0f;
-
-            private float _nextForcedStalkAttemptTime = 0f;
-            private float _nextForcedAttackAttemptTime = 0f;
-            private float _suppressForceUntilTime = 0f;
-
-            private float _nextForcedStalkLogTime = 0f;
-            private float _nextForcedAttackLogTime = 0f;
 
             internal float _curiousFollowDistance;
             internal float _curiousEnterStalkingChance;
@@ -44,8 +36,11 @@ namespace MajorMiseries.Patches
             internal float _passingAttackRange;
 
             internal float _smellRange;
-            internal float _rangeFromScentFactor;
-            internal float _rangeFromScentMax;
+            internal float _hearFootstepsRange;
+            internal float _detectionRange;
+            internal float _rangeMeleeAttack;
+            internal float _breakStalkingRange;
+            internal float _breakStalkingTimeSeconds;
 
             internal void Initialize(BaseAi ai)
             {
@@ -78,8 +73,11 @@ namespace MajorMiseries.Patches
                 _passingAttackRange = _ai.m_PassingAttackRange;
 
                 _smellRange = _ai.m_SmellRange;
-                _rangeFromScentFactor = _ai.m_RangeFromScentFactor;
-                _rangeFromScentMax = _ai.m_RangeFromScentMax;
+                _hearFootstepsRange = _ai.m_HearFootstepsRange;
+                _detectionRange = _ai.m_DetectionRange;
+                _rangeMeleeAttack = _ai.m_RangeMeleeAttack;
+                _breakStalkingRange = _ai.m_BreakSlalkingRange;
+                _breakStalkingTimeSeconds = _ai.m_BreakStalkingTimeSeconds;
             }
 
             private void LateUpdate()
@@ -99,13 +97,6 @@ namespace MajorMiseries.Patches
                 ApplyPredatorThreatValues();
                 MaybeLogPredatorThreatThreshold(_ai, this);
                 MaybeLogPredatorModeTransition();
-
-                if (Time.time < _nextThinkTime)
-                    return;
-
-                _nextThinkTime = Time.time + 0.20f;
-
-                TryForceThreatBehavior();
             }
 
             private void ApplyPredatorThreatValues()
@@ -113,7 +104,98 @@ namespace MajorMiseries.Patches
                 if (_ai == null)
                     return;
 
+                switch (_ai.m_AiSubType)
+                {
+                    case AiSubType.Wolf:
+                        ApplyWolfThreatValues();
+                        break;
+
+                    case AiSubType.Bear:
+                        ApplyBearThreatValues();
+                        break;
+
+                    case AiSubType.Moose:
+                        ApplyMooseThreatValues();
+                        break;
+
+                    case AiSubType.Cougar:
+                        ApplyCougarThreatValues();
+                        break;
+                }
+            }
+
+            private void ApplyWolfThreatValues()
+            {
+                if (_ai == null)
+                    return;
+
                 float smellMultiplier = AfflictionLogic.GetPredatorSmellDistanceMultiplier();
+                float threatMultiplier = AfflictionLogic.GetPredatorRushDistanceMultiplier();
+
+                _ai.m_SmellRange = _smellRange * smellMultiplier;
+                _ai.m_HearFootstepsRange = _hearFootstepsRange * threatMultiplier;
+                _ai.m_RangeMeleeAttack = _rangeMeleeAttack * threatMultiplier;
+
+                _ai.m_StalkingFollowDistance = _stalkingFollowDistance * threatMultiplier;
+                _ai.m_CurrentStalkingFollowDistance = _ai.m_StalkingFollowDistance;
+
+                _ai.m_StalkingBeginChasingDistance = _stalkingBeginChasingDistance * threatMultiplier;
+                _ai.m_StalkingBeginChasingWeakTargetDistance = _stalkingBeginChasingWeakTargetDistance * threatMultiplier;
+
+                _ai.m_ForceStalkPlayerDistance = _forceStalkPlayerDistance * threatMultiplier;
+                _ai.m_PassingAttackRange = _passingAttackRange * threatMultiplier;
+            }
+
+            private void ApplyBearThreatValues()
+            {
+                if (_ai == null)
+                    return;
+
+                float smellMultiplier = AfflictionLogic.GetPredatorSmellDistanceMultiplier();
+                float threatMultiplier = AfflictionLogic.GetPredatorRushDistanceMultiplier();
+
+                float scaledDetectionRange = _detectionRange * threatMultiplier;
+                float scaledBeginChase = _stalkingBeginChasingDistance * threatMultiplier;
+                float scaledWeakBeginChase = _stalkingBeginChasingWeakTargetDistance * threatMultiplier;
+
+                _ai.m_SmellRange = _smellRange * smellMultiplier;
+                _ai.m_HearFootstepsRange = _hearFootstepsRange * threatMultiplier;
+                _ai.m_DetectionRange = scaledDetectionRange;
+
+                _ai.m_StalkingBeginChasingDistance = scaledBeginChase;
+                _ai.m_StalkingBeginChasingWeakTargetDistance = scaledWeakBeginChase;
+
+                _ai.m_RangeMeleeAttack = _rangeMeleeAttack * threatMultiplier;
+
+                _ai.m_StalkingFollowDistance = Mathf.Max(
+                    _stalkingFollowDistance * threatMultiplier,
+                    scaledDetectionRange
+                );
+
+                _ai.m_CurrentStalkingFollowDistance = _ai.m_StalkingFollowDistance;
+
+                _ai.m_BreakSlalkingRange = Mathf.Max(
+                    _breakStalkingRange * threatMultiplier,
+                    scaledDetectionRange
+                );
+            }
+
+            private void ApplyMooseThreatValues()
+            {
+                if (_ai == null)
+                    return;
+
+                float threatMultiplier = AfflictionLogic.GetPredatorRushDistanceMultiplier();
+
+                _ai.m_RangeMeleeAttack = _rangeMeleeAttack * threatMultiplier;
+                _ai.m_DetectionRange = _detectionRange * threatMultiplier;
+            }
+
+            private void ApplyCougarThreatValues()
+            {
+                if (_ai == null)
+                    return;
+
                 float stalkMultiplier = AfflictionLogic.GetPredatorRushDistanceMultiplier();
                 float chanceMultiplier = 1f + ((stalkMultiplier - 1f) * 0.5f);
 
@@ -134,123 +216,6 @@ namespace MajorMiseries.Patches
 
                 _ai.m_ForceStalkPlayerDistance = _forceStalkPlayerDistance * stalkMultiplier;
                 _ai.m_PassingAttackRange = _passingAttackRange * stalkMultiplier;
-
-                if (UsesForcedWolfThreatBehavior(_ai))
-                {
-                    _ai.m_SmellRange = _smellRange * smellMultiplier;
-                    _ai.m_RangeFromScentFactor = _rangeFromScentFactor * smellMultiplier;
-                    _ai.m_RangeFromScentMax = _rangeFromScentMax * smellMultiplier;
-                }
-            }
-
-            private void TryForceThreatBehavior()
-            {
-                if (_ai == null)
-                    return;
-
-                if (!UsesForcedWolfThreatBehavior(_ai))
-                    return;
-
-                if (Time.time < _suppressForceUntilTime)
-                    return;
-
-                AiMode currentMode = _ai.GetAiMode();
-
-                if (currentMode == AiMode.Dead
-                    || currentMode == AiMode.Struggle
-                    || currentMode == AiMode.Flee
-                    || currentMode == AiMode.PassingAttack
-                    || currentMode == AiMode.Stunned
-                    || currentMode == AiMode.ScriptedSequence)
-                {
-                    return;
-                }
-
-                GameObject playerObject = GameManager.GetPlayerObject();
-                if (playerObject == null)
-                    return;
-
-                AiTarget? playerTarget = playerObject.GetComponent<AiTarget>();
-                if (playerTarget == null)
-                    return;
-
-                float distanceToPlayer = Vector3.Distance(_ai.transform.position, playerObject.transform.position);
-
-                bool playerReachable = _ai.CanPlayerBeReached(
-                    playerObject.transform.position,
-                    MoveAgent.PathRequirement.FullPath
-                );
-
-                if (currentMode == AiMode.Investigate || currentMode == AiMode.InvestigateSmell)
-                {
-                    if (Time.time < _nextForcedStalkAttemptTime)
-                        return;
-
-                    float forcedStalkDistance = GetForcedWolfStalkingDistance();
-                    if (forcedStalkDistance <= 0f)
-                        return;
-
-                    if (!playerReachable)
-                        return;
-
-                    if (distanceToPlayer > forcedStalkDistance)
-                        return;
-
-                    _ai.m_CurrentTarget = playerTarget;
-
-                    if (!_ai.CanSeeTarget())
-                        return;
-
-                    if (!_ai.CanEnterStalking())
-                        return;
-
-                    _ai.SetAiMode(AiMode.Stalking);
-                    _nextForcedStalkAttemptTime = Time.time + 1.5f;
-
-                    if (Time.time >= _nextForcedStalkLogTime)
-                    {
-                        Core.Log($"{GetPredatorName(_ai.m_AiSubType)} #{_ai.GetInstanceID()} forced to STALKING at {distanceToPlayer:0.0} m");
-                        _nextForcedStalkLogTime = Time.time + 2f;
-                    }
-
-                    return;
-                }
-
-                if (currentMode == AiMode.Stalking)
-                {
-                    if (Time.time < _nextForcedAttackAttemptTime)
-                        return;
-
-                    float forcedAttackDistance = GetForcedWolfAttackDistance();
-                    if (forcedAttackDistance <= 0f)
-                        return;
-
-                    if (!playerReachable)
-                        return;
-
-                    if (distanceToPlayer > forcedAttackDistance)
-                        return;
-
-                    if (_ai.m_CurrentTarget == null || !_ai.m_CurrentTarget.IsPlayer())
-                    {
-                        _ai.m_CurrentTarget = playerTarget;
-                    }
-
-                    if (!_ai.CanSeeTarget())
-                        return;
-
-                    if (_ai.m_TimeInModeSeconds < 0.75f)
-                        return;
-
-                    _ai.SetAiMode(AiMode.Attack);
-                    _nextForcedAttackAttemptTime = Time.time + 2f;
-
-                    if (Time.time >= _nextForcedAttackLogTime)
-                    {
-                        Core.Log($"{GetPredatorName(_ai.m_AiSubType)} #{_ai.GetInstanceID()} forced to ATTACK at {distanceToPlayer:0.0} m | TimeInMode={_ai.m_TimeInModeSeconds:0.0}s");
-                        _nextForcedAttackLogTime = Time.time + 2f;
-                    }
-                }
             }
 
             private void MaybeLogPredatorModeTransition()
@@ -273,13 +238,6 @@ namespace MajorMiseries.Patches
                 AiMode lastMode = _lastLoggedMode;
                 _lastLoggedMode = currentMode;
 
-                if (UsesForcedWolfThreatBehavior(_ai) && lastMode == AiMode.Attack && currentMode == AiMode.Wander)
-                {
-                    _suppressForceUntilTime = Time.time + 4f;
-                    _nextForcedStalkAttemptTime = Time.time + 2f;
-                    _nextForcedAttackAttemptTime = Time.time + 2f;
-                }
-
                 if (!IsInterestingPredatorMode(lastMode) && !IsInterestingPredatorMode(currentMode))
                     return;
 
@@ -295,28 +253,16 @@ namespace MajorMiseries.Patches
                     Core.Log($"{GetPredatorName(_ai.m_AiSubType)} #{key} : {lastMode} -> {currentMode} | Threat={threat}");
                 }
             }
-
-            private static float GetForcedWolfStalkingDistance()
-            {
-                float t = GetThreatLerp01();
-                return Mathf.Lerp(70f, 90f, t);
-            }
-
-            private static float GetForcedWolfAttackDistance()
-            {
-                float t = GetThreatLerp01();
-                return Mathf.Lerp(35f, 50f, t);
-            }
         }
 
         private static readonly Dictionary<int, PendingKill> _pendingPredatorKills = new();
 
-        private static int _lastLoggedPredatorThreatLevel = -1;
+        private static readonly Dictionary<AiSubType, int> _lastLoggedPredatorThreatLevelBySubtype = new();
 
         internal static void ResetRuntime()
         {
             _pendingPredatorKills.Clear();
-            _lastLoggedPredatorThreatLevel = -1;
+            _lastLoggedPredatorThreatLevelBySubtype.Clear();
             Core.Log("predator hostility tracker reset");
         }
 
@@ -338,19 +284,6 @@ namespace MajorMiseries.Patches
         private static bool IsPredatorThreatTracked(BaseAi ai)
         {
             return TryGetTrackedPredatorSubtype(ai, out _);
-        }
-
-        private static bool UsesForcedWolfThreatBehavior(BaseAi ai)
-        {
-            if (ai == null)
-                return false;
-
-            return ai is AiBaseWolf || ai.m_AiSubType == AiSubType.Wolf;
-        }
-
-        private static float GetThreatLerp01()
-        {
-            return Mathf.InverseLerp(4f, 12f, AfflictionLogic.GetTotalPredatorThreatLevel());
         }
 
         private static string GetPredatorName(AiSubType subType)
@@ -460,58 +393,109 @@ namespace MajorMiseries.Patches
             int dynamicThreat = AfflictionLogic.GetDynamicPredatorThreatLevel();
             int totalThreat = AfflictionLogic.GetTotalPredatorThreatLevel();
 
-            if (totalThreat == _lastLoggedPredatorThreatLevel)
-                return;
-
-            _lastLoggedPredatorThreatLevel = totalThreat;
-
-            float smellMultiplier = AfflictionLogic.GetPredatorSmellDistanceMultiplier();
-            float stalkMultiplier = AfflictionLogic.GetPredatorRushDistanceMultiplier();
-            float chanceMultiplier = 1f + ((stalkMultiplier - 1f) * 0.5f);
-
-            float newCuriousFollow = controller._curiousFollowDistance * stalkMultiplier;
-            float newCuriousEnter = Mathf.Clamp(controller._curiousEnterStalkingChance * chanceMultiplier, 0f, 100f);
-
-            float newStalkingFollow = controller._stalkingFollowDistance * stalkMultiplier;
-            float newBeginChase = controller._stalkingBeginChasingDistance * stalkMultiplier;
-            float newWeakBeginChase = controller._stalkingBeginChasingWeakTargetDistance * stalkMultiplier;
-            int newTargetDetected = Mathf.Clamp(Mathf.RoundToInt(controller._stalkingChanceWhenTargetDetected * chanceMultiplier), 0, 100);
-            float newLoseInterest = Mathf.Clamp(controller._stalkingLoseInterestChance / Mathf.Max(1f, stalkMultiplier), 0f, 100f);
-            float newForceStalk = controller._forceStalkPlayerDistance * stalkMultiplier;
-            float newPassingAttack = controller._passingAttackRange * stalkMultiplier;
-
-            Core.Log($"predator threat threshold -> Base:{baseThreat} | Dynamic:{dynamicThreat} | Total:{totalThreat} | Smell x{smellMultiplier:0.00} | Stalk x{stalkMultiplier:0.00}");
-
-            if (UsesForcedWolfThreatBehavior(ai))
+            if (_lastLoggedPredatorThreatLevelBySubtype.TryGetValue(ai.m_AiSubType, out int lastThreat)
+                && lastThreat == totalThreat)
             {
-                float newSmellRange = controller._smellRange * smellMultiplier;
-                float newRangeFromScentFactor = controller._rangeFromScentFactor * smellMultiplier;
-                float newRangeFromScentMax = controller._rangeFromScentMax * smellMultiplier;
-
-                Core.Log(
-                    $"predator smell ranges -> {GetPredatorName(ai.m_AiSubType)} | " +
-                    $"SmellRange {controller._smellRange:0.0}->{newSmellRange:0.0} | " +
-                    $"RangeFromScentFactor {controller._rangeFromScentFactor:0.00}->{newRangeFromScentFactor:0.00} | " +
-                    $"RangeFromScentMax {controller._rangeFromScentMax:0.0}->{newRangeFromScentMax:0.0}"
-                );
+                return;
             }
 
-            Core.Log(
-                $"predator stalking ranges -> {GetPredatorName(ai.m_AiSubType)} | " +
-                $"CuriousFollow {controller._curiousFollowDistance:0.0}->{newCuriousFollow:0.0} | " +
-                $"StalkFollow {controller._stalkingFollowDistance:0.0}->{newStalkingFollow:0.0} | " +
-                $"BeginChase {controller._stalkingBeginChasingDistance:0.0}->{newBeginChase:0.0} | " +
-                $"WeakBeginChase {controller._stalkingBeginChasingWeakTargetDistance:0.0}->{newWeakBeginChase:0.0} | " +
-                $"ForceStalk {controller._forceStalkPlayerDistance:0.0}->{newForceStalk:0.0} | " +
-                $"PassingAttack {controller._passingAttackRange:0.0}->{newPassingAttack:0.0}"
-            );
+            _lastLoggedPredatorThreatLevelBySubtype[ai.m_AiSubType] = totalThreat;
+
+            float smellMultiplier = AfflictionLogic.GetPredatorSmellDistanceMultiplier();
+            float threatMultiplier = AfflictionLogic.GetPredatorRushDistanceMultiplier();
 
             Core.Log(
-                $"predator stalking chances -> {GetPredatorName(ai.m_AiSubType)} | " +
-                $"CuriousEnterStalk {controller._curiousEnterStalkingChance:0.00}->{newCuriousEnter:0.00} | " +
-                $"TargetDetectedStalk {controller._stalkingChanceWhenTargetDetected:0.00}->{newTargetDetected:0.00} | " +
-                $"LoseInterest {controller._stalkingLoseInterestChance:0.00}->{newLoseInterest:0.00}"
+                $"predator threat threshold -> {GetPredatorName(ai.m_AiSubType)} | " +
+                $"Base:{baseThreat} | Dynamic:{dynamicThreat} | Total:{totalThreat} | " +
+                $"Smell x{smellMultiplier:0.00} | Threat x{threatMultiplier:0.00}"
             );
+
+            switch (ai.m_AiSubType)
+            {
+                case AiSubType.Wolf:
+                    {
+                        Core.Log(
+                            $"predator wolf values -> " +
+                            $"SmellRange {controller._smellRange:0.0}->{controller._smellRange * smellMultiplier:0.0} | " +
+                            $"HearFootsteps {controller._hearFootstepsRange:0.0}->{controller._hearFootstepsRange * threatMultiplier:0.0} | " +
+                            $"MeleeRange {controller._rangeMeleeAttack:0.0}->{controller._rangeMeleeAttack * threatMultiplier:0.0} | " +
+                            $"StalkFollow {controller._stalkingFollowDistance:0.0}->{controller._stalkingFollowDistance * threatMultiplier:0.0} | " +
+                            $"BeginChase {controller._stalkingBeginChasingDistance:0.0}->{controller._stalkingBeginChasingDistance * threatMultiplier:0.0} | " +
+                            $"WeakBeginChase {controller._stalkingBeginChasingWeakTargetDistance:0.0}->{controller._stalkingBeginChasingWeakTargetDistance * threatMultiplier:0.0} | " +
+                            $"ForceStalk {controller._forceStalkPlayerDistance:0.0}->{controller._forceStalkPlayerDistance * threatMultiplier:0.0} | " +
+                            $"PassingAttack {controller._passingAttackRange:0.0}->{controller._passingAttackRange * threatMultiplier:0.0}"
+                        );
+
+                        break;
+                    }
+
+                case AiSubType.Bear:
+                    {
+                        float scaledDetectionRange = controller._detectionRange * threatMultiplier;
+                        float scaledStalkingFollowDistance = Mathf.Max(controller._stalkingFollowDistance * threatMultiplier, scaledDetectionRange);
+                        float scaledBreakStalkingRange = Mathf.Max(controller._breakStalkingRange * threatMultiplier, scaledDetectionRange);
+
+                        Core.Log(
+                            $"predator bear values -> " +
+                            $"SmellRange {controller._smellRange:0.0}->{controller._smellRange * smellMultiplier:0.0} | " +
+                            $"HearFootsteps {controller._hearFootstepsRange:0.0}->{controller._hearFootstepsRange * threatMultiplier:0.0} | " +
+                            $"DetectionRange {controller._detectionRange:0.0}->{scaledDetectionRange:0.0} | " +
+                            $"BeginChase {controller._stalkingBeginChasingDistance:0.0}->{controller._stalkingBeginChasingDistance * threatMultiplier:0.0} | " +
+                            $"WeakBeginChase {controller._stalkingBeginChasingWeakTargetDistance:0.0}->{controller._stalkingBeginChasingWeakTargetDistance * threatMultiplier:0.0} | " +
+                            $"MeleeRange {controller._rangeMeleeAttack:0.0}->{controller._rangeMeleeAttack * threatMultiplier:0.0} | " +
+                            $"StalkFollow {controller._stalkingFollowDistance:0.0}->{scaledStalkingFollowDistance:0.0} | " +
+                            $"BreakStalkRange {controller._breakStalkingRange:0.0}->{scaledBreakStalkingRange:0.0}"
+                        );
+
+                        break;
+                    }
+
+                case AiSubType.Moose:
+                    {
+                        Core.Log(
+                            $"predator moose values -> " +
+                            $"MeleeRange {controller._rangeMeleeAttack:0.0}->{controller._rangeMeleeAttack * threatMultiplier:0.0} | " +
+                            $"DetectionRange {controller._detectionRange:0.0}->{controller._detectionRange * threatMultiplier:0.0}"
+                        );
+
+                        break;
+                    }
+
+                case AiSubType.Cougar:
+                    {
+                        float chanceMultiplier = 1f + ((threatMultiplier - 1f) * 0.5f);
+
+                        float newCuriousFollow = controller._curiousFollowDistance * threatMultiplier;
+                        float newCuriousEnter = Mathf.Clamp(controller._curiousEnterStalkingChance * chanceMultiplier, 0f, 100f);
+
+                        float newStalkingFollow = controller._stalkingFollowDistance * threatMultiplier;
+                        float newBeginChase = controller._stalkingBeginChasingDistance * threatMultiplier;
+                        float newWeakBeginChase = controller._stalkingBeginChasingWeakTargetDistance * threatMultiplier;
+                        int newTargetDetected = Mathf.Clamp(Mathf.RoundToInt(controller._stalkingChanceWhenTargetDetected * chanceMultiplier), 0, 100);
+                        float newLoseInterest = Mathf.Clamp(controller._stalkingLoseInterestChance / Mathf.Max(1f, threatMultiplier), 0f, 100f);
+                        float newForceStalk = controller._forceStalkPlayerDistance * threatMultiplier;
+                        float newPassingAttack = controller._passingAttackRange * threatMultiplier;
+
+                        Core.Log(
+                            $"predator cougar ranges -> " +
+                            $"CuriousFollow {controller._curiousFollowDistance:0.0}->{newCuriousFollow:0.0} | " +
+                            $"StalkFollow {controller._stalkingFollowDistance:0.0}->{newStalkingFollow:0.0} | " +
+                            $"BeginChase {controller._stalkingBeginChasingDistance:0.0}->{newBeginChase:0.0} | " +
+                            $"WeakBeginChase {controller._stalkingBeginChasingWeakTargetDistance:0.0}->{newWeakBeginChase:0.0} | " +
+                            $"ForceStalk {controller._forceStalkPlayerDistance:0.0}->{newForceStalk:0.0} | " +
+                            $"PassingAttack {controller._passingAttackRange:0.0}->{newPassingAttack:0.0}"
+                        );
+
+                        Core.Log(
+                            $"predator cougar chances -> " +
+                            $"CuriousEnterStalk {controller._curiousEnterStalkingChance:0.00}->{newCuriousEnter:0.00} | " +
+                            $"TargetDetectedStalk {controller._stalkingChanceWhenTargetDetected:0.00}->{newTargetDetected:0.00} | " +
+                            $"LoseInterest {controller._stalkingLoseInterestChance:0.00}->{newLoseInterest:0.00}"
+                        );
+
+                        break;
+                    }
+            }
         }
 
         // ------------------------------------------------------------------------
