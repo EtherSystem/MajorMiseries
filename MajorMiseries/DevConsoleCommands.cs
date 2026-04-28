@@ -30,7 +30,8 @@ namespace MajorMiseries
     {
         internal static void Register()
         {
-            // -----------------requiem stages afflictions---------------------
+            // -------------------- Requiem Stages --------------------
+
             uConsole.RegisterCommand("omen", new Action(() =>
             {
                 new OmenAffliction(AfflictionBodyArea.Head).Start();
@@ -54,12 +55,19 @@ namespace MajorMiseries
                 new RequiemAffliction(AfflictionBodyArea.Head).Start();
                 DisplayStagePopup.ShowStagePopup(4, "GAMEPLAY_Stage4Name");
             }));
-            // -----------------------------------------------------------------
+
+
+            // -------------------- Scarred Flesh --------------------
 
             uConsole.RegisterCommand("scarredflesh", new Action(() =>
             {
-                new ScarredFleshAffliction(AfflictionBodyArea.Chest).Start();
+                AfflictionLogic.AddScarredFleshStack("Debug command scarredflesh");
+
+                uConsole.Log($"ScarredFleshHistoryCount increased to {Core.State.ScarredFleshHistoryCount}");
             }));
+
+
+            // -------------------- Sepsis --------------------
 
             uConsole.RegisterCommand("sepsisrisk", new Action(() =>
             {
@@ -71,6 +79,9 @@ namespace MajorMiseries
                 new SepsisAffliction(AfflictionBodyArea.Chest).Start();
             }));
 
+
+            // -------------------- Broken Leg & Broken Arm --------------------
+
             uConsole.RegisterCommand("brokenleg", new Action(() =>
             {
                 new BrokenLegAffliction(Random.Range(0, 2) == 0 ? AfflictionBodyArea.LegLeft : AfflictionBodyArea.LegRight, Settings.options.BrokenLimbDurationMode == 1 ? 201.6f : 2016f).Start();
@@ -80,6 +91,9 @@ namespace MajorMiseries
             {
                 new BrokenArmAffliction(Random.Range(0, 2) == 0 ? AfflictionBodyArea.ArmLeft : AfflictionBodyArea.ArmRight, Settings.options.BrokenLimbDurationMode == 1 ? 134.4f : 1344f).Start();
             }));
+
+
+            // -------------------- Black Lung --------------------
 
             uConsole.RegisterCommand("blacklungrisk", new Action(() =>
             {
@@ -91,6 +105,8 @@ namespace MajorMiseries
                 new BlackLungAffliction(AfflictionBodyArea.Chest, Settings.options.BlackLungDurationMode == 1 ? 360f : 3600f).Start();
             }));
 
+
+            // -------------------- Carbon Monoxide ---------------------
             uConsole.RegisterCommand("coexposure", new Action(() =>
             {
                 new COExposureAffliction(AfflictionBodyArea.Chest).Start();
@@ -101,6 +117,9 @@ namespace MajorMiseries
                 new COPoisoningAffliction(AfflictionBodyArea.Chest, Random.Range(6f, 24f)).Start();
             }));
 
+
+            // -------------------- Corpse Sickness --------------------
+
             uConsole.RegisterCommand("corpsesicknessrisk", new Action(() =>
             {
                 new CorpseSicknessRiskAffliction(AfflictionBodyArea.Head).Start();
@@ -110,6 +129,9 @@ namespace MajorMiseries
             {
                 new CorpseSicknessAffliction(AfflictionBodyArea.Head, Random.Range(48f, 96f)).Start();
             }));
+
+
+            // -------------------- Severe Sprain Risks --------------------
 
             uConsole.RegisterCommand("mm_sprain_risk_wrist_left", new Action(() =>
             {
@@ -131,6 +153,9 @@ namespace MajorMiseries
                 SevereSprainLogic.DevApplyRisk(SevereSprainKind.Ankle, AfflictionBodyArea.FootRight);
             }));
 
+
+            // -------------------- Severe Sprains --------------------
+
             uConsole.RegisterCommand("mm_severe_sprain_wrist_left", new Action(() =>
             {
                 SevereSprainLogic.DevApplySevereSprain(SevereSprainKind.Wrist, AfflictionBodyArea.HandLeft);
@@ -150,6 +175,9 @@ namespace MajorMiseries
             {
                 SevereSprainLogic.DevApplySevereSprain(SevereSprainKind.Ankle, AfflictionBodyArea.FootRight);
             }));
+
+
+            // -------------------- Regional Afflictions & Home Comfort --------------------
 
             uConsole.RegisterCommand("homesickness", new Action(() =>
             {
@@ -183,6 +211,8 @@ namespace MajorMiseries
                 }
             }));
 
+
+            // -------------------- Batch Risk Afflictions --------------------
 
             uConsole.RegisterCommand("maj_afflictionsrisk", new Action(() =>
             {
@@ -225,9 +255,12 @@ namespace MajorMiseries
                 uConsole.Log("MajorMiseries risk afflictions applied in debug mode.");
             }));
 
+
+            // -------------------- Batch Afflictions --------------------
+
             uConsole.RegisterCommand("maj_afflictions", new Action(() =>
             {
-                new ScarredFleshAffliction(AfflictionBodyArea.Chest).Start();
+                AfflictionLogic.AddScarredFleshStack("Debug command maj_afflictions");
 
                 new BrokenLegAffliction(
                     AfflictionBodyArea.LegLeft,
@@ -309,7 +342,12 @@ namespace MajorMiseries
                         a.Cure();
                     }
                 }
+
+                AfflictionLogic.SetScarredFleshStack(0);
             }));
+
+
+            // -------------------- Vanilla debug Affliction --------------------
 
             uConsole.RegisterCommand("severeL", new Action(() =>
             {
@@ -331,20 +369,24 @@ namespace MajorMiseries
                 GameManager.GetInfectionComponent().Cure();
             }));
 
+
+            // -------------------- Misery stage popup test --------------------
+
             uConsole.RegisterCommand("mm_testpopup", new Action(() =>
             {
                 Patches.DisplayStagePopup.ShowStagePopup(1, "GAMEPLAY_OmenName");
             }));
 
+
+            // -------------------- Scarred Flesh State --------------------
+
             uConsole.RegisterCommand("reset_SFhistory", new Action(() =>
             {
-                Core.State.ScarredFleshHistoryCount = 0;
-                Core.Instance?.MarkDirty();
+                AfflictionLogic.SetScarredFleshStack(0);
 
                 uConsole.Log("ScarredFleshHistoryCount reset to 0");
 
-                if (Settings.options.IsLogging)
-                    Core.Log("ScarredFleshHistoryCount reset to 0", false);
+                Core.Log("ScarredFleshHistoryCount reset to 0", false);
             }));
 
             uConsole.RegisterCommand("set_SFhistory", new Action(() =>
@@ -362,14 +404,17 @@ namespace MajorMiseries
                     return;
                 }
 
-                Core.State.ScarredFleshHistoryCount = Mathf.Max(0, v);
-                Core.Instance?.MarkDirty();
+                Core.State ??= new Persistence.MMState();
+
+                AfflictionLogic.SetScarredFleshStack(v);
 
                 uConsole.Log($"ScarredFleshHistoryCount set to {Core.State.ScarredFleshHistoryCount}");
 
-                if (Settings.options.IsLogging)
-                    Core.Log($"ScarredFleshHistoryCount set to {Core.State.ScarredFleshHistoryCount}", false);
+                Core.Log($"ScarredFleshHistoryCount set to {Core.State.ScarredFleshHistoryCount}", false);
             }));
+
+
+            // -------------------- Predator Hostility State --------------------
 
             uConsole.RegisterCommand("reset_PH", new Action(() =>
             {
@@ -379,8 +424,7 @@ namespace MajorMiseries
 
                 uConsole.Log("PredatorHostility reset to 0");
 
-                if (Settings.options.IsLogging)
-                    Core.Log("PredatorHostility reset to 0", false);
+                Core.Log("PredatorHostility reset to 0", false);
             }));
 
             uConsole.RegisterCommand("set_PH", new Action(() =>
@@ -404,9 +448,11 @@ namespace MajorMiseries
 
                 uConsole.Log($"PredatorHostility set to {Core.State.PredatorHostility:0}");
 
-                if (Settings.options.IsLogging)
-                    Core.Log($"PredatorHostility set to {Core.State.PredatorHostility:0}", false);
+                Core.Log($"PredatorHostility set to {Core.State.PredatorHostility:0}", false);
             }));
+
+
+            // -------------------- Corpse Exposure State --------------------
 
             uConsole.RegisterCommand("reset_CE", new Action(() =>
             {
@@ -415,8 +461,7 @@ namespace MajorMiseries
 
                 uConsole.Log("CorpseExposure reset to 0");
 
-                if (Settings.options.IsLogging)
-                    Core.Log("CorpseExposure reset to 0", false);
+                Core.Log("CorpseExposure reset to 0", false);
             }));
 
             uConsole.RegisterCommand("set_CE", new Action(() =>
@@ -439,8 +484,7 @@ namespace MajorMiseries
 
                 uConsole.Log($"CorpseExposure set to {Core.State.CorpseExposure:0.##}");
 
-                if (Settings.options.IsLogging)
-                    Core.Log($"CorpseExposure set to {Core.State.CorpseExposure:0.##}", false);
+                Core.Log($"CorpseExposure set to {Core.State.CorpseExposure:0.##}", false);
             }));
         }
     }

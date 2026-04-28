@@ -124,16 +124,14 @@ namespace MajorMiseries
 
         internal static string GetHomeRegionId(int choiceIndex)
         {
-            if (choiceIndex < 0 || choiceIndex >= s_HomeRegionIds.Length)
-                return string.Empty;
+            if (choiceIndex < 0 || choiceIndex >= s_HomeRegionIds.Length) return string.Empty;
 
             return s_HomeRegionIds[choiceIndex];
         }
 
         internal static string GetRegionalDistressRegionId(int choiceIndex)
         {
-            if (choiceIndex < 0 || choiceIndex >= s_RegionalDistressRegionIds.Length)
-                return string.Empty;
+            if (choiceIndex < 0 || choiceIndex >= s_RegionalDistressRegionIds.Length) return string.Empty;
 
             return s_RegionalDistressRegionIds[choiceIndex];
         }
@@ -176,38 +174,26 @@ namespace MajorMiseries
 
             s_SettingsSyncPending = false;
 
-            string homeRegion = Settings.options.EnableRegionalAfflictions
-                ? GetHomeRegionId(Settings.options.HomeRegion)
-                : string.Empty;
+            string homeRegion = Settings.options.EnableRegionalAfflictions ? GetHomeRegionId(Settings.options.HomeRegion) : string.Empty;
 
-            string distressRegion = Settings.options.EnableRegionalAfflictions
-                ? GetRegionalDistressRegionId(Settings.options.RegionalDistressRegion)
-                : string.Empty;
+            string distressRegion = Settings.options.EnableRegionalAfflictions ? GetRegionalDistressRegionId(Settings.options.RegionalDistressRegion) : string.Empty;
 
             if (!Settings.options.EnableRegionalAfflictions)
             {
-                bool hadData =
-                    !string.IsNullOrEmpty(Core.State.ConfiguredHomeRegion) ||
-                    !string.IsNullOrEmpty(Core.State.ConfiguredRegionalDistressRegion) ||
-                    Core.State.HomeSicknessHoursAway > 0f ||
-                    Core.State.RegionalDistressHoursInRegion > 0f;
+                bool hadData = !string.IsNullOrEmpty(Core.State.ConfiguredHomeRegion) || !string.IsNullOrEmpty(Core.State.ConfiguredRegionalDistressRegion) || Core.State.HomeSicknessHoursAway > 0f || Core.State.RegionalDistressHoursInRegion > 0f;
 
                 Core.State.ConfiguredHomeRegion = string.Empty;
                 Core.State.ConfiguredRegionalDistressRegion = string.Empty;
                 Core.State.HomeSicknessHoursAway = 0f;
                 Core.State.RegionalDistressHoursInRegion = 0f;
 
-                bool cured =
-                    CureHomeComfort() |
-                    CureHomeSickness() |
-                    CureRegionalDistress();
+                bool cured = CureHomeComfort() | CureHomeSickness() | CureRegionalDistress();
 
                 if (hadData || cured)
                 {
                     Core.Instance?.MarkDirty();
 
-                    if (logSettingsChanges)
-                        Core.Log("RegionalAfflictions -> disabled, timers and effects cleared.");
+                    if (logSettingsChanges) Core.Log("RegionalAfflictions -> disabled, timers and effects cleared.");
                 }
 
                 return;
@@ -223,8 +209,7 @@ namespace MajorMiseries
 
                 Core.Instance?.MarkDirty();
 
-                if (logSettingsChanges)
-                    Core.Log($"HomeRegion selected -> {GetRegionLogName(homeRegion)}. HomeSickness timer reset.");
+                if (logSettingsChanges) Core.Log($"HomeRegion selected -> {GetRegionLogName(homeRegion)}. HomeSickness timer reset.");
             }
 
             if (!string.Equals(Core.State.ConfiguredRegionalDistressRegion, distressRegion, StringComparison.OrdinalIgnoreCase))
@@ -236,12 +221,10 @@ namespace MajorMiseries
 
                 Core.Instance?.MarkDirty();
 
-                if (logSettingsChanges)
-                    Core.Log($"RegionalDistress region selected -> {GetRegionLogName(distressRegion)}. RegionalDistress timer reset.");
+                if (logSettingsChanges) Core.Log($"RegionalDistress region selected -> {GetRegionLogName(distressRegion)}. RegionalDistress timer reset.");
             }
 
-            if (!string.IsNullOrEmpty(homeRegion) &&
-                string.Equals(homeRegion, distressRegion, StringComparison.OrdinalIgnoreCase))
+            if (!string.IsNullOrEmpty(homeRegion) && string.Equals(homeRegion, distressRegion, StringComparison.OrdinalIgnoreCase))
             {
                 if (!s_LoggedRegionalConflict)
                 {
@@ -254,8 +237,7 @@ namespace MajorMiseries
 
                 bool cured = CureRegionalDistress();
 
-                if (timerHadValue || cured)
-                    Core.Instance?.MarkDirty();
+                if (timerHadValue || cured) Core.Instance?.MarkDirty();
             }
             else
             {
@@ -265,16 +247,11 @@ namespace MajorMiseries
 
         private static void EnsureSettingsSynced()
         {
-            string homeRegion = Settings.options.EnableRegionalAfflictions
-                ? GetHomeRegionId(Settings.options.HomeRegion)
-                : string.Empty;
+            string homeRegion = Settings.options.EnableRegionalAfflictions ? GetHomeRegionId(Settings.options.HomeRegion) : string.Empty;
 
-            string distressRegion = Settings.options.EnableRegionalAfflictions
-                ? GetRegionalDistressRegionId(Settings.options.RegionalDistressRegion)
-                : string.Empty;
+            string distressRegion = Settings.options.EnableRegionalAfflictions ? GetRegionalDistressRegionId(Settings.options.RegionalDistressRegion) : string.Empty;
 
-            if (!string.Equals(Core.State.ConfiguredHomeRegion, homeRegion, StringComparison.OrdinalIgnoreCase) ||
-                !string.Equals(Core.State.ConfiguredRegionalDistressRegion, distressRegion, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(Core.State.ConfiguredHomeRegion, homeRegion, StringComparison.OrdinalIgnoreCase) || !string.Equals(Core.State.ConfiguredRegionalDistressRegion, distressRegion, StringComparison.OrdinalIgnoreCase))
             {
                 SyncFromSettings(logSettingsChanges: false);
             }
@@ -282,8 +259,7 @@ namespace MajorMiseries
 
         internal static void UpdateSceneContext(string sceneName)
         {
-            if (!IsGameplayScene(sceneName))
-                return;
+            if (!IsGameplayScene(sceneName)) return;
 
             EnsureState();
 
@@ -306,27 +282,20 @@ namespace MajorMiseries
                 Core.State.CurrentLogicalRegion = string.Empty;
             }
 
-            bool regionChanged =
-                !string.Equals(oldCurrentRegion, Core.State.CurrentLogicalRegion, StringComparison.OrdinalIgnoreCase) ||
-                !string.Equals(oldLastKnownRegion, Core.State.LastKnownLogicalRegion, StringComparison.OrdinalIgnoreCase);
+            bool regionChanged = !string.Equals(oldCurrentRegion, Core.State.CurrentLogicalRegion, StringComparison.OrdinalIgnoreCase) || !string.Equals(oldLastKnownRegion, Core.State.LastKnownLogicalRegion, StringComparison.OrdinalIgnoreCase);
 
-            if (!regionChanged)
-                return;
+            if (!regionChanged) return;
 
             Core.Instance?.MarkDirty();
 
-            Core.Log(
-                $"Regional context -> scene '{sceneName}' resolved as '{GetRegionLogName(Core.State.CurrentLogicalRegion)}' " +
-                $"(last known: '{GetRegionLogName(Core.State.LastKnownLogicalRegion)}').");
+            Core.Log($"Regional context -> scene '{sceneName}' resolved as '{GetRegionLogName(Core.State.CurrentLogicalRegion)}' " + $"(last known: '{GetRegionLogName(Core.State.LastKnownLogicalRegion)}').");
         }
 
         internal static void Update(float gameHoursPassed)
         {
-            if (gameHoursPassed <= 0f)
-                return;
+            if (gameHoursPassed <= 0f) return;
 
-            if (s_SettingsSyncPending)
-                SyncFromSettings(logSettingsChanges: true);
+            if (s_SettingsSyncPending) SyncFromSettings(logSettingsChanges: true);
 
             if (!Settings.options.EnableRegionalAfflictions)
             {
@@ -355,25 +324,14 @@ namespace MajorMiseries
             bool hasHomeRegion = !string.IsNullOrEmpty(homeRegion);
             bool hasDistressRegion = !string.IsNullOrEmpty(distressRegion);
 
-            bool inHomeRegion =
-                hasHomeRegion &&
-                string.Equals(currentRegion, homeRegion, StringComparison.OrdinalIgnoreCase);
+            bool inHomeRegion = hasHomeRegion && string.Equals(currentRegion, homeRegion, StringComparison.OrdinalIgnoreCase);
 
-            bool distressConflict =
-                hasHomeRegion &&
-                hasDistressRegion &&
-                string.Equals(homeRegion, distressRegion, StringComparison.OrdinalIgnoreCase);
+            bool distressConflict = hasHomeRegion && hasDistressRegion && string.Equals(homeRegion, distressRegion, StringComparison.OrdinalIgnoreCase);
 
-            bool inDistressRegion =
-                hasDistressRegion &&
-                !distressConflict &&
-                !inHomeRegion &&
-                string.Equals(currentRegion, distressRegion, StringComparison.OrdinalIgnoreCase);
+            bool inDistressRegion = hasDistressRegion && !distressConflict && !inHomeRegion && string.Equals(currentRegion, distressRegion, StringComparison.OrdinalIgnoreCase);
 
-            if (inHomeRegion)
-                ApplyHomeComfort();
-            else
-                CureHomeComfort();
+            if (inHomeRegion) ApplyHomeComfort();
+            else CureHomeComfort();
 
             UpdateHomeSicknessTimer(hasHomeRegion && !inHomeRegion, gameHoursPassed);
             UpdateRegionalDistressTimer(inDistressRegion, gameHoursPassed);
@@ -383,39 +341,31 @@ namespace MajorMiseries
 
         internal static bool ShouldHomeComfortBeActive()
         {
-            if (!Settings.options.EnableRegionalAfflictions)
-                return false;
+            if (!Settings.options.EnableRegionalAfflictions) return false;
 
             EnsureState();
 
             string homeRegion = Core.State.ConfiguredHomeRegion ?? string.Empty;
             string currentRegion = Core.State.CurrentLogicalRegion ?? string.Empty;
 
-            return !string.IsNullOrEmpty(homeRegion) &&
-                   !string.IsNullOrEmpty(currentRegion) &&
-                   string.Equals(currentRegion, homeRegion, StringComparison.OrdinalIgnoreCase);
+            return !string.IsNullOrEmpty(homeRegion) && !string.IsNullOrEmpty(currentRegion) && string.Equals(currentRegion, homeRegion, StringComparison.OrdinalIgnoreCase);
         }
 
         internal static bool ShouldHomeSicknessBeActive()
         {
-            if (!Settings.options.EnableRegionalAfflictions)
-                return false;
+            if (!Settings.options.EnableRegionalAfflictions) return false;
 
             EnsureState();
 
             string homeRegion = Core.State.ConfiguredHomeRegion ?? string.Empty;
             string currentRegion = Core.State.CurrentLogicalRegion ?? string.Empty;
 
-            return !string.IsNullOrEmpty(homeRegion) &&
-                   !string.IsNullOrEmpty(currentRegion) &&
-                   !string.Equals(currentRegion, homeRegion, StringComparison.OrdinalIgnoreCase) &&
-                   Core.State.HomeSicknessHoursAway >= GetHomeSicknessDelayHours();
+            return !string.IsNullOrEmpty(homeRegion) && !string.IsNullOrEmpty(currentRegion) && !string.Equals(currentRegion, homeRegion, StringComparison.OrdinalIgnoreCase) && Core.State.HomeSicknessHoursAway >= GetHomeSicknessDelayHours();
         }
 
         internal static bool ShouldRegionalDistressBeActive()
         {
-            if (!Settings.options.EnableRegionalAfflictions)
-                return false;
+            if (!Settings.options.EnableRegionalAfflictions) return false;
 
             EnsureState();
 
@@ -423,15 +373,11 @@ namespace MajorMiseries
             string distressRegion = Core.State.ConfiguredRegionalDistressRegion ?? string.Empty;
             string currentRegion = Core.State.CurrentLogicalRegion ?? string.Empty;
 
-            if (string.IsNullOrEmpty(distressRegion) || string.IsNullOrEmpty(currentRegion))
-                return false;
+            if (string.IsNullOrEmpty(distressRegion) || string.IsNullOrEmpty(currentRegion)) return false;
 
-            if (!string.IsNullOrEmpty(homeRegion) &&
-                string.Equals(homeRegion, distressRegion, StringComparison.OrdinalIgnoreCase))
-                return false;
+            if (!string.IsNullOrEmpty(homeRegion) && string.Equals(homeRegion, distressRegion, StringComparison.OrdinalIgnoreCase)) return false;
 
-            return string.Equals(currentRegion, distressRegion, StringComparison.OrdinalIgnoreCase) &&
-                   Core.State.RegionalDistressHoursInRegion >= GetRegionalDistressDelayHours();
+            return string.Equals(currentRegion, distressRegion, StringComparison.OrdinalIgnoreCase) && Core.State.RegionalDistressHoursInRegion >= GetRegionalDistressDelayHours();
         }
 
         private static void UpdateHomeSicknessTimer(bool active, float gameHoursPassed)
@@ -442,10 +388,7 @@ namespace MajorMiseries
             {
                 Core.State.HomeSicknessHoursAway += gameHoursPassed;
 
-                LogStateOnce(
-                    ref s_LastLoggedHomeState,
-                    "away",
-                    $"HomeSickness -> away from home ({Core.State.HomeSicknessHoursAway:0.#}/{GetHomeSicknessDelayHours():0.#}h).");
+                LogStateOnce(ref s_LastLoggedHomeState, "away", $"HomeSickness -> away from home ({Core.State.HomeSicknessHoursAway:0.#}/{GetHomeSicknessDelayHours():0.#}h).");
             }
             else
             {
@@ -453,15 +396,11 @@ namespace MajorMiseries
 
                 if (oldValue > 0f && Mathf.Approximately(Core.State.HomeSicknessHoursAway, 0f))
                 {
-                    LogStateOnce(
-                        ref s_LastLoggedHomeState,
-                        "safe",
-                        "HomeSickness -> fully recovered.");
+                    LogStateOnce(ref s_LastLoggedHomeState, "safe", "HomeSickness -> fully recovered.");
                 }
             }
 
-            if (!Mathf.Approximately(oldValue, Core.State.HomeSicknessHoursAway))
-                Core.Instance?.MarkDirty();
+            if (!Mathf.Approximately(oldValue, Core.State.HomeSicknessHoursAway)) Core.Instance?.MarkDirty();
         }
 
         private static void UpdateRegionalDistressTimer(bool active, float gameHoursPassed)
@@ -472,10 +411,7 @@ namespace MajorMiseries
             {
                 Core.State.RegionalDistressHoursInRegion += gameHoursPassed;
 
-                LogStateOnce(
-                    ref s_LastLoggedRegionalDistressState,
-                    "inside",
-                    $"RegionalDistress -> inside distress region ({Core.State.RegionalDistressHoursInRegion:0.#}/{GetRegionalDistressDelayHours():0.#}h).");
+                LogStateOnce(ref s_LastLoggedRegionalDistressState, "inside", $"RegionalDistress -> inside distress region ({Core.State.RegionalDistressHoursInRegion:0.#}/{GetRegionalDistressDelayHours():0.#}h).");
             }
             else
             {
@@ -483,34 +419,25 @@ namespace MajorMiseries
 
                 if (oldValue > 0f && Mathf.Approximately(Core.State.RegionalDistressHoursInRegion, 0f))
                 {
-                    LogStateOnce(
-                        ref s_LastLoggedRegionalDistressState,
-                        "safe",
-                        "RegionalDistress -> fully recovered.");
+                    LogStateOnce(ref s_LastLoggedRegionalDistressState, "safe", "RegionalDistress -> fully recovered.");
                 }
             }
 
-            if (!Mathf.Approximately(oldValue, Core.State.RegionalDistressHoursInRegion))
-                Core.Instance?.MarkDirty();
+            if (!Mathf.Approximately(oldValue, Core.State.RegionalDistressHoursInRegion)) Core.Instance?.MarkDirty();
         }
 
         private static void SyncActiveAfflictionsWithTimers()
         {
-            if (ShouldHomeSicknessBeActive())
-                ApplyHomeSickness();
-            else
-                CureHomeSickness();
+            if (ShouldHomeSicknessBeActive()) ApplyHomeSickness();
+            else CureHomeSickness();
 
-            if (ShouldRegionalDistressBeActive())
-                ApplyRegionalDistress();
-            else
-                CureRegionalDistress();
+            if (ShouldRegionalDistressBeActive()) ApplyRegionalDistress();
+            else CureRegionalDistress();
         }
 
         private static void ApplyHomeComfort()
         {
-            if (HasAffliction<HomeComfort.HomeComfortBuff>())
-                return;
+            if (HasAffliction<HomeComfort.HomeComfortBuff>()) return;
 
             new HomeComfort.HomeComfortBuff(AfflictionBodyArea.Head).Start();
 
@@ -521,8 +448,7 @@ namespace MajorMiseries
 
         private static void ApplyHomeSickness()
         {
-            if (HasAffliction<HomeSickness.HomeSicknessAffliction>())
-                return;
+            if (HasAffliction<HomeSickness.HomeSicknessAffliction>()) return;
 
             new HomeSickness.HomeSicknessAffliction(AfflictionBodyArea.Head).Start();
 
@@ -533,8 +459,7 @@ namespace MajorMiseries
 
         private static void ApplyRegionalDistress()
         {
-            if (HasAffliction<RegionalDistress.RegionalDistressAffliction>())
-                return;
+            if (HasAffliction<RegionalDistress.RegionalDistressAffliction>()) return;
 
             new RegionalDistress.RegionalDistressAffliction(AfflictionBodyArea.Head).Start();
 
@@ -586,13 +511,11 @@ namespace MajorMiseries
         {
             AfflictionManager mgr = AfflictionManager.GetAfflictionManagerInstance();
 
-            if (mgr?.m_Afflictions == null)
-                return false;
+            if (mgr?.m_Afflictions == null) return false;
 
             for (int i = 0; i < mgr.m_Afflictions.Count; i++)
             {
-                if (mgr.m_Afflictions[i] is TAffliction)
-                    return true;
+                if (mgr.m_Afflictions[i] is TAffliction) return true;
             }
 
             return false;
@@ -602,8 +525,7 @@ namespace MajorMiseries
         {
             AfflictionManager mgr = AfflictionManager.GetAfflictionManagerInstance();
 
-            if (mgr?.m_Afflictions == null)
-                return false;
+            if (mgr?.m_Afflictions == null) return false;
 
             bool cured = false;
 
@@ -627,32 +549,24 @@ namespace MajorMiseries
 
         private static string GetOutdoorLogicalRegion(string sceneName)
         {
-            if (string.IsNullOrEmpty(sceneName))
-                return string.Empty;
+            if (string.IsNullOrEmpty(sceneName)) return string.Empty;
 
-            if (s_OutdoorSceneToLogicalRegion.TryGetValue(sceneName, out string? logicalRegion))
-                return logicalRegion;
+            if (s_OutdoorSceneToLogicalRegion.TryGetValue(sceneName, out string? logicalRegion)) return logicalRegion;
 
-            if (sceneName.EndsWith("Region", StringComparison.OrdinalIgnoreCase))
-                return sceneName;
+            if (sceneName.EndsWith("Region", StringComparison.OrdinalIgnoreCase)) return sceneName;
 
-            if (sceneName.EndsWith("TransitionZone", StringComparison.OrdinalIgnoreCase))
-                return sceneName;
+            if (sceneName.EndsWith("TransitionZone", StringComparison.OrdinalIgnoreCase)) return sceneName;
 
             return string.Empty;
         }
 
         internal static bool IsGameplayScene(string sceneName)
         {
-            if (string.IsNullOrEmpty(sceneName))
-                return false;
+            if (string.IsNullOrEmpty(sceneName)) return false;
 
             string lower = sceneName.ToLowerInvariant();
 
-            return lower != "mainmenu" &&
-                   lower != "boot" &&
-                   lower != "empty" &&
-                   !lower.Contains("menu");
+            return lower != "mainmenu" && lower != "boot" && lower != "empty" && !lower.Contains("menu");
         }
 
         private static float GetHomeSicknessDelayHours()
@@ -683,8 +597,7 @@ namespace MajorMiseries
 
         private static void LogStateOnce(ref string state, string newState, string message)
         {
-            if (state == newState)
-                return;
+            if (state == newState) return;
 
             state = newState;
             Core.Log(message);

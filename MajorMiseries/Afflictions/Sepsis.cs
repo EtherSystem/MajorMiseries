@@ -18,10 +18,12 @@ namespace MajorMiseries.Afflictions
 
             public const float TOTAL_DURATION_HOURS = 480f;
             public const float DOSE_DURATION_HOURS = 120f;
+            public const int ANTIBIOTIC_BOTTLES_PER_DOSE = 2;
             public const int ANTIBIOTIC_DOSES_PER_TREATMENT = 2;
+            public const int ANTIBIOTIC_BOTTLES_DISPLAY_COUNT = ANTIBIOTIC_BOTTLES_PER_DOSE * ANTIBIOTIC_DOSES_PER_TREATMENT;
 
-            public const float UNTREATED_CONDITION_LOSS_PER_HOUR = 2.5f;
-            public const float TREATED_CONDITION_LOSS_PER_HOUR = 0.25f;
+            public const float UNTREATED_CONDITION_LOSS_PER_HOUR = 10f;
+            public const float TREATED_CONDITION_LOSS_PER_HOUR = 0.2f;
 
             private float m_SuppressedUntilTime = -1f;
             private bool m_HasShownDoseExpiredMessage = false;
@@ -40,7 +42,7 @@ namespace MajorMiseries.Afflictions
 
             public Tuple<string, int, int>[] RemedyItems { get; set; } =
             {
-                Tuple.Create("GEAR_BottleAntibiotics", 2, 2),
+                Tuple.Create("GEAR_BottleAntibiotics", ANTIBIOTIC_BOTTLES_DISPLAY_COUNT, ANTIBIOTIC_BOTTLES_DISPLAY_COUNT),
             };
 
             public Tuple<string, int, int>[] AltRemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
@@ -66,13 +68,16 @@ namespace MajorMiseries.Afflictions
 
             public void CureSymptoms()
             {
+                ConsumeExtraAntibioticBottleForDisplay();
+
                 if (NeedsRemedy())
                 {
-                    int remaining = RemedyItems.Length > 0 ? RemedyItems[0].Item3 : 0;
-                    int taken = ANTIBIOTIC_DOSES_PER_TREATMENT - remaining;
+                    int remainingTablets = GetRemainingAntibioticBottles();
+                    int takenTablets = ANTIBIOTIC_BOTTLES_DISPLAY_COUNT - remainingTablets;
+                    int takenDoses = takenTablets / ANTIBIOTIC_BOTTLES_PER_DOSE;
 
-                    HUDMessage.AddMessage($"Sepsis treatment progress: {taken}/{ANTIBIOTIC_DOSES_PER_TREATMENT} doses.");
-                    Core.Log($"Sepsis treatment progress: {taken}/{ANTIBIOTIC_DOSES_PER_TREATMENT} doses.");
+                    HUDMessage.AddMessage($"Sepsis treatment progress: {takenTablets}/{ANTIBIOTIC_BOTTLES_DISPLAY_COUNT} antibiotics.");
+                    Core.Log($"Sepsis treatment progress: {takenTablets}/{ANTIBIOTIC_BOTTLES_DISPLAY_COUNT} tablets ({takenDoses}/{ANTIBIOTIC_DOSES_PER_TREATMENT} doses).");
                     return;
                 }
 
@@ -125,6 +130,30 @@ namespace MajorMiseries.Afflictions
                     HUDMessage.AddMessage("Sepsis treatment expired. Symptoms are back at full strength.");
                     Core.Log("Sepsis treatment window expired, remedy progress reset.");
                 }
+            }
+
+            private int GetRemainingAntibioticBottles()
+            {
+                if (RemedyItems == null || RemedyItems.Length <= 0)
+                    return 0;
+
+                return Mathf.Max(0, RemedyItems[0].Item3);
+            }
+
+            private void ConsumeExtraAntibioticBottleForDisplay()
+            {
+                if (RemedyItems == null || RemedyItems.Length <= 0)
+                    return;
+
+                var current = RemedyItems[0];
+
+                int remaining = Mathf.Max(0, current.Item3 - (ANTIBIOTIC_BOTTLES_PER_DOSE - 1));
+
+                RemedyItems[0] = Tuple.Create(
+                    current.Item1,
+                    current.Item2,
+                    remaining
+                );
             }
 
             public bool IsTreatmentActive()

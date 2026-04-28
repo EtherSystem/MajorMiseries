@@ -16,16 +16,7 @@ namespace MajorMiseries.Afflictions
             private const string ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.ScarredFlesh.png";
             private const string ALT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Alt.ScarredFlesh_ALT.png";
 
-            public InstanceType Type { get; set; } = InstanceType.Open;
-            public void OnFoundExistingInstance(CustomAffliction existingAffliction)
-            {
-                if (existingAffliction is ScarredFleshAffliction scarredFlesh)
-                {
-                    scarredFlesh.ResetAffliction(resetRemedies: false);
-                    var now = GameManager.GetTimeOfDayComponent().GetHoursPlayedNotPaused();
-                    scarredFlesh.EndTime = now + scarredFlesh.Duration;
-                }
-            }
+            public InstanceType Type { get; set; } = InstanceType.Single;
 
             public float Duration { get; set; }
             public float EndTime { get; set; }
@@ -38,16 +29,41 @@ namespace MajorMiseries.Afflictions
             //public ScarredFleshAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
             public ScarredFleshAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, "ico_injury_SevereLacerations", bodyArea)
             {
+                RefreshStackDisplay();
+            }
+
+            public void OnFoundExistingInstance(CustomAffliction existingAffliction)
+            {
+                if (existingAffliction is ScarredFleshAffliction scarredFlesh)
+                {
+                    scarredFlesh.RefreshStackDisplay();
+                }
+            }
+
+            internal void RefreshStackDisplay()
+            {
+                Core.State ??= new Persistence.MMState();
+
+                int count = Math.Max(0, Core.State.ScarredFleshHistoryCount);
+                string baseName = Localization.Get(NAME_KEY);
+
+                m_Name = count > 1
+                    ? $"{baseName} x{count}"
+                    : baseName;
+
+                m_CauseText = Localization.Get(CAUSE_KEY);
+                m_Description = Localization.Get(DESC_KEY);
+                m_DescriptionNoHeal = null;
             }
 
             public void CureSymptoms()
             {
-                //cure symptoms but not the affliction
+                // cure symptoms but not the affliction
             }
 
             public void OnCure()
             {
-                //when the affliction is cured, apply this code
+                // when the affliction is cured, apply this code
             }
 
             public override void OnUpdate()
@@ -59,10 +75,7 @@ namespace MajorMiseries.Afflictions
             {
                 string oldName = m_Name;
 
-                m_Name = Localization.Get(NAME_KEY);
-                m_CauseText = Localization.Get(CAUSE_KEY);
-                m_Description = Localization.Get(DESC_KEY);
-                m_DescriptionNoHeal = null;
+                RefreshStackDisplay();
 
                 Core.Log($"ScarredFlesh refresh -> '{oldName}' => '{m_Name}'");
             }

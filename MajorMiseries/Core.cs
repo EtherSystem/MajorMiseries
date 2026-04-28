@@ -1,7 +1,7 @@
 ﻿using LocalizationUtilities;
 using MajorMiseries.Persistence;
 
-[assembly: MelonInfo(typeof(MajorMiseries.Core), "Major Miseries", "1.0.0", "EtherSystem", null)]
+[assembly: MelonInfo(typeof(MajorMiseries.Core), "Major Miseries", "0.9.0", "EtherSystem", null)]
 [assembly: MelonGame("Hinterland", "TheLongDark")]
 
 namespace MajorMiseries
@@ -30,8 +30,7 @@ namespace MajorMiseries
         // -------------------------log helper-----------------------------------
         internal static void Log(string message, bool onlyWhenDebugEnabled = true)
         {
-            if (onlyWhenDebugEnabled && !Settings.options.IsLogging)
-                return;
+            if (onlyWhenDebugEnabled && !Settings.options.IsLogging) return;
 
             Instance?.LoggerInstance.Msg(message);
         }
@@ -136,8 +135,7 @@ namespace MajorMiseries
 
             string scene = GameManager.m_ActiveScene;
 
-            if (!RegionalAfflictionLogic.IsGameplayScene(scene))
-                return;
+            if (!RegionalAfflictionLogic.IsGameplayScene(scene)) return;
 
             RegionalAfflictionLogic.UpdateSceneContext(scene);
 

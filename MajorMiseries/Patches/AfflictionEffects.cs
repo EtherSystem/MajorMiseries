@@ -16,16 +16,16 @@ namespace MajorMiseries.Patches
 
         private const string BLACK_LUNG_COUGH_EVENT = "Play_SuffocationCough";
 
-        private const float CO_SPRINT_USAGE_MULT = 1.85f;
-        private const float CO_SPRINT_RECOVERY_MULT = 0.55f;
-        private const float CO_SPRINT_RECOVERY_DELAY_MULT = 1.5f;
+        private const float CO_SPRINT_USAGE_MULT = 2f;
+        private const float CO_SPRINT_RECOVERY_MULT = 0.3f;
+        private const float CO_SPRINT_RECOVERY_DELAY_MULT = 2f;
 
-        private const float BLACK_LUNG_SPRINT_USAGE_MULT = 1.35f;
-        private const float BLACK_LUNG_SPRINT_RECOVERY_MULT = 0.75f;
-        private const float BLACK_LUNG_SPRINT_RECOVERY_DELAY_MULT = 1.2f;
+        private const float BLACK_LUNG_SPRINT_USAGE_MULT = 1.5f;
+        private const float BLACK_LUNG_SPRINT_RECOVERY_MULT = 0.5f;
+        private const float BLACK_LUNG_SPRINT_RECOVERY_DELAY_MULT = 1.5f;
 
-        private const float BLACK_LUNG_MIN_SLEEP_HOURS_BEFORE_COUGH = 1f;
-        private const float BLACK_LUNG_MAX_SLEEP_HOURS_BEFORE_COUGH = 3f;
+        private const float BLACK_LUNG_MIN_SLEEP_HOURS_BEFORE_COUGH = 3f;
+        private const float BLACK_LUNG_MAX_SLEEP_HOURS_BEFORE_COUGH = 6f;
 
         private static float _respiratoryEffectTickTimer = 0f;
 
@@ -45,8 +45,7 @@ namespace MajorMiseries.Patches
         private static bool IsGameplayScene()
         {
             string scene = GameManager.m_ActiveScene;
-            if (string.IsNullOrEmpty(scene))
-                return false;
+            if (string.IsNullOrEmpty(scene)) return false;
 
             string lower = scene.ToLowerInvariant();
             return !lower.Contains("menu") && !lower.Contains("boot") && lower != "empty";
@@ -54,26 +53,21 @@ namespace MajorMiseries.Patches
 
         private static void ShowSevereWristWeaponEquipBlockedMessage()
         {
-            if (Time.realtimeSinceStartup - _lastSevereWristWeaponMessageTime < 1.5f)
-                return;
+            if (Time.realtimeSinceStartup - _lastSevereWristWeaponMessageTime < 1.5f) return;
 
             _lastSevereWristWeaponMessageTime = Time.realtimeSinceStartup;
 
             GameAudioManager.PlayGUIError();
 
-            if (AfflictionLogic.GetSevereWristSprainCount() >= 2)
-                HUDMessage.AddMessage(Localization.Get("GAMEPLAY_SevereWristNoWeaponEquipAny"), 4, false);
-            else
-                HUDMessage.AddMessage(Localization.Get("GAMEPLAY_SevereWristNoWeaponEquipTwoHanded"), 4, false);
+            if (AfflictionLogic.GetSevereWristSprainCount() >= 2) HUDMessage.AddMessage(Localization.Get("GAMEPLAY_SevereWristNoWeaponEquipAny"), 4, false);
+            else HUDMessage.AddMessage(Localization.Get("GAMEPLAY_SevereWristNoWeaponEquipTwoHanded"), 4, false);
         }
 
         private static void CacheRespiratoryMovementBaseline(PlayerMovement movement)
         {
-            if (movement == null)
-                return;
+            if (movement == null) return;
 
-            if (_cachedPlayerMovement == movement)
-                return;
+            if (_cachedPlayerMovement == movement) return;
 
             _cachedPlayerMovement = movement;
             _baseSprintStaminaRecoverPerHour = movement.m_SprintStaminaRecoverPerHour;
@@ -83,8 +77,7 @@ namespace MajorMiseries.Patches
 
         private static void ApplyRespiratoryStaminaTuning(PlayerMovement movement)
         {
-            if (movement == null)
-                return;
+            if (movement == null) return;
 
             CacheRespiratoryMovementBaseline(movement);
 
@@ -116,18 +109,15 @@ namespace MajorMiseries.Patches
 
         private static void ApplyRespiratoryCameraEffects()
         {
-            if (!IsGameplayScene())
-                return;
+            if (!IsGameplayScene()) return;
 
             bool hasBlackLung = BlackLungAffliction.IsActive;
             bool hasCOPoisoning = COPoisoningAffliction.IsActive;
 
-            if (!hasBlackLung && !hasCOPoisoning)
-                return;
+            if (!hasBlackLung && !hasCOPoisoning) return;
 
             CameraStatusEffects? cameraStatus = GameManager.GetCameraStatusEffects();
-            if (cameraStatus == null)
-                return;
+            if (cameraStatus == null) return;
 
             float waterTarget = 0f;
             float sprainTarget = 0f;
@@ -166,15 +156,12 @@ namespace MajorMiseries.Patches
 
         private static void ApplySevereSprainCameraEffects()
         {
-            if (!IsGameplayScene())
-                return;
+            if (!IsGameplayScene()) return;
 
-            if (!AfflictionLogic.HasSevereAnkleSprain())
-                return;
+            if (!AfflictionLogic.HasSevereAnkleSprain()) return;
 
             CameraStatusEffects? cameraStatus = GameManager.GetCameraStatusEffects();
-            if (cameraStatus == null)
-                return;
+            if (cameraStatus == null) return;
 
             cameraStatus.m_SprainTarget = Mathf.Max(cameraStatus.m_SprainTarget, 0.25f);
             cameraStatus.m_SprainVignetteColor = Color.white;
@@ -182,8 +169,7 @@ namespace MajorMiseries.Patches
 
         private static void UpdateRespiratoryTimedEffects(Condition condition, float gameHoursPassed)
         {
-            if (!IsGameplayScene() || gameHoursPassed <= 0f || condition == null)
-                return;
+            if (!IsGameplayScene() || gameHoursPassed <= 0f || condition == null) return;
 
             bool hasBlackLung = BlackLungAffliction.IsActive;
 
@@ -221,34 +207,25 @@ namespace MajorMiseries.Patches
                 _blackLungWasSleeping = true;
                 _blackLungWakeQueued = false;
                 _blackLungSleepHoursSinceLastCough = 0f;
-                _nextBlackLungSleepCoughAtHours = UnityEngine.Random.Range(
-                    BLACK_LUNG_MIN_SLEEP_HOURS_BEFORE_COUGH,
-                    BLACK_LUNG_MAX_SLEEP_HOURS_BEFORE_COUGH
-                );
+                _nextBlackLungSleepCoughAtHours = UnityEngine.Random.Range(BLACK_LUNG_MIN_SLEEP_HOURS_BEFORE_COUGH, BLACK_LUNG_MAX_SLEEP_HOURS_BEFORE_COUGH);
             }
 
-            if (_blackLungWakeQueued)
-                return;
+            if (_blackLungWakeQueued) return;
 
             _blackLungSleepHoursSinceLastCough += gameHoursPassed;
 
-            if (_blackLungSleepHoursSinceLastCough < _nextBlackLungSleepCoughAtHours)
-                return;
+            if (_blackLungSleepHoursSinceLastCough < _nextBlackLungSleepCoughAtHours) return;
 
             _blackLungWakeQueued = true;
             _blackLungSleepHoursSinceLastCough = 0f;
-            _nextBlackLungSleepCoughAtHours = UnityEngine.Random.Range(
-                BLACK_LUNG_MIN_SLEEP_HOURS_BEFORE_COUGH,
-                BLACK_LUNG_MAX_SLEEP_HOURS_BEFORE_COUGH
-            );
+            _nextBlackLungSleepCoughAtHours = UnityEngine.Random.Range(BLACK_LUNG_MIN_SLEEP_HOURS_BEFORE_COUGH, BLACK_LUNG_MAX_SLEEP_HOURS_BEFORE_COUGH);
 
             TriggerBlackLungSleepCough(rest);
         }
 
         private static void TriggerBlackLungSleepCough(Rest rest)
         {
-            if (rest == null)
-                return;
+            if (rest == null) return;
 
             rest.m_InterruptionAfterSecondsSleeping = 1;
 
@@ -265,17 +242,13 @@ namespace MajorMiseries.Patches
             try
             {
                 PlayerCough? cough = GameManager.GetPlayerCough();
-                if (cough == null)
-                    return;
+                if (cough == null) return;
 
                 if (!cough.IsActive())
                 {
                     cough.MaybeStart(BLACK_LUNG_COUGH_EVENT);
 
-                    if (!_blackLungCoughStopPending)
-                    {
-                        MelonCoroutines.Start(StopBlackLungCoughAfterDelay(2.5f));
-                    }
+                    if (!_blackLungCoughStopPending) MelonCoroutines.Start(StopBlackLungCoughAfterDelay(2.5f));
                 }
             }
             catch (Exception e)
@@ -401,8 +374,7 @@ namespace MajorMiseries.Patches
         {
             private static void Postfix(PlayerMovement __instance)
             {
-                if (__instance == null || !IsGameplayScene())
-                    return;
+                if (__instance == null || !IsGameplayScene()) return;
 
                 ApplyRespiratoryStaminaTuning(__instance);
             }
@@ -439,15 +411,12 @@ namespace MajorMiseries.Patches
         {
             private static bool Prefix()
             {
-                if (!AfflictionLogic.ShouldBlockClimbing())
-                    return true;
+                if (!AfflictionLogic.ShouldBlockClimbing()) return true;
 
                 GameAudioManager.PlayGUIError();
 
-                if (AfflictionLogic.HasSevereAnkleSprain() || AfflictionLogic.HasSevereWristSprain())
-                    HUDMessage.AddMessage(Localization.Get("GAMEPLAY_SevereSprainNoRopeClimb"), 4, false);
-                else
-                    HUDMessage.AddMessage(Localization.Get("GAMEPLAY_BrokenLimbNoRopeClimb"), 4, false);
+                if (AfflictionLogic.HasSevereAnkleSprain() || AfflictionLogic.HasSevereWristSprain()) HUDMessage.AddMessage(Localization.Get("GAMEPLAY_SevereSprainNoRopeClimb"), 4, false);
+                else HUDMessage.AddMessage(Localization.Get("GAMEPLAY_BrokenLimbNoRopeClimb"), 4, false);
 
                 return false;
             }
@@ -458,8 +427,7 @@ namespace MajorMiseries.Patches
         {
             private static bool Prefix(GearItem gi, ref bool __result)
             {
-                if (!AfflictionLogic.ShouldBlockWeaponEquip(gi))
-                    return true;
+                if (!AfflictionLogic.ShouldBlockWeaponEquip(gi)) return true;
 
                 ShowSevereWristWeaponEquipBlockedMessage();
                 __result = false;
@@ -472,11 +440,9 @@ namespace MajorMiseries.Patches
         {
             private static bool Prefix(GearItem gi, bool fromDeserialize)
             {
-                if (fromDeserialize)
-                    return true;
+                if (fromDeserialize) return true;
 
-                if (!AfflictionLogic.ShouldBlockWeaponEquip(gi))
-                    return true;
+                if (!AfflictionLogic.ShouldBlockWeaponEquip(gi)) return true;
 
                 ShowSevereWristWeaponEquipBlockedMessage();
                 return false;
@@ -486,8 +452,7 @@ namespace MajorMiseries.Patches
         private static void ApplyBrokenLegCarryMultiplier(ref ItemWeight result)
         {
             float multiplier = AfflictionLogic.GetBrokenLegCarryCapacityMultiplier();
-            if (Mathf.Approximately(multiplier, 1f))
-                return;
+            if (Mathf.Approximately(multiplier, 1f)) return;
 
             result *= multiplier;
         }
@@ -560,8 +525,7 @@ namespace MajorMiseries.Patches
         {
             private static void Postfix(Infection __instance, int location)
             {
-                if (__instance == null)
-                    return;
+                if (__instance == null) return;
 
                 if (!Settings.options.EnableSepsis)
                 {
@@ -576,8 +540,7 @@ namespace MajorMiseries.Patches
             {
                 yield return null;
 
-                if (!Settings.options.EnableSepsis)
-                    yield break;
+                if (!Settings.options.EnableSepsis) yield break;
 
                 Infection infection = GameManager.GetInfectionComponent();
                 if (infection == null)
@@ -646,8 +609,7 @@ namespace MajorMiseries.Patches
             {
                 __state = 0f;
 
-                if (__instance == null || !AfflictionLogic.ShouldDisableNaturalConditionRecovery())
-                    return;
+                if (__instance == null || !AfflictionLogic.ShouldDisableNaturalConditionRecovery()) return;
 
                 __state = __instance.m_HPIncreasePerDayWhileHealthy;
                 __instance.m_HPIncreasePerDayWhileHealthy = 0f;
@@ -655,8 +617,7 @@ namespace MajorMiseries.Patches
 
             private static void Postfix(Condition __instance, float __state)
             {
-                if (__instance == null || !AfflictionLogic.ShouldDisableNaturalConditionRecovery())
-                    return;
+                if (__instance == null || !AfflictionLogic.ShouldDisableNaturalConditionRecovery()) return;
 
                 __instance.m_HPIncreasePerDayWhileHealthy = __state;
             }
@@ -667,26 +628,22 @@ namespace MajorMiseries.Patches
         {
             private static void Postfix(Condition __instance)
             {
-                if (__instance == null || !IsGameplayScene())
-                    return;
+                if (__instance == null || !IsGameplayScene()) return;
 
                 ApplyRespiratoryCameraEffects();
                 ApplySevereSprainCameraEffects();
 
                 _respiratoryEffectTickTimer += Time.deltaTime;
-                if (_respiratoryEffectTickTimer < 1f)
-                    return;
+                if (_respiratoryEffectTickTimer < 1f) return;
 
                 float realSecondsElapsed = _respiratoryEffectTickTimer;
                 _respiratoryEffectTickTimer = 0f;
 
                 TimeOfDay? tod = GameManager.GetTimeOfDayComponent();
-                if (tod == null)
-                    return;
+                if (tod == null) return;
 
                 float gameHoursPassed = tod.GetTODHours(realSecondsElapsed);
-                if (gameHoursPassed <= 0f)
-                    return;
+                if (gameHoursPassed <= 0f) return;
 
                 UpdateRespiratoryTimedEffects(__instance, gameHoursPassed);
             }
@@ -708,8 +665,7 @@ namespace MajorMiseries.Patches
             {
                 __state = 0f;
 
-                if (__instance == null)
-                    return;
+                if (__instance == null) return;
 
                 __state = __instance.m_ReduceFatiguePerHourRest;
                 __instance.m_ReduceFatiguePerHourRest *= AfflictionLogic.GetSleepFatigueRecoveryMultiplier();
@@ -717,8 +673,7 @@ namespace MajorMiseries.Patches
 
             private static void Postfix(Rest __instance, float __state)
             {
-                if (__instance == null)
-                    return;
+                if (__instance == null) return;
 
                 __instance.m_ReduceFatiguePerHourRest = __state;
             }
@@ -729,12 +684,10 @@ namespace MajorMiseries.Patches
         {
             private static void Postfix(Rest __instance, int amount, ref bool __result)
             {
-                if (!__result || __instance == null)
-                    return;
+                if (!__result || __instance == null) return;
 
                 int adjustedMaxHours = AfflictionLogic.GetAdjustedMaxSleepHours(__instance.m_MaxHoursSleepPerDay);
-                if (amount > adjustedMaxHours)
-                    __result = false;
+                if (amount > adjustedMaxHours) __result = false;
             }
         }
 
@@ -754,8 +707,7 @@ namespace MajorMiseries.Patches
         {
             private static void Postfix(Panel_Rest __instance, bool enable, bool passTimeOnly)
             {
-                if (!enable || passTimeOnly)
-                    return;
+                if (!enable || passTimeOnly) return;
 
                 SyncRestPanelSleepLimit(__instance);
             }
@@ -763,11 +715,9 @@ namespace MajorMiseries.Patches
 
         private static void SyncRestPanelSleepLimit(Panel_Rest panel)
         {
-            if (panel == null)
-                return;
+            if (panel == null) return;
 
-            if (panel.IsPassingTimeOnly())
-                return;
+            if (panel.IsPassingTimeOnly()) return;
 
             int finalAdjustedMax = Mathf.Max(panel.m_MinSleepHours, panel.GetAdjustedMaxSleep());
 
@@ -786,8 +736,7 @@ namespace MajorMiseries.Patches
                 changed = true;
             }
 
-            if (!changed)
-                return;
+            if (!changed) return;
 
             panel.UpdateRestDurationLabel();
             panel.UpdateWakeTimeLabel();
@@ -800,10 +749,7 @@ namespace MajorMiseries.Patches
         {
             private static bool Prefix()
             {
-                return !SepsisAffliction.IsActive
-                    && !COPoisoningAffliction.IsActive
-                    && !CorpseSicknessAffliction.IsActive
-                    && !AfflictionLogic.ShouldDisableNaturalConditionRecovery();
+                return !SepsisAffliction.IsActive && !COPoisoningAffliction.IsActive && !CorpseSicknessAffliction.IsActive && !AfflictionLogic.ShouldDisableNaturalConditionRecovery();
             }
         }
     }

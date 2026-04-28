@@ -46,8 +46,7 @@ namespace MajorMiseries.Patches
             {
                 _ai = ai;
 
-                if (_initialized)
-                    return;
+                if (_initialized) return;
 
                 CaptureBaseline();
                 _initialized = true;
@@ -57,8 +56,7 @@ namespace MajorMiseries.Patches
 
             private void CaptureBaseline()
             {
-                if (_ai == null)
-                    return;
+                if (_ai == null) return;
 
                 _curiousFollowDistance = _ai.m_CuriousFollowDistance;
                 _curiousEnterStalkingChance = _ai.m_CuriousEnterStalkingChance;
@@ -82,17 +80,13 @@ namespace MajorMiseries.Patches
 
             private void LateUpdate()
             {
-                if (_ai == null)
-                    return;
+                if (_ai == null) return;
 
-                if (!IsPredatorThreatTracked(_ai))
-                    return;
+                if (!IsPredatorThreatTracked(_ai)) return;
 
-                if (GameManager.m_IsPaused || GameManager.s_IsGameplaySuspended || GameManager.s_IsAISuspended)
-                    return;
+                if (GameManager.m_IsPaused || GameManager.s_IsGameplaySuspended || GameManager.s_IsAISuspended) return;
 
-                if (_ai.m_CurrentHP <= 0f || _ai.GetAiMode() == AiMode.Dead)
-                    return;
+                if (_ai.m_CurrentHP <= 0f || _ai.GetAiMode() == AiMode.Dead) return;
 
                 ApplyPredatorThreatValues();
                 MaybeLogPredatorThreatThreshold(_ai, this);
@@ -101,8 +95,7 @@ namespace MajorMiseries.Patches
 
             private void ApplyPredatorThreatValues()
             {
-                if (_ai == null)
-                    return;
+                if (_ai == null) return;
 
                 switch (_ai.m_AiSubType)
                 {
@@ -126,8 +119,7 @@ namespace MajorMiseries.Patches
 
             private void ApplyWolfThreatValues()
             {
-                if (_ai == null)
-                    return;
+                if (_ai == null) return;
 
                 float smellMultiplier = AfflictionLogic.GetPredatorSmellDistanceMultiplier();
                 float threatMultiplier = AfflictionLogic.GetPredatorRushDistanceMultiplier();
@@ -148,8 +140,7 @@ namespace MajorMiseries.Patches
 
             private void ApplyBearThreatValues()
             {
-                if (_ai == null)
-                    return;
+                if (_ai == null) return;
 
                 float smellMultiplier = AfflictionLogic.GetPredatorSmellDistanceMultiplier();
                 float threatMultiplier = AfflictionLogic.GetPredatorRushDistanceMultiplier();
@@ -167,23 +158,16 @@ namespace MajorMiseries.Patches
 
                 _ai.m_RangeMeleeAttack = _rangeMeleeAttack * threatMultiplier;
 
-                _ai.m_StalkingFollowDistance = Mathf.Max(
-                    _stalkingFollowDistance * threatMultiplier,
-                    scaledDetectionRange
-                );
+                _ai.m_StalkingFollowDistance = Mathf.Max(_stalkingFollowDistance * threatMultiplier, scaledDetectionRange);
 
                 _ai.m_CurrentStalkingFollowDistance = _ai.m_StalkingFollowDistance;
 
-                _ai.m_BreakSlalkingRange = Mathf.Max(
-                    _breakStalkingRange * threatMultiplier,
-                    scaledDetectionRange
-                );
+                _ai.m_BreakSlalkingRange = Mathf.Max(_breakStalkingRange * threatMultiplier, scaledDetectionRange);
             }
 
             private void ApplyMooseThreatValues()
             {
-                if (_ai == null)
-                    return;
+                if (_ai == null) return;
 
                 float threatMultiplier = AfflictionLogic.GetPredatorRushDistanceMultiplier();
 
@@ -193,8 +177,7 @@ namespace MajorMiseries.Patches
 
             private void ApplyCougarThreatValues()
             {
-                if (_ai == null)
-                    return;
+                if (_ai == null) return;
 
                 float stalkMultiplier = AfflictionLogic.GetPredatorRushDistanceMultiplier();
                 float chanceMultiplier = 1f + ((stalkMultiplier - 1f) * 0.5f);
@@ -208,11 +191,9 @@ namespace MajorMiseries.Patches
                 _ai.m_StalkingBeginChasingDistance = _stalkingBeginChasingDistance * stalkMultiplier;
                 _ai.m_StalkingBeginChasingWeakTargetDistance = _stalkingBeginChasingWeakTargetDistance * stalkMultiplier;
 
-                _ai.m_StalkingChanceWhenTargetDetected =
-                    Mathf.Clamp(Mathf.RoundToInt(_stalkingChanceWhenTargetDetected * chanceMultiplier), 0, 100);
+                _ai.m_StalkingChanceWhenTargetDetected = Mathf.Clamp(Mathf.RoundToInt(_stalkingChanceWhenTargetDetected * chanceMultiplier), 0, 100);
 
-                _ai.m_StalkingLoseInterestChance =
-                    Mathf.Clamp(_stalkingLoseInterestChance / Mathf.Max(1f, stalkMultiplier), 0f, 100f);
+                _ai.m_StalkingLoseInterestChance = Mathf.Clamp(_stalkingLoseInterestChance / Mathf.Max(1f, stalkMultiplier), 0f, 100f);
 
                 _ai.m_ForceStalkPlayerDistance = _forceStalkPlayerDistance * stalkMultiplier;
                 _ai.m_PassingAttackRange = _passingAttackRange * stalkMultiplier;
@@ -220,8 +201,7 @@ namespace MajorMiseries.Patches
 
             private void MaybeLogPredatorModeTransition()
             {
-                if (_ai == null)
-                    return;
+                if (_ai == null) return;
 
                 int key = _ai.GetInstanceID();
                 AiMode currentMode = _ai.GetAiMode();
@@ -232,26 +212,18 @@ namespace MajorMiseries.Patches
                     return;
                 }
 
-                if (currentMode == _lastLoggedMode)
-                    return;
+                if (currentMode == _lastLoggedMode) return;
 
                 AiMode lastMode = _lastLoggedMode;
                 _lastLoggedMode = currentMode;
 
-                if (!IsInterestingPredatorMode(lastMode) && !IsInterestingPredatorMode(currentMode))
-                    return;
+                if (!IsInterestingPredatorMode(lastMode) && !IsInterestingPredatorMode(currentMode)) return;
 
                 float distance = GetDistanceToPlayer(_ai);
                 int threat = AfflictionLogic.GetTotalPredatorThreatLevel();
 
-                if (distance >= 0f)
-                {
-                    Core.Log($"{GetPredatorName(_ai.m_AiSubType)} #{key} : {lastMode} -> {currentMode} at {distance:0.0} m | Threat={threat}");
-                }
-                else
-                {
-                    Core.Log($"{GetPredatorName(_ai.m_AiSubType)} #{key} : {lastMode} -> {currentMode} | Threat={threat}");
-                }
+                if (distance >= 0f) Core.Log($"{GetPredatorName(_ai.m_AiSubType)} #{key} : {lastMode} -> {currentMode} at {distance:0.0} m | Threat={threat}");
+                else Core.Log($"{GetPredatorName(_ai.m_AiSubType)} #{key} : {lastMode} -> {currentMode} | Threat={threat}");
             }
         }
 
@@ -270,15 +242,11 @@ namespace MajorMiseries.Patches
         {
             subType = AiSubType.None;
 
-            if (ai == null)
-                return false;
+            if (ai == null) return false;
 
             subType = ai.m_AiSubType;
 
-            return subType == AiSubType.Wolf
-                || subType == AiSubType.Bear
-                || subType == AiSubType.Moose
-                || subType == AiSubType.Cougar;
+            return subType == AiSubType.Wolf || subType == AiSubType.Bear || subType == AiSubType.Moose || subType == AiSubType.Cougar;
         }
 
         private static bool IsPredatorThreatTracked(BaseAi ai)
@@ -312,8 +280,7 @@ namespace MajorMiseries.Patches
 
         private static PredatorThreatController? EnsureThreatController(BaseAi ai)
         {
-            if (!IsPredatorThreatTracked(ai))
-                return null;
+            if (!IsPredatorThreatTracked(ai)) return null;
 
             PredatorThreatController? controller = ai.gameObject.GetComponent<PredatorThreatController>() ?? ai.gameObject.AddComponent<PredatorThreatController>();
             controller.Initialize(ai);
@@ -322,14 +289,11 @@ namespace MajorMiseries.Patches
 
         private static void TrackPredatorPlayerDamage(BaseAi ai, DamageSource damageSource, string sourceHook)
         {
-            if (!TryGetTrackedPredatorSubtype(ai, out AiSubType subType))
-                return;
+            if (!TryGetTrackedPredatorSubtype(ai, out AiSubType subType)) return;
 
-            if (damageSource != DamageSource.Player)
-                return;
+            if (damageSource != DamageSource.Player) return;
 
-            if (ai.m_CurrentHP <= 0f)
-                return;
+            if (ai.m_CurrentHP <= 0f) return;
 
             int key = ai.GetInstanceID();
 
@@ -344,19 +308,16 @@ namespace MajorMiseries.Patches
 
         private static void TryRegisterPredatorKill(BaseAi ai, string hookName)
         {
-            if (!TryGetTrackedPredatorSubtype(ai, out _))
-                return;
+            if (!TryGetTrackedPredatorSubtype(ai, out _)) return;
 
             int key = ai.GetInstanceID();
 
-            if (!_pendingPredatorKills.TryGetValue(key, out PendingKill pending))
-                return;
+            if (!_pendingPredatorKills.TryGetValue(key, out PendingKill pending)) return;
 
             _pendingPredatorKills.Remove(key);
 
             float hostilityAdded = GetPredatorHostilityGain(pending.SubType);
-            if (hostilityAdded <= 0f)
-                return;
+            if (hostilityAdded <= 0f) return;
 
             Core.Log($"predator hostility death -> {GetPredatorName(pending.SubType)} confirmed from {hookName}");
             AfflictionLogic.RegisterPredatorKill(hostilityAdded);
@@ -364,40 +325,28 @@ namespace MajorMiseries.Patches
 
         private static bool IsInterestingPredatorMode(AiMode mode)
         {
-            return mode == AiMode.Investigate
-                || mode == AiMode.InvestigateSmell
-                || mode == AiMode.Stalking
-                || mode == AiMode.Attack
-                || mode == AiMode.PassingAttack
-                || mode == AiMode.HoldGround;
+            return mode == AiMode.Investigate || mode == AiMode.InvestigateSmell || mode == AiMode.Stalking || mode == AiMode.Attack || mode == AiMode.PassingAttack || mode == AiMode.HoldGround;
         }
 
         private static float GetDistanceToPlayer(BaseAi ai)
         {
-            if (ai == null)
-                return -1f;
+            if (ai == null) return -1f;
 
             GameObject playerObject = GameManager.GetPlayerObject();
-            if (playerObject == null)
-                return -1f;
+            if (playerObject == null) return -1f;
 
             return Vector3.Distance(ai.transform.position, playerObject.transform.position);
         }
 
         private static void MaybeLogPredatorThreatThreshold(BaseAi ai, PredatorThreatController controller)
         {
-            if (!IsPredatorThreatTracked(ai))
-                return;
+            if (!IsPredatorThreatTracked(ai)) return;
 
             int baseThreat = AfflictionLogic.GetBasePredatorThreatLevel();
             int dynamicThreat = AfflictionLogic.GetDynamicPredatorThreatLevel();
             int totalThreat = AfflictionLogic.GetTotalPredatorThreatLevel();
 
-            if (_lastLoggedPredatorThreatLevelBySubtype.TryGetValue(ai.m_AiSubType, out int lastThreat)
-                && lastThreat == totalThreat)
-            {
-                return;
-            }
+            if (_lastLoggedPredatorThreatLevelBySubtype.TryGetValue(ai.m_AiSubType, out int lastThreat) && lastThreat == totalThreat) return;
 
             _lastLoggedPredatorThreatLevelBySubtype[ai.m_AiSubType] = totalThreat;
 
@@ -407,8 +356,7 @@ namespace MajorMiseries.Patches
             Core.Log(
                 $"predator threat threshold -> {GetPredatorName(ai.m_AiSubType)} | " +
                 $"Base:{baseThreat} | Dynamic:{dynamicThreat} | Total:{totalThreat} | " +
-                $"Smell x{smellMultiplier:0.00} | Threat x{threatMultiplier:0.00}"
-            );
+                $"Smell x{smellMultiplier:0.00} | Threat x{threatMultiplier:0.00}");
 
             switch (ai.m_AiSubType)
             {
@@ -444,8 +392,7 @@ namespace MajorMiseries.Patches
                             $"WeakBeginChase {controller._stalkingBeginChasingWeakTargetDistance:0.0}->{controller._stalkingBeginChasingWeakTargetDistance * threatMultiplier:0.0} | " +
                             $"MeleeRange {controller._rangeMeleeAttack:0.0}->{controller._rangeMeleeAttack * threatMultiplier:0.0} | " +
                             $"StalkFollow {controller._stalkingFollowDistance:0.0}->{scaledStalkingFollowDistance:0.0} | " +
-                            $"BreakStalkRange {controller._breakStalkingRange:0.0}->{scaledBreakStalkingRange:0.0}"
-                        );
+                            $"BreakStalkRange {controller._breakStalkingRange:0.0}->{scaledBreakStalkingRange:0.0}");
 
                         break;
                     }
@@ -455,8 +402,7 @@ namespace MajorMiseries.Patches
                         Core.Log(
                             $"predator moose values -> " +
                             $"MeleeRange {controller._rangeMeleeAttack:0.0}->{controller._rangeMeleeAttack * threatMultiplier:0.0} | " +
-                            $"DetectionRange {controller._detectionRange:0.0}->{controller._detectionRange * threatMultiplier:0.0}"
-                        );
+                            $"DetectionRange {controller._detectionRange:0.0}->{controller._detectionRange * threatMultiplier:0.0}");
 
                         break;
                     }
@@ -483,15 +429,13 @@ namespace MajorMiseries.Patches
                             $"BeginChase {controller._stalkingBeginChasingDistance:0.0}->{newBeginChase:0.0} | " +
                             $"WeakBeginChase {controller._stalkingBeginChasingWeakTargetDistance:0.0}->{newWeakBeginChase:0.0} | " +
                             $"ForceStalk {controller._forceStalkPlayerDistance:0.0}->{newForceStalk:0.0} | " +
-                            $"PassingAttack {controller._passingAttackRange:0.0}->{newPassingAttack:0.0}"
-                        );
+                            $"PassingAttack {controller._passingAttackRange:0.0}->{newPassingAttack:0.0}");
 
                         Core.Log(
                             $"predator cougar chances -> " +
                             $"CuriousEnterStalk {controller._curiousEnterStalkingChance:0.00}->{newCuriousEnter:0.00} | " +
                             $"TargetDetectedStalk {controller._stalkingChanceWhenTargetDetected:0.00}->{newTargetDetected:0.00} | " +
-                            $"LoseInterest {controller._stalkingLoseInterestChance:0.00}->{newLoseInterest:0.00}"
-                        );
+                            $"LoseInterest {controller._stalkingLoseInterestChance:0.00}->{newLoseInterest:0.00}");
 
                         break;
                     }
@@ -572,8 +516,7 @@ namespace MajorMiseries.Patches
         {
             private static void Prefix(BaseAi __instance)
             {
-                if (__instance == null)
-                    return;
+                if (__instance == null) return;
 
                 int key = __instance.GetInstanceID();
                 _pendingPredatorKills.Remove(key);

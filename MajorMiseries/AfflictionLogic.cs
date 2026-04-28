@@ -81,15 +81,12 @@ namespace MajorMiseries
 
         internal static void Tick()
         {
-            if (!IsReady())
-                return;
+            if (!IsReady()) return;
 
             int totalHours = GetTotalHoursAliveFromGame();
-            if (totalHours < 0)
-                return;
+            if (totalHours < 0) return;
 
-            if (totalHours == _lastProcessedHour)
-                return;
+            if (totalHours == _lastProcessedHour) return;
 
             _lastProcessedHour = totalHours;
 
@@ -223,11 +220,7 @@ namespace MajorMiseries
         {
             float daysAlive = totalHours / 24f;
 
-            GetConfiguredStageThresholds(
-                out float omenThreshold,
-                out float dirgeThreshold,
-                out float knellThreshold,
-                out float requiemThreshold);
+            GetConfiguredStageThresholds(out float omenThreshold, out float dirgeThreshold, out float knellThreshold, out float requiemThreshold);
 
             if (daysAlive >= requiemThreshold) return RequiemStage.Requiem;
             if (daysAlive >= knellThreshold) return RequiemStage.Knell;
@@ -257,8 +250,7 @@ namespace MajorMiseries
 
         private static void ApplyStage(RequiemStage stage)
         {
-            if (!Settings.options.EnableRequiemStages)
-                return;
+            if (!Settings.options.EnableRequiemStages) return;
 
             switch (stage)
             {
@@ -286,19 +278,16 @@ namespace MajorMiseries
 
         private static void ClampConditionToCurrentStageMax(RequiemStage stage)
         {
-            if (stage == RequiemStage.None)
-                return;
+            if (stage == RequiemStage.None) return;
 
             Condition? condition = GameManager.GetConditionComponent();
-            if (condition == null)
-                return;
+            if (condition == null) return;
 
             float before = condition.m_CurrentHP;
 
             float adjustedMaxHp = Mathf.Max(1f, VANILLA_MAX_CONDITION_HP + condition.GetAdjustedMaxHPModifier());
 
-            if (before <= adjustedMaxHp)
-                return;
+            if (before <= adjustedMaxHp) return;
 
             condition.m_CurrentHP = adjustedMaxHp;
 
@@ -308,19 +297,14 @@ namespace MajorMiseries
         private static void CureAllStageAfflictions()
         {
             var mgr = AfflictionManager.GetAfflictionManagerInstance();
-            if (mgr?.m_Afflictions == null)
-                return;
+            if (mgr?.m_Afflictions == null) return;
 
             for (int i = mgr.m_Afflictions.Count - 1; i >= 0; i--)
             {
                 var affliction = mgr.m_Afflictions[i];
-                if (affliction == null)
-                    continue;
+                if (affliction == null) continue;
 
-                if (affliction is OmenAffliction
-                    || affliction is DirgeAffliction
-                    || affliction is KnellAffliction
-                    || affliction is RequiemAffliction)
+                if (affliction is OmenAffliction || affliction is DirgeAffliction || affliction is KnellAffliction || affliction is RequiemAffliction)
                 {
                     affliction.Cure();
                 }
@@ -398,11 +382,9 @@ namespace MajorMiseries
 
         internal static void RegisterPredatorKill(float hostilityAdded)
         {
-            if (hostilityAdded <= 0f)
-                return;
+            if (hostilityAdded <= 0f) return;
 
-            if (!IsPredatorHostilityEnabled())
-                return;
+            if (!IsPredatorHostilityEnabled()) return;
 
             float before = Core.State.PredatorHostility;
 
@@ -434,8 +416,7 @@ namespace MajorMiseries
 
         internal static void UpdatePredatorHostilityDecay(float gameHoursPassed)
         {
-            if (gameHoursPassed <= 0f)
-                return;
+            if (gameHoursPassed <= 0f) return;
 
             if (Core.State.PredatorHostility <= 0f)
             {
@@ -447,8 +428,7 @@ namespace MajorMiseries
             Core.State.HoursSinceLastPredatorKill += gameHoursPassed;
             Core.Instance?.MarkDirty();
 
-            if (Core.State.HoursSinceLastPredatorKill < PREDATOR_HOSTILITY_DECAY_DELAY_HOURS)
-                return;
+            if (Core.State.HoursSinceLastPredatorKill < PREDATOR_HOSTILITY_DECAY_DELAY_HOURS) return;
 
             float before = Core.State.PredatorHostility;
             int dynamicThreatBefore = GetDynamicPredatorThreatLevelFromHeat(before);
@@ -489,31 +469,22 @@ namespace MajorMiseries
         {
             RefreshEffectsIfNeeded();
 
-            if (!RequiemStagesEffects.ShouldConvertPredatorBloodLossToSevere(GetCurrentStage()))
-                return;
+            if (!RequiemStagesEffects.ShouldConvertPredatorBloodLossToSevere(GetCurrentStage())) return;
 
             PlayerManager player = GameManager.GetPlayerManagerComponent();
-            if (player == null || player.PlayerIsDead())
-                return;
+            if (player == null || player.PlayerIsDead()) return;
 
-            if (_applyingSevere || _pendingSevere)
-                return;
+            if (_applyingSevere || _pendingSevere) return;
 
             SevereLacerations severe = GameManager.GetSevereLacerations();
-            if (severe == null || severe.HasAffliction())
-                return;
+            if (severe == null || severe.HasAffliction()) return;
 
             string forwardedCause = string.IsNullOrWhiteSpace(cause) ? "Predator Attack" : cause;
             string lowerCause = forwardedCause.ToLowerInvariant();
 
-            bool isPredatorCause =
-                lowerCause.Contains("wolf") ||
-                lowerCause.Contains("bear") ||
-                lowerCause.Contains("cougar") ||
-                lowerCause.Contains("predator");
+            bool isPredatorCause = lowerCause.Contains("wolf") || lowerCause.Contains("bear") || lowerCause.Contains("cougar") || lowerCause.Contains("predator");
 
-            if (!isPredatorCause)
-                return;
+            if (!isPredatorCause) return;
 
             _pendingSevere = true;
             MelonCoroutines.Start(ApplySevereNextFrame(forwardedCause));
@@ -528,8 +499,7 @@ namespace MajorMiseries
                 return;
             }
 
-            if (severe == null)
-                return;
+            if (severe == null) return;
 
             bool isActive = severe.HasAffliction();
 
@@ -539,30 +509,14 @@ namespace MajorMiseries
                 return;
             }
 
-            if (!_severeWasActive)
-                return;
+            if (!_severeWasActive) return;
 
             _severeWasActive = false;
 
             AfflictionManager mgr = AfflictionManager.GetAfflictionManagerInstance();
-            if (mgr == null)
-                return;
+            if (mgr == null) return;
 
-            Core.State ??= new MMState();
-            Core.State.ScarredFleshHistoryCount++;
-            Core.Instance?.MarkDirty();
-
-            if (!Settings.options.EnableScarredFlesh)
-            {
-                Core.Log($"SevereLacerations healed -> ScarredFlesh history increased to {Core.State.ScarredFleshHistoryCount}, but the system is disabled.");
-                ForceRefreshEffects();
-                return;
-            }
-
-            Core.Log($"SevereLacerations healed -> applying ScarredFlesh ({Core.State.ScarredFleshHistoryCount} total recorded).");
-
-            new ScarredFleshAffliction(AfflictionBodyArea.Chest).Start();
-            ForceRefreshEffects();
+            AddScarredFleshStack("SevereLacerations healed");
         }
 
         private static IEnumerator ApplySevereNextFrame(string cause)
@@ -572,12 +526,10 @@ namespace MajorMiseries
             try
             {
                 PlayerManager player = GameManager.GetPlayerManagerComponent();
-                if (player == null || player.PlayerIsDead())
-                    yield break;
+                if (player == null || player.PlayerIsDead()) yield break;
 
                 SevereLacerations severe = GameManager.GetSevereLacerations();
-                if (severe == null || severe.HasAffliction())
-                    yield break;
+                if (severe == null || severe.HasAffliction()) yield break;
 
                 _applyingSevere = true;
                 severe.ApplySevereLacerations(cause);
@@ -595,10 +547,82 @@ namespace MajorMiseries
             return Settings.options.EnableScarredFlesh ? Mathf.Max(0, Core.State.ScarredFleshHistoryCount) : 0;
         }
 
+        internal static void AddScarredFleshStack(string source)
+        {
+            Core.State ??= new MMState();
+
+            Core.State.ScarredFleshHistoryCount = Mathf.Max(0, Core.State.ScarredFleshHistoryCount) + 1;
+            Core.Instance?.MarkDirty();
+
+            if (!Settings.options.EnableScarredFlesh)
+            {
+                Core.Log($"{source} -> ScarredFlesh history increased to {Core.State.ScarredFleshHistoryCount}, but the system is disabled.");
+                ForceRefreshEffects();
+                return;
+            }
+
+            Core.Log($"{source} -> ScarredFlesh stack is now x{Core.State.ScarredFleshHistoryCount}.");
+
+            EnsureScarredFleshDisplay();
+            ForceRefreshEffects();
+        }
+
+        internal static void SetScarredFleshStack(int value)
+        {
+            Core.State ??= new MMState();
+
+            Core.State.ScarredFleshHistoryCount = Mathf.Max(0, value);
+            Core.Instance?.MarkDirty();
+
+            EnsureScarredFleshDisplay();
+            ForceRefreshEffects();
+        }
+
+        private static void EnsureScarredFleshDisplay()
+        {
+            Core.State ??= new MMState();
+
+            if (!Settings.options.EnableScarredFlesh || Core.State.ScarredFleshHistoryCount <= 0)
+            {
+                CureAllAfflictionsOfType<ScarredFleshAffliction>();
+                return;
+            }
+
+            ScarredFleshAffliction? activeScarredFlesh = null;
+
+            AfflictionManager mgr = AfflictionManager.GetAfflictionManagerInstance();
+            var list = mgr?.m_Afflictions;
+
+            if (list != null)
+            {
+                for (int i = list.Count - 1; i >= 0; i--)
+                {
+                    if (list[i] is ScarredFleshAffliction scarredFlesh)
+                    {
+                        if (activeScarredFlesh == null)
+                        {
+                            activeScarredFlesh = scarredFlesh;
+                        }
+                        else
+                        {
+                            scarredFlesh.Cure();
+                        }
+                    }
+                }
+            }
+
+            if (activeScarredFlesh != null)
+            {
+                activeScarredFlesh.RefreshStackDisplay();
+                return;
+            }
+
+            new ScarredFleshAffliction(AfflictionBodyArea.Chest).Start();
+        }
+
         internal static void SyncSettingsControlledAfflictions()
         {
-            if (!IsReady())
-                return;
+            if (!IsReady()) return;
 
             SyncScarredFleshFromHistory();
             SyncSepsisSystem();
@@ -611,52 +635,20 @@ namespace MajorMiseries
 
         private static void SyncScarredFleshFromHistory()
         {
-            Core.State ??= new MMState();
-
-            if (!Settings.options.EnableScarredFlesh)
-            {
-                CureAllAfflictionsOfType<ScarredFleshAffliction>();
-                return;
-            }
-
-            RefreshEffectsIfNeeded(force: true);
-
-            int targetCount = Mathf.Max(0, Core.State.ScarredFleshHistoryCount);
-            int activeCount = _cache.ScarredFleshCount;
-
-            if (activeCount > targetCount)
-            {
-                Core.State.ScarredFleshHistoryCount = activeCount;
-                Core.Instance?.MarkDirty();
-                targetCount = activeCount;
-                Core.Log($"ScarredFlesh sync -> migrated existing active count ({activeCount}) into persistent history.");
-            }
-
-            if (activeCount >= targetCount)
-                return;
-
-            int missingCount = targetCount - activeCount;
-            Core.Log($"ScarredFlesh sync -> restoring {missingCount} missing instance(s) from history.");
-
-            for (int i = 0; i < missingCount; i++)
-            {
-                new ScarredFleshAffliction(AfflictionBodyArea.Chest).Start();
-            }
+            EnsureScarredFleshDisplay();
         }
 
         private static void SyncSepsisSystem()
         {
-            if (Settings.options.EnableSepsis)
-                return;
+            if (Settings.options.EnableSepsis) return;
 
-            CureAllAfflictionsOfType<MajorMiseries.Afflictions.SepsisRisk.SepsisRiskAffliction>();
-            CureAllAfflictionsOfType<MajorMiseries.Afflictions.Sepsis.SepsisAffliction>();
+            CureAllAfflictionsOfType<Afflictions.SepsisRisk.SepsisRiskAffliction>();
+            CureAllAfflictionsOfType<Afflictions.Sepsis.SepsisAffliction>();
         }
 
         private static void SyncCarbonMonoxideSystem()
         {
-            if (Settings.options.EnableCarbonMonoxide)
-                return;
+            if (Settings.options.EnableCarbonMonoxide) return;
 
             _coSceneStates.Clear();
             CureAllAfflictionsOfType<COExposureAffliction>();
@@ -665,8 +657,7 @@ namespace MajorMiseries
 
         private static void SyncBlackLungSystem()
         {
-            if (Settings.options.EnableBlackLung)
-                return;
+            if (Settings.options.EnableBlackLung) return;
 
             Core.State ??= new MMState();
             if (!Mathf.Approximately(Core.State.BlackLungExposure, 0f))
@@ -683,8 +674,7 @@ namespace MajorMiseries
         {
             ResetCorpseTracking();
 
-            if (Settings.options.EnableCorpseSickness)
-                return;
+            if (Settings.options.EnableCorpseSickness) return;
 
             Core.State ??= new MMState();
 
@@ -701,8 +691,7 @@ namespace MajorMiseries
         private static void CureAllAfflictionsOfType<TAffliction>() where TAffliction : class
         {
             AfflictionManager mgr = AfflictionManager.GetAfflictionManagerInstance();
-            if (mgr?.m_Afflictions == null)
-                return;
+            if (mgr?.m_Afflictions == null) return;
 
             for (int i = mgr.m_Afflictions.Count - 1; i >= 0; i--)
             {
@@ -746,14 +735,12 @@ namespace MajorMiseries
             if (!IsReady()) return;
 
             PlayerManager player = GameManager.GetPlayerManagerComponent();
-            if (player == null || player.PlayerIsDead())
-                return;
+            if (player == null || player.PlayerIsDead()) return;
 
             float chance = Settings.options.BearBrokenLimbChance;
 
             Fatigue fatigue = GameManager.GetFatigueComponent();
-            if (fatigue != null && fatigue.m_CurrentFatigue <= 40f)
-                chance += 10f;
+            if (fatigue != null && fatigue.m_CurrentFatigue <= 40f) chance += 10f;
 
             if (!RollChance(chance))
             {
@@ -770,14 +757,12 @@ namespace MajorMiseries
             if (!IsReady()) return;
 
             PlayerManager player = GameManager.GetPlayerManagerComponent();
-            if (player == null || player.PlayerIsDead())
-                return;
+            if (player == null || player.PlayerIsDead()) return;
 
             float chance = Settings.options.MooseBrokenLimbChance;
 
             Fatigue fatigue = GameManager.GetFatigueComponent();
-            if (fatigue != null && fatigue.m_CurrentFatigue <= 40f)
-                chance += 10f;
+            if (fatigue != null && fatigue.m_CurrentFatigue <= 40f) chance += 10f;
 
             if (!RollChance(chance))
             {
@@ -793,13 +778,9 @@ namespace MajorMiseries
         {
             if (Settings.options.AllowDoubleBrokenLimb)
             {
-                AfflictionBodyArea armArea = Random.Range(0, 2) == 0
-                    ? AfflictionBodyArea.ArmLeft
-                    : AfflictionBodyArea.ArmRight;
+                AfflictionBodyArea armArea = Random.Range(0, 2) == 0 ? AfflictionBodyArea.ArmLeft : AfflictionBodyArea.ArmRight;
 
-                AfflictionBodyArea legArea = Random.Range(0, 2) == 0
-                    ? AfflictionBodyArea.LegLeft
-                    : AfflictionBodyArea.LegRight;
+                AfflictionBodyArea legArea = Random.Range(0, 2) == 0 ? AfflictionBodyArea.LegLeft : AfflictionBodyArea.LegRight;
 
                 float armDuration = Random.Range(BROKEN_ARM_MIN_HOURS, BROKEN_ARM_MAX_HOURS + 1);
                 float legDuration = Random.Range(BROKEN_LEG_MIN_HOURS, BROKEN_LEG_MAX_HOURS + 1);
@@ -821,9 +802,7 @@ namespace MajorMiseries
 
             if (applyArm)
             {
-                AfflictionBodyArea armArea = Random.Range(0, 2) == 0
-                    ? AfflictionBodyArea.ArmLeft
-                    : AfflictionBodyArea.ArmRight;
+                AfflictionBodyArea armArea = Random.Range(0, 2) == 0 ? AfflictionBodyArea.ArmLeft : AfflictionBodyArea.ArmRight;
 
                 float armDuration = Random.Range(BROKEN_ARM_MIN_HOURS, BROKEN_ARM_MAX_HOURS + 1);
 
@@ -837,9 +816,7 @@ namespace MajorMiseries
             }
             else
             {
-                AfflictionBodyArea legArea = Random.Range(0, 2) == 0
-                    ? AfflictionBodyArea.LegLeft
-                    : AfflictionBodyArea.LegRight;
+                AfflictionBodyArea legArea = Random.Range(0, 2) == 0 ? AfflictionBodyArea.LegLeft : AfflictionBodyArea.LegRight;
 
                 float legDuration = Random.Range(BROKEN_LEG_MIN_HOURS, BROKEN_LEG_MAX_HOURS + 1);
 
@@ -921,14 +898,11 @@ namespace MajorMiseries
 
         internal static void EndFallDamageEvaluation()
         {
-            if (_processingFallInjury)
-                return;
+            if (_processingFallInjury) return;
 
-            if (!IsReady())
-                return;
+            if (!IsReady()) return;
 
-            if (_conditionBeforeFall < 0f)
-                return;
+            if (_conditionBeforeFall < 0f) return;
 
             MelonCoroutines.Start(EvaluateFallDamageNextFrame());
         }
@@ -937,22 +911,17 @@ namespace MajorMiseries
         {
             yield return null;
 
-            if (_processingFallInjury)
-                yield break;
+            if (_processingFallInjury) yield break;
 
-            if (!IsReady())
-                yield break;
+            if (!IsReady()) yield break;
 
             PlayerManager player = GameManager.GetPlayerManagerComponent();
-            if (player == null || player.PlayerIsDead())
-                yield break;
+            if (player == null || player.PlayerIsDead()) yield break;
 
             Condition cond = GameManager.GetConditionComponent();
-            if (cond == null)
-                yield break;
+            if (cond == null) yield break;
 
-            if (_conditionBeforeFall < 0f)
-                yield break;
+            if (_conditionBeforeFall < 0f) yield break;
 
             float conditionAfter = cond.GetNormalizedCondition();
             float lost = Mathf.Max(0f, _conditionBeforeFall - conditionAfter);
@@ -966,15 +935,12 @@ namespace MajorMiseries
 
         private static void TryApplyBrokenLegFromFallDamage(float normalizedConditionLost)
         {
-            if (_processingFallInjury)
-                return;
+            if (_processingFallInjury) return;
 
-            if (!IsReady())
-                return;
+            if (!IsReady()) return;
 
             PlayerManager player = GameManager.GetPlayerManagerComponent();
-            if (player == null || player.PlayerIsDead())
-                return;
+            if (player == null || player.PlayerIsDead()) return;
 
             RefreshEffectsIfNeeded(force: true);
 
@@ -1017,27 +983,13 @@ namespace MajorMiseries
 
             AfflictionBodyArea legArea;
 
-            if (_cache.BrokenLegLeft && !_cache.BrokenLegRight)
-            {
-                legArea = AfflictionBodyArea.LegRight;
-            }
-            else if (_cache.BrokenLegRight && !_cache.BrokenLegLeft)
-            {
-                legArea = AfflictionBodyArea.LegLeft;
-            }
-            else
-            {
-                legArea = Random.Range(0, 2) == 0
-                    ? AfflictionBodyArea.LegLeft
-                    : AfflictionBodyArea.LegRight;
-            }
+            if (_cache.BrokenLegLeft && !_cache.BrokenLegRight) legArea = AfflictionBodyArea.LegRight;
+            else if (_cache.BrokenLegRight && !_cache.BrokenLegLeft) legArea = AfflictionBodyArea.LegLeft;
+            else legArea = Random.Range(0, 2) == 0 ? AfflictionBodyArea.LegLeft : AfflictionBodyArea.LegRight;
 
             float duration = Random.Range(BROKEN_LEG_MIN_HOURS, BROKEN_LEG_MAX_HOURS + 1);
 
-            if (Settings.options.BrokenLimbDurationMode == 1)
-            {
-                duration /= 10f;
-            }
+            if (Settings.options.BrokenLimbDurationMode == 1) duration /= 10f;
 
             Core.Log($"{cause} -> applying BrokenLeg ({legArea}) for {duration:0.#}h after losing {normalizedConditionLost * 100f:0.#}% condition");
 
@@ -1060,7 +1012,7 @@ namespace MajorMiseries
             else if (_cache.Dirge) penalty += 20f;
             else if (_cache.Omen) penalty += 10f;
 
-            penalty += 2f * _cache.ScarredFleshCount;
+            penalty += 2f * GetScarredFleshCount();
 
             return penalty;
         }
@@ -1076,22 +1028,18 @@ namespace MajorMiseries
 
             float multiplier = HasStageEffect(RequiemStage.Omen) ? 0.5f : 1f;
 
-            if (_cache.HomeComfort)
-                multiplier *= RegionalAfflictionLogic.HOME_COMFORT_SLEEP_RECOVERY_MULTIPLIER;
+            if (_cache.HomeComfort) multiplier *= RegionalAfflictionLogic.HOME_COMFORT_SLEEP_RECOVERY_MULTIPLIER;
 
-            if (_cache.HomeSickness)
-                multiplier *= RegionalAfflictionLogic.HOME_SICKNESS_SLEEP_RECOVERY_MULTIPLIER;
+            if (_cache.HomeSickness) multiplier *= RegionalAfflictionLogic.HOME_SICKNESS_SLEEP_RECOVERY_MULTIPLIER;
 
-            if (_cache.RegionalDistress)
-                multiplier *= RegionalAfflictionLogic.REGIONAL_DISTRESS_SLEEP_RECOVERY_MULTIPLIER;
+            if (_cache.RegionalDistress) multiplier *= RegionalAfflictionLogic.REGIONAL_DISTRESS_SLEEP_RECOVERY_MULTIPLIER;
 
             return multiplier;
         }
 
         internal static int GetAdjustedMaxSleepHours(int vanillaMaxHours)
         {
-            if (!HasStageEffect(RequiemStage.Omen))
-                return vanillaMaxHours;
+            if (!HasStageEffect(RequiemStage.Omen)) return vanillaMaxHours;
 
             return Mathf.Max(1, vanillaMaxHours - 4);
         }
@@ -1108,19 +1056,16 @@ namespace MajorMiseries
 
         internal static float ApplyIncomingDamageMultiplier(float healthDelta)
         {
-            if (!HasStageEffect(RequiemStage.Requiem) || healthDelta >= 0f)
-                return healthDelta;
+            if (!HasStageEffect(RequiemStage.Requiem) || healthDelta >= 0f) return healthDelta;
 
             return healthDelta * 2f;
         }
 
         internal static float ApplySprintSpeedPenaltyToFinalMultiplier(float multiplier)
         {
-            if (!HasStageEffect(RequiemStage.Knell))
-                return multiplier;
+            if (!HasStageEffect(RequiemStage.Knell)) return multiplier;
 
-            if (HasWeakJoints())
-                return multiplier;
+            if (HasWeakJoints()) return multiplier;
 
             return multiplier * 0.75f;
         }
@@ -1145,15 +1090,11 @@ namespace MajorMiseries
 
             float multiplier = 1f;
 
-            if (_cache.BrokenLegLeft && _cache.BrokenLegRight)
-                multiplier *= 0.45f;
-            else if (_cache.BrokenLegCount > 0)
-                multiplier *= 0.65f;
-            else if (_cache.SevereAnkleSprainCount > 0)
-                multiplier *= 0.75f;
+            if (_cache.BrokenLegLeft && _cache.BrokenLegRight) multiplier *= 0.45f;
+            else if (_cache.BrokenLegCount > 0) multiplier *= 0.65f;
+            else if (_cache.SevereAnkleSprainCount > 0) multiplier *= 0.75f;
 
-            if (HasStageEffect(RequiemStage.Knell))
-                multiplier *= 0.9f;
+            if (HasStageEffect(RequiemStage.Knell)) multiplier *= 0.9f;
 
             return multiplier;
         }
@@ -1164,21 +1105,15 @@ namespace MajorMiseries
 
             float multiplier = 1f;
 
-            if (_cache.BrokenLegLeft && _cache.BrokenLegRight)
-                multiplier *= 2.0f;
-            else if (_cache.BrokenLegCount > 0)
-                multiplier *= 1.5f;
-            else if (_cache.SevereAnkleSprainCount > 0)
-                multiplier *= 1.35f;
+            if (_cache.BrokenLegLeft && _cache.BrokenLegRight) multiplier *= 2.0f;
+            else if (_cache.BrokenLegCount > 0) multiplier *= 1.5f;
+            else if (_cache.SevereAnkleSprainCount > 0) multiplier *= 1.35f;
 
-            if (_cache.HomeComfort)
-                multiplier *= RegionalAfflictionLogic.HOME_COMFORT_MOVEMENT_FATIGUE_MULTIPLIER;
+            if (_cache.HomeComfort) multiplier *= RegionalAfflictionLogic.HOME_COMFORT_MOVEMENT_FATIGUE_MULTIPLIER;
 
-            if (_cache.HomeSickness)
-                multiplier *= RegionalAfflictionLogic.HOME_SICKNESS_MOVEMENT_FATIGUE_MULTIPLIER;
+            if (_cache.HomeSickness) multiplier *= RegionalAfflictionLogic.HOME_SICKNESS_MOVEMENT_FATIGUE_MULTIPLIER;
 
-            if (_cache.RegionalDistress)
-                multiplier *= RegionalAfflictionLogic.REGIONAL_DISTRESS_MOVEMENT_FATIGUE_MULTIPLIER;
+            if (_cache.RegionalDistress) multiplier *= RegionalAfflictionLogic.REGIONAL_DISTRESS_MOVEMENT_FATIGUE_MULTIPLIER;
 
             return multiplier;
         }
@@ -1189,13 +1124,10 @@ namespace MajorMiseries
 
             float multiplier = 1f;
 
-            if (_cache.BrokenArmLeft && _cache.BrokenArmRight)
-                multiplier = Mathf.Max(multiplier, 2.0f);
-            else if (_cache.BrokenArmCount > 0)
-                multiplier = Mathf.Max(multiplier, 1.5f);
+            if (_cache.BrokenArmLeft && _cache.BrokenArmRight) multiplier = Mathf.Max(multiplier, 2.0f);
+            else if (_cache.BrokenArmCount > 0) multiplier = Mathf.Max(multiplier, 1.5f);
 
-            if (_cache.SevereWristSprainCount > 0)
-                multiplier = Mathf.Max(multiplier, 1.35f);
+            if (_cache.SevereWristSprainCount > 0) multiplier = Mathf.Max(multiplier, 1.35f);
 
             return multiplier;
         }
@@ -1206,13 +1138,10 @@ namespace MajorMiseries
 
             float multiplier = 1f;
 
-            if (_cache.BrokenArmLeft && _cache.BrokenArmRight)
-                multiplier = Mathf.Max(multiplier, 3f);
-            else if (_cache.BrokenArmCount > 0)
-                multiplier = Mathf.Max(multiplier, 2f);
+            if (_cache.BrokenArmLeft && _cache.BrokenArmRight) multiplier = Mathf.Max(multiplier, 3f);
+            else if (_cache.BrokenArmCount > 0) multiplier = Mathf.Max(multiplier, 2f);
 
-            if (_cache.SevereWristSprainCount > 0)
-                multiplier = Mathf.Max(multiplier, 2.5f);
+            if (_cache.SevereWristSprainCount > 0) multiplier = Mathf.Max(multiplier, 2.5f);
 
             return multiplier;
         }
@@ -1223,13 +1152,10 @@ namespace MajorMiseries
 
             float multiplier = 1f;
 
-            if (_cache.BrokenArmLeft && _cache.BrokenArmRight)
-                multiplier = Mathf.Min(multiplier, 0.45f);
-            else if (_cache.BrokenArmCount > 0)
-                multiplier = Mathf.Min(multiplier, 0.65f);
+            if (_cache.BrokenArmLeft && _cache.BrokenArmRight) multiplier = Mathf.Min(multiplier, 0.45f);
+            else if (_cache.BrokenArmCount > 0) multiplier = Mathf.Min(multiplier, 0.65f);
 
-            if (_cache.SevereWristSprainCount > 0)
-                multiplier = Mathf.Min(multiplier, 0.5f);
+            if (_cache.SevereWristSprainCount > 0) multiplier = Mathf.Min(multiplier, 0.5f);
 
             return multiplier;
         }
@@ -1244,8 +1170,6 @@ namespace MajorMiseries
             public bool Dirge;
             public bool Knell;
             public bool Requiem;
-
-            public int ScarredFleshCount;
 
             public int BrokenArmCount;
             public int BrokenLegCount;
@@ -1273,16 +1197,14 @@ namespace MajorMiseries
         private static void RefreshEffectsIfNeeded(bool force = false)
         {
             float now = Time.unscaledTime;
-            if (!force && (now - _lastRefreshUnscaledTime) < REFRESH_INTERVAL_SECONDS)
-                return;
+            if (!force && (now - _lastRefreshUnscaledTime) < REFRESH_INTERVAL_SECONDS) return;
 
             _lastRefreshUnscaledTime = now;
             _cache.Reset();
 
             var mgr = AfflictionManager.GetAfflictionManagerInstance();
             var list = mgr?.m_Afflictions;
-            if (list == null)
-                return;
+            if (list == null) return;
 
             for (int i = 0; i < list.Count; i++)
             {
@@ -1290,8 +1212,7 @@ namespace MajorMiseries
                 try { a = list[i]; }
                 catch { break; }
 
-                if (a == null)
-                    continue;
+                if (a == null) continue;
 
                 switch (a)
                 {
@@ -1309,10 +1230,6 @@ namespace MajorMiseries
 
                     case RequiemAffliction:
                         _cache.Requiem = true;
-                        break;
-
-                    case ScarredFleshAffliction:
-                        _cache.ScarredFleshCount++;
                         break;
 
                     case SevereWristSprainAffliction:
@@ -1435,8 +1352,7 @@ namespace MajorMiseries
 
         private static void AccumulateBlackLungWorseningLog(string sceneName, float gameHoursPassed, float hoursAdded)
         {
-            if (gameHoursPassed <= 0f || hoursAdded <= 0f)
-                return;
+            if (gameHoursPassed <= 0f || hoursAdded <= 0f) return;
 
             if (string.IsNullOrEmpty(s_BlackLungWorseningSceneName))
             {
@@ -1451,8 +1367,7 @@ namespace MajorMiseries
             s_BlackLungWorseningLogHoursAdded += hoursAdded;
             s_BlackLungWorseningLogGameHours += gameHoursPassed;
 
-            if (s_BlackLungWorseningLogGameHours >= BLACK_LUNG_WORSENING_LOG_INTERVAL_HOURS)
-                FlushBlackLungWorseningLog();
+            if (s_BlackLungWorseningLogGameHours >= BLACK_LUNG_WORSENING_LOG_INTERVAL_HOURS) FlushBlackLungWorseningLog();
         }
 
         private static void FlushBlackLungWorseningLog()
@@ -1463,9 +1378,7 @@ namespace MajorMiseries
                 return;
             }
 
-            string scenePart = string.IsNullOrEmpty(s_BlackLungWorseningSceneName)
-                ? string.Empty
-                : $" in '{s_BlackLungWorseningSceneName}'";
+            string scenePart = string.IsNullOrEmpty(s_BlackLungWorseningSceneName) ? string.Empty : $" in '{s_BlackLungWorseningSceneName}'";
 
             Core.Log($"BlackLung worsened by coal exposure{scenePart} -> +{s_BlackLungWorseningLogHoursAdded:0.###}h remaining over {s_BlackLungWorseningLogGameHours * 60f:0} min.");
 
@@ -1483,14 +1396,12 @@ namespace MajorMiseries
 
         private static void EndBlackLungExposureScene(string? nextSceneName, bool nextSceneWillIncreaseExposure, bool exposureWillDecrease)
         {
-            if (!s_BlackLungExposureSceneActive)
-                return;
+            if (!s_BlackLungExposureSceneActive) return;
 
             float totalExposure = Core.State.BlackLungExposure;
             float sceneExposureGenerated = Mathf.Max(0f, totalExposure - s_BlackLungExposureSceneStartExposure);
 
-            string message =
-                $"BlackLung exposure scene exited: '{s_BlackLungExposureSceneName}' -> total exposure {totalExposure:0.###}, scene gain +{sceneExposureGenerated:0.###}.";
+            string message = $"BlackLung exposure scene exited: '{s_BlackLungExposureSceneName}' -> total exposure {totalExposure:0.###}, scene gain +{sceneExposureGenerated:0.###}.";
 
             if (exposureWillDecrease)
             {
@@ -1549,15 +1460,12 @@ namespace MajorMiseries
 
         internal static void UpdateBlackLungExposure(float gameHoursPassed)
         {
-            if (!Settings.options.EnableBlackLung)
-                return;
+            if (!Settings.options.EnableBlackLung) return;
 
-            if (gameHoursPassed <= 0f)
-                return;
+            if (gameHoursPassed <= 0f) return;
 
             string sceneName = GameManager.m_ActiveScene;
-            if (string.IsNullOrEmpty(sceneName))
-                return;
+            if (string.IsNullOrEmpty(sceneName)) return;
 
             bool inCoalScene = IsBlackLungScene(sceneName);
 
@@ -1628,8 +1536,7 @@ namespace MajorMiseries
                 return;
             }
 
-            if (gameHoursPassed <= 0f)
-                return;
+            if (gameHoursPassed <= 0f) return;
 
             Rest? rest = GameManager.GetRestComponent();
             bool hasBlackLung = GetAffliction<BlackLungAffliction>() != null;
@@ -1684,28 +1591,21 @@ namespace MajorMiseries
 
         internal static void UpdateCOExposure(float gameHoursPassed)
         {
-            if (!Settings.options.EnableCarbonMonoxide)
-                return;
+            if (!Settings.options.EnableCarbonMonoxide) return;
 
-            if (gameHoursPassed <= 0f)
-                return;
+            if (gameHoursPassed <= 0f) return;
 
             TimeOfDay tod = GameManager.GetTimeOfDayComponent();
-            if (tod == null)
-                return;
+            if (tod == null) return;
 
-            if (HasAffliction<COExposureAffliction>())
-                return;
+            if (HasAffliction<COExposureAffliction>()) return;
 
-            if (HasAffliction<COPoisoningAffliction>())
-                return;
+            if (HasAffliction<COPoisoningAffliction>()) return;
 
-            if (!IsPlayerInIndoorScene())
-                return;
+            if (!IsPlayerInIndoorScene()) return;
 
             string sceneName = GetCurrentSceneName();
-            if (string.IsNullOrEmpty(sceneName))
-                return;
+            if (string.IsNullOrEmpty(sceneName)) return;
 
             float nowHours = tod.GetHoursPlayedNotPaused();
             CORiskSceneState state = GetOrCreateCOSceneState(sceneName);
@@ -1735,16 +1635,13 @@ namespace MajorMiseries
                 ResetCOSceneState(state);
             }
 
-            if (!hasValidFire)
-                return;
+            if (!hasValidFire) return;
 
             float elapsed = nowHours - state.LastRollTimeHours;
-            if (elapsed < CO_ROLL_INTERVAL_HOURS)
-                return;
+            if (elapsed < CO_ROLL_INTERVAL_HOURS) return;
 
             int rollCount = Mathf.FloorToInt(elapsed / CO_ROLL_INTERVAL_HOURS);
-            if (rollCount <= 0)
-                return;
+            if (rollCount <= 0) return;
 
             for (int i = 0; i < rollCount; i++)
             {
@@ -1768,19 +1665,15 @@ namespace MajorMiseries
 
         internal static bool IsPlayerStillInActiveCOScene()
         {
-            if (!IsPlayerInIndoorScene())
-                return false;
+            if (!IsPlayerInIndoorScene()) return false;
 
             TimeOfDay tod = GameManager.GetTimeOfDayComponent();
-            if (tod == null)
-                return false;
+            if (tod == null) return false;
 
             string sceneName = GetCurrentSceneName();
-            if (string.IsNullOrEmpty(sceneName))
-                return false;
+            if (string.IsNullOrEmpty(sceneName)) return false;
 
-            if (!_coSceneStates.TryGetValue(sceneName, out CORiskSceneState? state) || state == null || !state.SceneContaminated)
-                return false;
+            if (!_coSceneStates.TryGetValue(sceneName, out CORiskSceneState? state) || state == null || !state.SceneContaminated) return false;
 
             float nowHours = tod.GetHoursPlayedNotPaused();
             bool hasValidFire = TryGetIndoorValidCOFireInfo(nowHours, out _);
@@ -1791,8 +1684,7 @@ namespace MajorMiseries
                 return true;
             }
 
-            if (IsSceneStillCOContaminated(state, nowHours, hasValidFire: false))
-                return true;
+            if (IsSceneStillCOContaminated(state, nowHours, hasValidFire: false)) return true;
 
             Core.Log($"CO active scene check expired -> scene '{sceneName}' is no longer contaminated.");
             ResetCOSceneState(state);
@@ -1803,11 +1695,9 @@ namespace MajorMiseries
         {
             qualifyingSinceHours = -1f;
 
-            if (!IsPlayerInIndoorScene())
-                return false;
+            if (!IsPlayerInIndoorScene()) return false;
 
-            if (FireManager.m_Fires == null)
-                return false;
+            if (FireManager.m_Fires == null) return false;
 
             int count = FireManager.m_Fires.Count;
             float longestBurnHours = -1f;
@@ -1815,25 +1705,20 @@ namespace MajorMiseries
             for (int i = 0; i < count; i++)
             {
                 Fire? fire = FireManager.m_Fires[i];
-                if (fire == null)
-                    continue;
+                if (fire == null) continue;
 
-                if (!fire.IsBurning())
-                    continue;
+                if (!fire.IsBurning()) continue;
 
-                if (!IsCOEligibleFire(fire))
-                    continue;
+                if (!IsCOEligibleFire(fire)) continue;
 
                 float burnHours = fire.GetBurningTimeTODHours();
-                if (burnHours < CO_MIN_FIRE_BURN_HOURS)
-                    continue;
+                if (burnHours < CO_MIN_FIRE_BURN_HOURS) continue;
 
                 if (burnHours > longestBurnHours)
                     longestBurnHours = burnHours;
             }
 
-            if (longestBurnHours < CO_MIN_FIRE_BURN_HOURS)
-                return false;
+            if (longestBurnHours < CO_MIN_FIRE_BURN_HOURS) return false;
 
             qualifyingSinceHours = nowHours - (longestBurnHours - CO_MIN_FIRE_BURN_HOURS);
             return true;
@@ -1841,38 +1726,31 @@ namespace MajorMiseries
 
         private static bool IsCOEligibleFire(Fire fire)
         {
-            if (fire == null || !fire.IsBurning())
-                return false;
+            if (fire == null || !fire.IsBurning()) return false;
 
             bool isWoodStoveFire = IsWoodStoveFire(fire);
             bool isCampfireFire = IsCampfireFire(fire);
 
-            if (isCampfireFire)
-                return true;
+            if (isCampfireFire) return true;
 
-            if (isWoodStoveFire)
-                return IsFireBarrelWoodStove(fire);
+            if (isWoodStoveFire) return IsFireBarrelWoodStove(fire);
 
             return false;
         }
 
         private static bool IsWoodStoveFire(Fire fire)
         {
-            if (fire == null)
-                return false;
+            if (fire == null) return false;
 
             var woodStoves = FireManager.m_WoodStoves;
-            if (woodStoves == null)
-                return false;
+            if (woodStoves == null) return false;
 
             for (int i = 0; i < woodStoves.Count; i++)
             {
                 WoodStove? woodStove = woodStoves[i];
-                if (woodStove == null || woodStove.Fire == null)
-                    continue;
+                if (woodStove == null || woodStove.Fire == null) continue;
 
-                if (SameFire(woodStove.Fire, fire))
-                    return true;
+                if (SameFire(woodStove.Fire, fire)) return true;
             }
 
             return false;
@@ -1880,24 +1758,19 @@ namespace MajorMiseries
 
         private static bool IsCampfireFire(Fire fire)
         {
-            if (fire == null)
-                return false;
+            if (fire == null) return false;
 
-            if (fire.m_Campfire != null)
-                return true;
+            if (fire.m_Campfire != null) return true;
 
             var campfires = FireManager.m_Campfires;
-            if (campfires == null)
-                return false;
+            if (campfires == null) return false;
 
             for (int i = 0; i < campfires.Count; i++)
             {
                 Campfire? campfire = campfires[i];
-                if (campfire == null || campfire.Fire == null)
-                    continue;
+                if (campfire == null || campfire.Fire == null) continue;
 
-                if (SameFire(campfire.Fire, fire))
-                    return true;
+                if (SameFire(campfire.Fire, fire)) return true;
             }
 
             return false;
@@ -1906,37 +1779,30 @@ namespace MajorMiseries
         private static bool IsFireBarrelWoodStove(Fire fire)
         {
             WoodStove? woodStove = FindWoodStoveForFire(fire);
-            if (woodStove == null)
-                return false;
+            if (woodStove == null) return false;
 
             string objectName = woodStove.gameObject != null ? woodStove.gameObject.name ?? string.Empty : string.Empty;
-            if (objectName.Contains("FireBarrel", StringComparison.OrdinalIgnoreCase))
-                return true;
+            if (objectName.Contains("FireBarrel", StringComparison.OrdinalIgnoreCase)) return true;
 
             string path = GetTransformPath(woodStove.transform);
-            if (path.Contains("FireBarrel", StringComparison.OrdinalIgnoreCase))
-                return true;
+            if (path.Contains("FireBarrel", StringComparison.OrdinalIgnoreCase)) return true;
 
             return false;
         }
 
         private static WoodStove? FindWoodStoveForFire(Fire fire)
         {
-            if (fire == null)
-                return null;
+            if (fire == null) return null;
 
             var woodStoves = FireManager.m_WoodStoves;
-            if (woodStoves == null)
-                return null;
+            if (woodStoves == null) return null;
 
             for (int i = 0; i < woodStoves.Count; i++)
             {
                 WoodStove? woodStove = woodStoves[i];
-                if (woodStove == null || woodStove.Fire == null)
-                    continue;
+                if (woodStove == null || woodStove.Fire == null) continue;
 
-                if (SameFire(woodStove.Fire, fire))
-                    return woodStove;
+                if (SameFire(woodStove.Fire, fire)) return woodStove;
             }
 
             return null;
@@ -1944,16 +1810,14 @@ namespace MajorMiseries
 
         private static bool SameFire(Fire a, Fire b)
         {
-            if (a == null || b == null)
-                return false;
+            if (a == null || b == null) return false;
 
             return a.GetInstanceID() == b.GetInstanceID();
         }
 
         private static string GetTransformPath(Transform t)
         {
-            if (t == null)
-                return "<null>";
+            if (t == null) return "<null>";
 
             string path = t.name;
             Transform current = t.parent;
@@ -1969,14 +1833,11 @@ namespace MajorMiseries
 
         private static bool IsSceneStillCOContaminated(CORiskSceneState state, float nowHours, bool hasValidFire)
         {
-            if (!state.SceneContaminated)
-                return false;
+            if (!state.SceneContaminated) return false;
 
-            if (hasValidFire)
-                return true;
+            if (hasValidFire) return true;
 
-            if (state.LastValidFireSeenTimeHours < 0f)
-                return false;
+            if (state.LastValidFireSeenTimeHours < 0f) return false;
 
             return (nowHours - state.LastValidFireSeenTimeHours) < CO_LINGER_AFTER_FIRE_OUT_HOURS;
         }
@@ -2007,8 +1868,7 @@ namespace MajorMiseries
         private static bool IsPlayerInIndoorScene()
         {
             Weather? weather = GameManager.GetWeatherComponent();
-            if (weather == null)
-                return false;
+            if (weather == null) return false;
 
             return weather.IsIndoorScene();
         }
@@ -2112,8 +1972,7 @@ namespace MajorMiseries
                     for (int i = 0; i < containers.Length; i++)
                     {
                         Container container = containers[i];
-                        if (container == null)
-                            continue;
+                        if (container == null) continue;
 
                         bool isCorpse;
                         try
@@ -2125,8 +1984,7 @@ namespace MajorMiseries
                             continue;
                         }
 
-                        if (!isCorpse)
-                            continue;
+                        if (!isCorpse) continue;
 
                         GameObject go;
                         try
@@ -2138,12 +1996,10 @@ namespace MajorMiseries
                             continue;
                         }
 
-                        if (go == null || !go.activeInHierarchy)
-                            continue;
+                        if (go == null || !go.activeInHierarchy) continue;
 
                         UnityEngine.SceneManagement.Scene scene = go.scene;
-                        if (!scene.IsValid() || !scene.isLoaded)
-                            continue;
+                        if (!scene.IsValid() || !scene.isLoaded) continue;
 
                         s_HumanCorpseContainers.Add(container);
                     }
@@ -2172,16 +2028,13 @@ namespace MajorMiseries
 
         private static bool IsBodyHarvestManaged(BodyHarvest bodyHarvest)
         {
-            if (bodyHarvest == null)
-                return false;
+            if (bodyHarvest == null) return false;
 
-            if (BodyHarvestManager.m_BodyHarvestList == null)
-                return false;
+            if (BodyHarvestManager.m_BodyHarvestList == null) return false;
 
             for (int i = 0; i < BodyHarvestManager.m_BodyHarvestList.Count; i++)
             {
-                if (BodyHarvestManager.m_BodyHarvestList[i] == bodyHarvest)
-                    return true;
+                if (BodyHarvestManager.m_BodyHarvestList[i] == bodyHarvest) return true;
             }
 
             return false;
@@ -2189,8 +2042,7 @@ namespace MajorMiseries
 
         private static bool IsDeadWildlifeBodyHarvest(BodyHarvest bodyHarvest)
         {
-            if (bodyHarvest == null)
-                return false;
+            if (bodyHarvest == null) return false;
 
             GameObject go;
             try
@@ -2202,12 +2054,10 @@ namespace MajorMiseries
                 return false;
             }
 
-            if (go == null)
-                return false;
+            if (go == null) return false;
 
             BaseAi ai = go.GetComponent<BaseAi>() ?? go.GetComponentInParent<BaseAi>();
-            if (ai == null)
-                return true;
+            if (ai == null) return true;
 
             try
             {
@@ -2221,8 +2071,7 @@ namespace MajorMiseries
 
         private static bool IsValidAnimalCarcassForCorpseSickness(BodyHarvest bodyHarvest)
         {
-            if (bodyHarvest == null)
-                return false;
+            if (bodyHarvest == null) return false;
 
             GameObject go;
             try
@@ -2234,8 +2083,7 @@ namespace MajorMiseries
                 return false;
             }
 
-            if (go == null || !go.activeInHierarchy)
-                return false;
+            if (go == null || !go.activeInHierarchy) return false;
 
             string objectName = go.name ?? string.Empty;
 
@@ -2248,18 +2096,14 @@ namespace MajorMiseries
             }
 
             UnityEngine.SceneManagement.Scene scene = go.scene;
-            if (!scene.IsValid() || !scene.isLoaded)
-                return false;
+            if (!scene.IsValid() || !scene.isLoaded) return false;
 
             Transform playerTransform = GameManager.GetPlayerTransform();
-            if (playerTransform != null && go.transform.IsChildOf(playerTransform))
-                return false;
+            if (playerTransform != null && go.transform.IsChildOf(playerTransform)) return false;
 
-            if (!IsBodyHarvestManaged(bodyHarvest))
-                return false;
+            if (!IsBodyHarvestManaged(bodyHarvest)) return false;
 
-            if (objectName.StartsWith("WILDLIFE_", StringComparison.OrdinalIgnoreCase))
-                return IsDeadWildlifeBodyHarvest(bodyHarvest);
+            if (objectName.StartsWith("WILDLIFE_", StringComparison.OrdinalIgnoreCase)) return IsDeadWildlifeBodyHarvest(bodyHarvest);
 
             return true;
         }
@@ -2280,8 +2124,7 @@ namespace MajorMiseries
                     for (int i = 0; i < bodyHarvests.Length; i++)
                     {
                         BodyHarvest bodyHarvest = bodyHarvests[i];
-                        if (!IsValidAnimalCarcassForCorpseSickness(bodyHarvest))
-                            continue;
+                        if (!IsValidAnimalCarcassForCorpseSickness(bodyHarvest)) continue;
 
                         GameObject go;
                         try
@@ -2294,8 +2137,7 @@ namespace MajorMiseries
                         }
 
                         int id = go.GetInstanceID();
-                        if (!s_AnimalCarcassIds.Add(id))
-                            continue;
+                        if (!s_AnimalCarcassIds.Add(id)) continue;
 
                         s_AnimalCarcasses.Add(bodyHarvest);
                         added++;
@@ -2317,11 +2159,9 @@ namespace MajorMiseries
         {
             string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name ?? string.Empty;
 
-            if (string.IsNullOrEmpty(currentScene) || currentScene == "MainMenu_DLC01")
-                return;
+            if (string.IsNullOrEmpty(currentScene) || currentScene == "MainMenu_DLC01") return;
 
-            if (s_AnimalCarcassSceneSeeded && s_AnimalCarcassSceneSeedName == currentScene)
-                return;
+            if (s_AnimalCarcassSceneSeeded && s_AnimalCarcassSceneSeedName == currentScene) return;
 
             SeedAnimalCarcassCacheFromScene();
 
@@ -2339,11 +2179,9 @@ namespace MajorMiseries
 
         private static void MaybeProcessQueuedAnimalCarcassReseed()
         {
-            if (!s_AnimalCarcassReseedQueued)
-                return;
+            if (!s_AnimalCarcassReseedQueued) return;
 
-            if (Time.unscaledTime < s_AnimalCarcassReseedDueTime)
-                return;
+            if (Time.unscaledTime < s_AnimalCarcassReseedDueTime) return;
 
             s_AnimalCarcassReseedQueued = false;
             s_AnimalCarcassReseedDueTime = -999f;
@@ -2356,8 +2194,7 @@ namespace MajorMiseries
 
         private static void RemoveAnimalCarcassAt(int index)
         {
-            if (index < 0 || index >= s_AnimalCarcasses.Count)
-                return;
+            if (index < 0 || index >= s_AnimalCarcasses.Count) return;
 
             BodyHarvest bodyHarvest = s_AnimalCarcasses[index];
             int id = 0;
@@ -2365,31 +2202,24 @@ namespace MajorMiseries
             try
             {
                 GameObject go = bodyHarvest?.gameObject;
-                if (go != null)
-                    id = go.GetInstanceID();
+                if (go != null) id = go.GetInstanceID();
             }
-            catch
-            {
-            }
+            catch { }
 
             s_AnimalCarcasses.RemoveAt(index);
 
-            if (id != 0)
-                s_AnimalCarcassIds.Remove(id);
+            if (id != 0) s_AnimalCarcassIds.Remove(id);
         }
 
         internal static void UpdateCorpseExposure(float gameHoursPassed)
         {
-            if (!Settings.options.EnableCorpseSickness)
-                return;
+            if (!Settings.options.EnableCorpseSickness) return;
 
-            if (gameHoursPassed <= 0f)
-                return;
+            if (gameHoursPassed <= 0f) return;
 
             Core.State ??= new MMState();
 
-            if (HasAffliction<CorpseSicknessAffliction>())
-                return;
+            if (HasAffliction<CorpseSicknessAffliction>()) return;
 
             bool nearSource = TryGetCurrentCorpseExposureGainPerHour(out float gainPerHour, out string sourceLabel, out float closestDistance);
 
@@ -2456,8 +2286,7 @@ namespace MajorMiseries
 
             bool found = false;
 
-            if (Settings.options.EnableHumanCorpseExposure &&
-                TryFindNearestHumanCorpseDistance(playerPosition, out float humanDistance))
+            if (Settings.options.EnableHumanCorpseExposure && TryFindNearestHumanCorpseDistance(playerPosition, out float humanDistance))
             {
                 gainPerHour = GetHumanCorpseExposureGainPerHour();
                 sourceLabel = "human corpse";
@@ -2465,8 +2294,7 @@ namespace MajorMiseries
                 found = true;
             }
 
-            if (Settings.options.EnableAnimalCarcassExposure &&
-                TryFindNearestAnimalCarcassDistance(playerPosition, out float animalDistance))
+            if (Settings.options.EnableAnimalCarcassExposure && TryFindNearestAnimalCarcassDistance(playerPosition, out float animalDistance))
             {
                 float animalGain = GetAnimalCarcassExposureGainPerHour();
 
@@ -2511,8 +2339,7 @@ namespace MajorMiseries
                 hasEnabledSource = true;
             }
 
-            if (!hasEnabledSource)
-                slowestGain = CORPSE_EXPOSURE_MAX / 24f;
+            if (!hasEnabledSource) slowestGain = CORPSE_EXPOSURE_MAX / 24f;
 
             return slowestGain / CORPSE_EXPOSURE_DECAY_SLOWDOWN_MULTIPLIER;
         }
@@ -2529,8 +2356,7 @@ namespace MajorMiseries
             }
 
             PlayerManager player = GameManager.GetPlayerManagerComponent();
-            if (player == null)
-                return false;
+            if (player == null) return false;
 
             playerPosition = player.transform.position;
             return true;
@@ -2567,14 +2393,12 @@ namespace MajorMiseries
                     continue;
                 }
 
-                if (sourceObject == null || !sourceObject.activeInHierarchy)
-                    continue;
+                if (sourceObject == null || !sourceObject.activeInHierarchy) continue;
 
                 Vector3 delta = sourceObject.transform.position - playerPosition;
                 float distanceSq = delta.sqrMagnitude;
 
-                if (distanceSq > radiusSq)
-                    continue;
+                if (distanceSq > radiusSq) continue;
 
                 if (distanceSq < closestSq)
                 {
@@ -2583,8 +2407,7 @@ namespace MajorMiseries
                 }
             }
 
-            if (!found)
-                return false;
+            if (!found) return false;
 
             closestDistance = Mathf.Sqrt(closestSq);
             return true;
@@ -2622,8 +2445,7 @@ namespace MajorMiseries
                 Vector3 delta = sourceObject.transform.position - playerPosition;
                 float distanceSq = delta.sqrMagnitude;
 
-                if (distanceSq > radiusSq)
-                    continue;
+                if (distanceSq > radiusSq) continue;
 
                 if (distanceSq < closestSq)
                 {
@@ -2632,8 +2454,7 @@ namespace MajorMiseries
                 }
             }
 
-            if (!found)
-                return false;
+            if (!found) return false;
 
             closestDistance = Mathf.Sqrt(closestSq);
             return true;
@@ -2646,8 +2467,7 @@ namespace MajorMiseries
         private static int GetTotalHoursAliveFromGame()
         {
             TimeOfDay tod = GameManager.GetTimeOfDayComponent();
-            if (tod == null)
-                return -1;
+            if (tod == null) return -1;
 
             int day = tod.GetDayNumber();
             int hour = Mathf.FloorToInt(tod.GetHour());
@@ -2658,13 +2478,11 @@ namespace MajorMiseries
         private static bool HasAffliction<T>() where T : class
         {
             var mgr = AfflictionManager.GetAfflictionManagerInstance();
-            if (mgr?.m_Afflictions == null)
-                return false;
+            if (mgr?.m_Afflictions == null) return false;
 
             for (int i = 0; i < mgr.m_Afflictions.Count; i++)
             {
-                if (mgr.m_Afflictions[i] is T)
-                    return true;
+                if (mgr.m_Afflictions[i] is T) return true;
             }
 
             return false;
@@ -2672,12 +2490,10 @@ namespace MajorMiseries
 
         internal static void ProcessBlackLungSleepRecovery(float hoursSlept)
         {
-            if (hoursSlept <= 0f)
-                return;
+            if (hoursSlept <= 0f) return;
 
             BlackLungAffliction? blackLung = GetAffliction<BlackLungAffliction>();
-            if (blackLung == null)
-                return;
+            if (blackLung == null) return;
 
             float reductionHours = hoursSlept * BLACK_LUNG_SLEEP_RECOVERY_MULTIPLIER;
             float now = GameManager.GetTimeOfDayComponent()?.GetHoursPlayedNotPaused() ?? 0f;
@@ -2696,13 +2512,11 @@ namespace MajorMiseries
         private static T? GetAffliction<T>() where T : class
         {
             var mgr = AfflictionManager.GetAfflictionManagerInstance();
-            if (mgr?.m_Afflictions == null)
-                return null;
+            if (mgr?.m_Afflictions == null) return null;
 
             for (int i = 0; i < mgr.m_Afflictions.Count; i++)
             {
-                if (mgr.m_Afflictions[i] is T affliction)
-                    return affliction;
+                if (mgr.m_Afflictions[i] is T affliction) return affliction;
             }
 
             return null;
@@ -2734,20 +2548,16 @@ namespace MajorMiseries
 
         internal static bool ShouldBlockWeaponEquip(GearItem? gearItem)
         {
-            if (gearItem == null)
-                return false;
+            if (gearItem == null) return false;
 
             RefreshEffectsIfNeeded();
 
             int wristCount = _cache.SevereWristSprainCount;
-            if (wristCount <= 0)
-                return false;
+            if (wristCount <= 0) return false;
 
-            if (!IsWeapon(gearItem))
-                return false;
+            if (!IsWeapon(gearItem)) return false;
 
-            if (wristCount >= 2)
-                return true;
+            if (wristCount >= 2) return true;
 
             return IsTwoHandedWeapon(gearItem);
         }
@@ -2786,17 +2596,13 @@ namespace MajorMiseries
         {
             string gearName = GetCleanGearName(gearItem);
 
-            if (s_OneHandedWeaponGearNames.Contains(gearName))
-                return false;
+            if (s_OneHandedWeaponGearNames.Contains(gearName)) return false;
 
-            if (s_TwoHandedWeaponGearNames.Contains(gearName))
-                return true;
+            if (s_TwoHandedWeaponGearNames.Contains(gearName)) return true;
 
-            if (gearItem.m_BowItem != null)
-                return true;
+            if (gearItem.m_BowItem != null) return true;
 
-            if (gearItem.m_GunItem != null)
-                return true;
+            if (gearItem.m_GunItem != null) return true;
 
             return false;
         }

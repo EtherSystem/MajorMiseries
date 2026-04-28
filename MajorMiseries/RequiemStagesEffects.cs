@@ -18,15 +18,7 @@ namespace MajorMiseries
             public readonly bool LockFatigue;
             public readonly bool LockFreezing;
 
-            public StageProfile(
-                float maxHpPenalty,
-                int basePredatorThreat,
-                bool convertPredatorBloodLossToSevere,
-                bool predatorHostilityEnabled,
-                bool lockHunger,
-                bool lockThirst,
-                bool lockFatigue,
-                bool lockFreezing)
+            public StageProfile(float maxHpPenalty, int basePredatorThreat, bool convertPredatorBloodLossToSevere, bool predatorHostilityEnabled, bool lockHunger, bool lockThirst, bool lockFatigue, bool lockFreezing)
             {
                 MaxHpPenalty = maxHpPenalty;
                 BasePredatorThreat = basePredatorThreat;
@@ -200,8 +192,7 @@ namespace MajorMiseries
 
         internal static void ClampHunger(Hunger hunger)
         {
-            if (hunger == null || !ShouldClampHunger())
-                return;
+            if (hunger == null || !ShouldClampHunger()) return;
 
             float cap = hunger.GetAdjustedMaxReserveCalories();
             if (hunger.m_CurrentReserveCalories > cap)
@@ -212,8 +203,7 @@ namespace MajorMiseries
 
         internal static void ClampThirst(Thirst thirst)
         {
-            if (thirst == null || !ShouldClampThirst())
-                return;
+            if (thirst == null || !ShouldClampThirst()) return;
 
             float floor = thirst.m_MaxThirst * GaugeLockPercent;
             if (thirst.m_CurrentThirst < floor)
@@ -224,8 +214,7 @@ namespace MajorMiseries
 
         internal static void ClampFatigue(Fatigue fatigue)
         {
-            if (fatigue == null || !ShouldClampFatigue())
-                return;
+            if (fatigue == null || !ShouldClampFatigue()) return;
 
             float floor = fatigue.m_MaxFatigue * GaugeLockPercent;
             if (fatigue.m_CurrentFatigue < floor)
@@ -236,8 +225,7 @@ namespace MajorMiseries
 
         internal static void ClampFreezing(Freezing freezing)
         {
-            if (freezing == null || !ShouldClampFreezing())
-                return;
+            if (freezing == null || !ShouldClampFreezing()) return;
 
             float floor = freezing.m_MaxFreezing * GaugeLockPercent;
             if (freezing.m_CurrentFreezing < floor)
@@ -251,8 +239,7 @@ namespace MajorMiseries
         {
             private static void Postfix(ref float __result)
             {
-                if (!ShouldClampHunger())
-                    return;
+                if (!ShouldClampHunger()) return;
 
                 __result *= GaugeAvailablePercent;
             }

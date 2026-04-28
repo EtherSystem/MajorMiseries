@@ -26,9 +26,7 @@ namespace MajorMiseries.Persistence
             string json = JsonConvert.SerializeObject(Core.State);
             _manager.Save(json, SUFFIX);
 
-            if (Settings.options.IsLogging && Core.Instance != null)
-            {
-                Core.Instance.LoggerInstance.Msg(
+            Core.Log(
                     $"Saved -> " +
                     $"Scene:{GetCurrentSceneLogName()} | " +
                     $"Region:{RegionalAfflictionLogic.GetRegionLogName(Core.State.CurrentLogicalRegion)} | " +
@@ -40,9 +38,8 @@ namespace MajorMiseries.Persistence
                     $"BlackLungExposure:{Core.State.BlackLungExposure:0.###} | " +
                     $"CorpseExposure:{Core.State.CorpseExposure:0.###} | " +
                     $"ScarredFleshHistory:{Core.State.ScarredFleshHistoryCount} | " +
-                    $"Sprains:LW={Core.State.LeftWristSprainCount},RW={Core.State.RightWristSprainCount},LA={Core.State.LeftAnkleSprainCount},RA={Core.State.RightAnkleSprainCount}"
-                );
-            }
+                    $"Sprains:LW={Core.State.LeftWristSprainCount},RW={Core.State.RightWristSprainCount},LA={Core.State.LeftAnkleSprainCount},RA={Core.State.RightAnkleSprainCount}");
+            
         }
 
         internal static void OnLoad()
@@ -53,8 +50,7 @@ namespace MajorMiseries.Persistence
             {
                 Core.State = new MMState();
 
-                if (Settings.options.IsLogging && Core.Instance != null)
-                    Core.Instance.LoggerInstance.Msg("Loaded -> empty data (fresh slot)");
+                Core.Log("Loaded -> empty data (fresh slot)");
 
                 return;
             }
@@ -72,9 +68,7 @@ namespace MajorMiseries.Persistence
             Core.State = loaded ?? new MMState();
             ClampAndFix();
 
-            if (Settings.options.IsLogging && Core.Instance != null)
-            {
-                Core.Instance.LoggerInstance.Msg(
+            Core.Log(
                     $"Loaded -> " +
                     $"Scene:{GetCurrentSceneLogName()} | " +
                     $"Region:{RegionalAfflictionLogic.GetRegionLogName(Core.State.CurrentLogicalRegion)} | " +
@@ -86,17 +80,14 @@ namespace MajorMiseries.Persistence
                     $"BlackLungExposure:{Core.State.BlackLungExposure:0.###} | " +
                     $"CorpseExposure:{Core.State.CorpseExposure:0.###} | " +
                     $"ScarredFleshHistory:{Core.State.ScarredFleshHistoryCount} | " +
-                    $"Sprains:LW={Core.State.LeftWristSprainCount},RW={Core.State.RightWristSprainCount},LA={Core.State.LeftAnkleSprainCount},RA={Core.State.RightAnkleSprainCount}"
-                );
-            }
+                    $"Sprains:LW={Core.State.LeftWristSprainCount},RW={Core.State.RightWristSprainCount},LA={Core.State.LeftAnkleSprainCount},RA={Core.State.RightAnkleSprainCount}");
         }
 
         internal static void OnNewGame()
         {
             Core.State = new MMState();
 
-            if (Settings.options.IsLogging && Core.Instance != null)
-                Core.Instance.LoggerInstance.Msg("Clearing data for new game");
+            Core.Log("Clearing data for new game");
         }
 
         private static void ClampAndFix()

@@ -60,10 +60,7 @@ namespace MajorMiseries.Patches
 
         private static bool IsTrackedBar(StatusBar.StatusBarType type)
         {
-            return type == StatusBar.StatusBarType.Hunger
-                || type == StatusBar.StatusBarType.Thirst
-                || type == StatusBar.StatusBarType.Fatigue
-                || type == StatusBar.StatusBarType.Cold;
+            return type == StatusBar.StatusBarType.Hunger || type == StatusBar.StatusBarType.Thirst || type == StatusBar.StatusBarType.Fatigue || type == StatusBar.StatusBarType.Cold;
         }
 
         private static bool HasSourStomach()
@@ -110,27 +107,22 @@ namespace MajorMiseries.Patches
 
         private static LockHudVisual? GetOrCreateLockHud(StatusBar statusBar)
         {
-            if (statusBar == null || statusBar.m_FillSprite == null)
-                return null;
+            if (statusBar == null || statusBar.m_FillSprite == null) return null;
 
             int id = statusBar.GetInstanceID();
-            if (s_LockHud.TryGetValue(id, out LockHudVisual existing))
-                return existing;
+            if (s_LockHud.TryGetValue(id, out LockHudVisual existing)) return existing;
 
             UISprite baseFill = statusBar.m_FillSprite;
-            if (baseFill == null || baseFill.gameObject == null)
-                return null;
+            if (baseFill == null || baseFill.gameObject == null) return null;
 
             Transform parent = baseFill.transform.parent;
-            if (parent == null)
-                return null;
+            if (parent == null) return null;
 
             GameObject lockedGo = UnityEngine.Object.Instantiate(baseFill.gameObject, parent);
             lockedGo.name = $"{baseFill.gameObject.name}_MM_LockedArc";
 
             UISprite lockedArc = lockedGo.GetComponent<UISprite>();
-            if (lockedArc == null)
-                return null;
+            if (lockedArc == null) return null;
 
             lockedArc.gameObject.SetActive(false);
 
@@ -181,12 +173,10 @@ namespace MajorMiseries.Patches
 
         private static void SyncHudVisual(StatusBar statusBar)
         {
-            if (statusBar == null || !IsTrackedBar(statusBar.m_StatusBarType) || statusBar.m_FillSprite == null)
-                return;
+            if (statusBar == null || !IsTrackedBar(statusBar.m_StatusBarType) || statusBar.m_FillSprite == null) return;
 
             LockHudVisual? visual = GetOrCreateLockHud(statusBar);
-            if (visual == null)
-                return;
+            if (visual == null) return;
 
             UISprite baseFill = statusBar.m_FillSprite;
 
@@ -211,12 +201,10 @@ namespace MajorMiseries.Patches
         {
             private static void Postfix(GenericStatusBarSpawner __instance)
             {
-                if (__instance == null || __instance.m_SpawnedObject == null)
-                    return;
+                if (__instance == null || __instance.m_SpawnedObject == null) return;
 
                 StatusBar statusBar = __instance.m_SpawnedObject.GetComponent<StatusBar>();
-                if (statusBar == null || !IsTrackedBar(statusBar.m_StatusBarType))
-                    return;
+                if (statusBar == null || !IsTrackedBar(statusBar.m_StatusBarType)) return;
 
                 GetOrCreateLockHud(statusBar);
             }

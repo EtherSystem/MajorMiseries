@@ -93,8 +93,7 @@ namespace MajorMiseries
 
         internal static bool OnVanillaSprainStarted(SevereSprainKind kind, AfflictionBodyArea bodyArea)
         {
-            if (!Settings.options.EnableSevereSprains)
-                return false;
+            if (!Settings.options.EnableSevereSprains) return false;
 
             SevereSprainJoint joint = GetJoint(kind, bodyArea);
             if (joint == SevereSprainJoint.None)
@@ -130,8 +129,7 @@ namespace MajorMiseries
 
         internal static void Update(float gameHoursPassed)
         {
-            if (gameHoursPassed <= 0f)
-                return;
+            if (gameHoursPassed <= 0f) return;
 
             Core.State ??= new MMState();
 
@@ -157,8 +155,7 @@ namespace MajorMiseries
             changed |= UpdateJointTimers(SevereSprainJoint.LeftAnkle, gameHoursPassed);
             changed |= UpdateJointTimers(SevereSprainJoint.RightAnkle, gameHoursPassed);
 
-            if (changed)
-                Core.Instance?.MarkDirty();
+            if (changed) Core.Instance?.MarkDirty();
         }
 
         internal static void SyncFromState()
@@ -183,8 +180,7 @@ namespace MajorMiseries
             changed |= SyncJointFromPreset(SevereSprainJoint.LeftAnkle, SevereSprainKind.Ankle, AfflictionBodyArea.FootLeft);
             changed |= SyncJointFromPreset(SevereSprainJoint.RightAnkle, SevereSprainKind.Ankle, AfflictionBodyArea.FootRight);
 
-            if (changed)
-                Core.Instance?.MarkDirty();
+            if (changed) Core.Instance?.MarkDirty();
         }
 
         internal static void ClampState()
@@ -259,8 +255,7 @@ namespace MajorMiseries
         internal static bool HasSevereSprain(SevereSprainKind kind, AfflictionBodyArea bodyArea)
         {
             AfflictionManager mgr = AfflictionManager.GetAfflictionManagerInstance();
-            if (mgr?.m_Afflictions == null)
-                return false;
+            if (mgr?.m_Afflictions == null) return false;
 
             for (int i = 0; i < mgr.m_Afflictions.Count; i++)
             {
@@ -428,24 +423,17 @@ namespace MajorMiseries
         private static bool HasRiskAffliction(SevereSprainKind kind, AfflictionBodyArea bodyArea)
         {
             AfflictionManager mgr = AfflictionManager.GetAfflictionManagerInstance();
-            if (mgr?.m_Afflictions == null)
-                return false;
+            if (mgr?.m_Afflictions == null) return false;
 
             for (int i = 0; i < mgr.m_Afflictions.Count; i++)
             {
                 if (kind == SevereSprainKind.Wrist &&
                     mgr.m_Afflictions[i] is SevereWristSprainRiskAffliction wristRisk &&
-                    wristRisk.m_Location == bodyArea)
-                {
-                    return true;
-                }
+                    wristRisk.m_Location == bodyArea) return true;
 
                 if (kind == SevereSprainKind.Ankle &&
                     mgr.m_Afflictions[i] is SevereAnkleSprainRiskAffliction ankleRisk &&
-                    ankleRisk.m_Location == bodyArea)
-                {
-                    return true;
-                }
+                    ankleRisk.m_Location == bodyArea) return true;
             }
 
             return false;
@@ -453,8 +441,7 @@ namespace MajorMiseries
 
         private static void ApplyRiskAffliction(SevereSprainKind kind, AfflictionBodyArea bodyArea)
         {
-            if (HasRiskAffliction(kind, bodyArea))
-                return;
+            if (HasRiskAffliction(kind, bodyArea)) return;
 
             if (kind == SevereSprainKind.Wrist)
             {
@@ -505,8 +492,7 @@ namespace MajorMiseries
         private static void CureRiskAffliction(SevereSprainKind kind, AfflictionBodyArea bodyArea)
         {
             AfflictionManager mgr = AfflictionManager.GetAfflictionManagerInstance();
-            if (mgr?.m_Afflictions == null)
-                return;
+            if (mgr?.m_Afflictions == null) return;
 
             for (int i = mgr.m_Afflictions.Count - 1; i >= 0; i--)
             {
@@ -529,8 +515,7 @@ namespace MajorMiseries
         private static void CureAllAfflictionsOfType<TAffliction>() where TAffliction : class
         {
             AfflictionManager mgr = AfflictionManager.GetAfflictionManagerInstance();
-            if (mgr?.m_Afflictions == null)
-                return;
+            if (mgr?.m_Afflictions == null) return;
 
             for (int i = mgr.m_Afflictions.Count - 1; i >= 0; i--)
             {
@@ -545,20 +530,16 @@ namespace MajorMiseries
         {
             if (kind == SevereSprainKind.Wrist)
             {
-                if (bodyArea == AfflictionBodyArea.HandLeft)
-                    return SevereSprainJoint.LeftWrist;
+                if (bodyArea == AfflictionBodyArea.HandLeft) return SevereSprainJoint.LeftWrist;
 
-                if (bodyArea == AfflictionBodyArea.HandRight)
-                    return SevereSprainJoint.RightWrist;
+                if (bodyArea == AfflictionBodyArea.HandRight) return SevereSprainJoint.RightWrist;
 
                 return SevereSprainJoint.None;
             }
 
-            if (bodyArea == AfflictionBodyArea.FootLeft)
-                return SevereSprainJoint.LeftAnkle;
+            if (bodyArea == AfflictionBodyArea.FootLeft) return SevereSprainJoint.LeftAnkle;
 
-            if (bodyArea == AfflictionBodyArea.FootRight)
-                return SevereSprainJoint.RightAnkle;
+            if (bodyArea == AfflictionBodyArea.FootRight) return SevereSprainJoint.RightAnkle;
 
             return SevereSprainJoint.None;
         }
