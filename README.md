@@ -1,11 +1,11 @@
 # Major Miseries
 
-**PLEASE READ THIS README PLEASE READ THIS README PLEASE READ THIS README PLEASE READ THIS README PLEASE READ THIS README**
+**PLEASE READ THIS README PLEASE READ THIS README PLEASE READ THIS README PLEASE READ THIS README**
 
 I know this Readme is very long, but it's crucial to read it because it will be very easy to lose a save file by dying stupidly because you haven't read what's written here.  
 Now that you've been warned, it's your fault, not mine.  
 
-**PLEASE READ THIS README PLEASE READ THIS README PLEASE READ THIS README PLEASE READ THIS README PLEASE READ THIS README**
+**PLEASE READ THIS README PLEASE READ THIS README PLEASE READ THIS README PLEASE READ THIS README**
 
 Major Miseries is a mod for The Long Dark that adds severe, long-term afflictions, escalating survival pressure, and consequences that can follow a survivor for days, weeks, or even an entire save.
 
