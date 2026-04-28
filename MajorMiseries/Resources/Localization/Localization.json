@@ -8,7 +8,7 @@
         "Russian": "Предзнаменование"
     },
     "GAMEPLAY_OmenCause": {
-        "English": "End of Days",
+        "English": "End of Times",
         "French (France)": "Fin des temps",
         "Spanish (Spain)": "Fin de los Días",
         "German": "Ende der Tage",
@@ -16,7 +16,7 @@
         "Russian": "Конец света"
     },
     "GAMEPLAY_OmenDescription": {
-        "English": "A shadow looms over your fate. Something has begun deep within you, and nothing can stop it. This is the first sign heralding the end of days. Memento Mori.",
+        "English": "A shadow looms over your fate. Something has begun deep within you, and nothing can stop it. This is the first sign heralding the end of times. Memento Mori.",
         "French (France)": "Une ombre plane sur votre destin. Quelque chose a commencé au plus profond de vous, et rien ne pourra l'arrêter. Ceci est le premier signe annonciateur de la fin des temps. Memento Mori.",
         "Spanish (Spain)": "Una sombra se cierne sobre tu destino. Algo ha comenzado en lo más profundo de ti, y nada podrá detenerlo. Esta es la primera señal que anuncia el fin de los días. Memento Mori.",
         "German": "Ein Schatten liegt über deinem Schicksal. Tief in dir hat etwas begonnen, und nichts kann es mehr aufhalten. Dies ist das erste Zeichen, das das Ende der Tage ankündigt. Memento Mori.",
@@ -33,7 +33,7 @@
         "Russian": "Погребальная песнь"
     },
     "GAMEPLAY_DirgeCause": {
-        "English": "End of Days",
+        "English": "End of Times",
         "French (France)": "Fin des temps",
         "Spanish (Spain)": "Fin de los Días",
         "German": "Ende der Tage",
@@ -41,7 +41,7 @@
         "Russian": "Конец света"
     },
     "GAMEPLAY_DirgeDescription": {
-        "English": "Your body begins to falter. You were warned of the coming end of days, this is how it begins.",
+        "English": "Your body begins to falter. You were warned of the coming end of times, this is how it begins.",
         "French (France)": "Votre corps commence à faiblir. Vous avez été averti de l'avènement de la fin des temps, ainsi est son commencement.",
         "Spanish (Spain)": "Tu cuerpo empieza a fallar. Se te advirtió de la llegada del fin de los días; así es como comienza.",
         "German": "Dein Körper beginnt zu versagen. Du wurdest vor dem nahenden Ende der Tage gewarnt — so beginnt es.",
@@ -58,7 +58,7 @@
         "Russian": "Погребальный звон"
     },
     "GAMEPLAY_KnellCause": {
-        "English": "End of Days",
+        "English": "End of Times",
         "French (France)": "Fin des temps",
         "Spanish (Spain)": "Fin de los Días",
         "German": "Ende der Tage",
@@ -66,7 +66,7 @@
         "Russian": "Конец света"
     },
     "GAMEPLAY_KnellDescription": {
-        "English": "The bell tolls for you. Your strength fades and every mistake now carries a heavy price. The end of days draws near.",
+        "English": "The bell tolls for you. Your strength fades and every mistake now carries a heavy price. The end of times draws near.",
         "French (France)": "Le glas sonne pour vous. Vos forces déclinent et la moindre erreur se paiera désormais très cher. La fin des temps approche.",
         "Spanish (Spain)": "Las campanas doblan por ti. Tus fuerzas se desvanecen y cada error tiene ahora un precio muy alto. El fin de los días se acerca.",
         "German": "Die Glocke läutet für dich. Deine Kräfte schwinden, und jeder Fehler hat nun einen hohen Preis. Das Ende der Tage rückt näher.",
@@ -83,7 +83,7 @@
         "Russian": "Реквием"
     },
     "GAMEPLAY_RequiemCause": {
-        "English": "End of Days",
+        "English": "End of Times",
         "French (France)": "Fin des temps",
         "Spanish (Spain)": "Fin de los Días",
         "German": "Ende der Tage",
