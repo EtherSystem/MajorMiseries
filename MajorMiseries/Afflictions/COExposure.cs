@@ -25,7 +25,7 @@ namespace MajorMiseries.Afflictions
             public static bool IsActive { get; private set; } = false;
 
             private float m_RiskValue = 0f;
-            private float m_StartTime;
+            private float m_LastUpdateTime;
 
             public InstanceType Type { get; set; } = InstanceType.Single;
             public bool Risk { get; set; } = true;
@@ -40,7 +40,7 @@ namespace MajorMiseries.Afflictions
             //public COExposureAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
             public COExposureAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, "ico_injury_BrokenBody", bodyArea)
             {
-                m_StartTime = GameManager.GetTimeOfDayComponent()?.GetHoursPlayedNotPaused() ?? 0f;
+                m_LastUpdateTime = GameManager.GetTimeOfDayComponent()?.GetHoursPlayedNotPaused() ?? 0f;
             }
 
             public void OnFoundExistingInstance(CustomAffliction existingAffliction)
@@ -85,6 +85,7 @@ namespace MajorMiseries.Afflictions
 
                 if (!AfflictionLogic.IsPlayerStillInActiveCOScene())
                 {
+                    AfflictionLogic.ResetCORespiratorProtectionState();
                     Core.Log("COExposure cured because player is no longer in an active CO-contaminated scene.");
                     Cure();
                     return;
@@ -103,19 +104,24 @@ namespace MajorMiseries.Afflictions
             public void UpdateRiskValue()
             {
                 TimeOfDay tod = GameManager.GetTimeOfDayComponent();
-                if (tod == null)
-                    return;
+                if (tod == null) return;
 
                 float nowHours = tod.GetHoursPlayedNotPaused();
-                float elapsed = nowHours - m_StartTime;
+                float elapsed = nowHours - m_LastUpdateTime;
 
-                if (elapsed <= 0f)
-                {
-                    m_RiskValue = 0f;
-                    return;
-                }
+                if (elapsed <= 0f) return;
 
-                m_RiskValue = Mathf.Clamp01(elapsed / TIME_TO_CO_POISONING_HOURS) * 100f;
+                m_LastUpdateTime = nowHours;
+
+                string sceneName = GameManager.m_ActiveScene;
+                if (string.IsNullOrEmpty(sceneName)) return;
+
+                float unprotectedElapsed = AfflictionLogic.UpdateCORespiratorProtectionAndGetUnprotectedHours(elapsed, sceneName);
+
+                if (unprotectedElapsed <= 0f) return;
+
+                float riskIncrease = (unprotectedElapsed / TIME_TO_CO_POISONING_HOURS) * 100f;
+                m_RiskValue = Mathf.Min(m_RiskValue + riskIncrease, 100f);
             }
 
             private IEnumerator StartCOPoisoningNextFrame()

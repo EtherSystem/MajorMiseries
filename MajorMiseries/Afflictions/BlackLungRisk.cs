@@ -99,14 +99,12 @@ namespace MajorMiseries.Afflictions
             public void UpdateRiskValue()
             {
                 TimeOfDay? tod = GameManager.GetTimeOfDayComponent();
-                if (tod == null)
-                    return;
+                if (tod == null) return;
 
                 float currentTime = tod.GetHoursPlayedNotPaused();
                 float elapsedTime = currentTime - m_LastUpdateTime;
 
-                if (elapsedTime <= 0f)
-                    return;
+                if (elapsedTime <= 0f) return;
 
                 m_LastUpdateTime = currentTime;
 
@@ -114,6 +112,8 @@ namespace MajorMiseries.Afflictions
 
                 if (inCoalScene)
                 {
+                    if (AfflictionLogic.IsBlackLungRespiratorProtected()) return;
+
                     float riskIncrease = elapsedTime * AfflictionLogic.GetBlackLungRiskGainPerHour();
                     m_RiskValue = Mathf.Min(m_RiskValue + riskIncrease, 100f);
                 }

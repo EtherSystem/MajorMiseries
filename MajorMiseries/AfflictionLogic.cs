@@ -52,6 +52,8 @@ namespace MajorMiseries
             s_LastCorpseSourceLabel = string.Empty;
             _blackLungSleepTrackingActive = false;
             _blackLungTrackedSleepHours = 0f;
+            s_BlackLungRespiratorLastLoggedState = BlackLungRespiratorState.Unknown;
+            s_CORespiratorLastLoggedState = CORespiratorState.Unknown;
 
             ResetCorpseTracking();
 
@@ -1324,6 +1326,8 @@ namespace MajorMiseries
 
         private const float BLACK_LUNG_SLEEP_RECOVERY_MULTIPLIER = 10f;
         private const float BLACK_LUNG_COAL_SCENE_WORSENING_MULTIPLIER = 10f;
+        private const float BLACK_LUNG_RESPIRATOR_CANISTER_DRAIN_MULTIPLIER = 0.05f;
+        private const float BLACK_LUNG_RESPIRATOR_CANISTER_SECONDS_PER_GAME_HOUR = 300f;
 
         private static bool _blackLungSleepTrackingActive = false;
         private static float _blackLungTrackedSleepHours = 0f;
@@ -1348,6 +1352,40 @@ namespace MajorMiseries
             s_BlackLungWorseningSceneName = string.Empty;
             s_BlackLungWorseningLogHoursAdded = 0f;
             s_BlackLungWorseningLogGameHours = 0f;
+        }
+
+        private enum BlackLungRespiratorState
+        {
+            Unknown,
+            Unequipped,
+            EquippedInactive,
+            Protected
+        }
+
+        private static BlackLungRespiratorState s_BlackLungRespiratorLastLoggedState = BlackLungRespiratorState.Unknown;
+
+        private static BlackLungRespiratorState GetBlackLungRespiratorState()
+        {
+            try
+            {
+                if (!RespiratorManager.IsEquipped) return BlackLungRespiratorState.Unequipped;
+
+                var respirator = RespiratorManager.CurrentEquipped;
+                if (respirator == null) return BlackLungRespiratorState.Unequipped;
+
+                bool protectionActive = RespiratorManager.IsProtectionActive() || respirator.HasActiveProtection;
+
+                return protectionActive ? BlackLungRespiratorState.Protected : BlackLungRespiratorState.EquippedInactive;
+            }
+            catch
+            {
+                return BlackLungRespiratorState.Unequipped;
+            }
+        }
+
+        internal static bool IsBlackLungRespiratorProtected()
+        {
+            return GetBlackLungRespiratorState() == BlackLungRespiratorState.Protected;
         }
 
         private static void AccumulateBlackLungWorseningLog(string sceneName, float gameHoursPassed, float hoursAdded)
@@ -1468,19 +1506,118 @@ namespace MajorMiseries
             if (string.IsNullOrEmpty(sceneName)) return;
 
             bool inCoalScene = IsBlackLungScene(sceneName);
+            float unprotectedGameHoursPassed = gameHoursPassed;
+
+            if (inCoalScene)
+            {
+                BlackLungRespiratorState respiratorState = GetBlackLungRespiratorState();
+
+                if (respiratorState == BlackLungRespiratorState.Protected)
+                {
+                    unprotectedGameHoursPassed = 0f;
+
+                    try
+                    {
+                        var respirator = RespiratorManager.CurrentEquipped;
+
+                        if (respirator != null)
+                        {
+                            var canister = respirator.m_AttachedCanister;
+
+                            if (canister != null && canister.IsValid)
+                            {
+                                GearItem canisterGear = canister.GearItem;
+
+                                if (canisterGear != null)
+                                {
+                                    float durationSeconds = Mathf.Max(1f, canister.m_ProtectionDurationRTSeconds);
+                                    float conditionBefore = canister.NormalizedCondition;
+
+                                    float filterSecondsToConsume = gameHoursPassed * BLACK_LUNG_RESPIRATOR_CANISTER_SECONDS_PER_GAME_HOUR * BLACK_LUNG_RESPIRATOR_CANISTER_DRAIN_MULTIPLIER;
+
+                                    float conditionDrain = filterSecondsToConsume / durationSeconds;
+                                    float conditionAfter = Mathf.Clamp01(conditionBefore - conditionDrain);
+
+                                    if (!Mathf.Approximately(conditionBefore, conditionAfter))
+                                    {
+                                        canisterGear.SetNormalizedHP(conditionAfter, false);
+
+                                        if (conditionBefore > 0f && conditionAfter <= 0f)
+                                        {
+                                            float protectedFraction = conditionDrain > 0f ? Mathf.Clamp01(conditionBefore / conditionDrain) : 1f;
+
+                                            unprotectedGameHoursPassed = gameHoursPassed * (1f - protectedFraction);
+                                            respiratorState = BlackLungRespiratorState.EquippedInactive;
+
+                                            RespiratorManager.MaybeForceExpireCanister();
+                                            Core.Log($"Respirator canister depleted in '{sceneName}' while blocking BlackLung exposure.");
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                unprotectedGameHoursPassed = gameHoursPassed;
+                                respiratorState = BlackLungRespiratorState.EquippedInactive;
+                            }
+                        }
+                        else
+                        {
+                            unprotectedGameHoursPassed = gameHoursPassed;
+                            respiratorState = BlackLungRespiratorState.Unequipped;
+                        }
+                    }
+                    catch
+                    {
+                        unprotectedGameHoursPassed = gameHoursPassed;
+                        respiratorState = BlackLungRespiratorState.Unequipped;
+                    }
+                }
+
+                if (respiratorState != s_BlackLungRespiratorLastLoggedState)
+                {
+                    BlackLungRespiratorState previousState = s_BlackLungRespiratorLastLoggedState;
+                    s_BlackLungRespiratorLastLoggedState = respiratorState;
+
+                    bool suppressInitialUnequippedLog = previousState == BlackLungRespiratorState.Unknown && respiratorState == BlackLungRespiratorState.Unequipped;
+
+                    if (!suppressInitialUnequippedLog)
+                    {
+                        switch (respiratorState)
+                        {
+                            case BlackLungRespiratorState.Protected:
+                                Core.Log($"Respirator protection active in '{sceneName}' -> BlackLung exposure, risk and worsening are blocked.");
+                                break;
+
+                            case BlackLungRespiratorState.EquippedInactive:
+                                Core.Log($"Respirator equipped in '{sceneName}' but protection is inactive -> no usable canister, BlackLung can still worsen.");
+                                break;
+
+                            case BlackLungRespiratorState.Unequipped:
+                                Core.Log($"Respirator unequipped in '{sceneName}' -> BlackLung protection inactive.");
+                                break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                s_BlackLungRespiratorLastLoggedState = BlackLungRespiratorState.Unknown;
+                unprotectedGameHoursPassed = 0f;
+            }
 
             BlackLungAffliction? activeBlackLung = GetAffliction<BlackLungAffliction>();
             bool hasBlackLungRisk = HasAffliction<BlackLungRiskAffliction>();
 
-            UpdateBlackLungExposureSceneTracking(sceneName, inCoalScene, inCoalScene && activeBlackLung == null && !hasBlackLungRisk, activeBlackLung == null && !hasBlackLungRisk);
+            UpdateBlackLungExposureSceneTracking(sceneName, inCoalScene, inCoalScene && unprotectedGameHoursPassed > 0f && activeBlackLung == null && !hasBlackLungRisk, activeBlackLung == null && !hasBlackLungRisk);
 
             if (activeBlackLung != null)
             {
-                if (inCoalScene)
+                if (inCoalScene && unprotectedGameHoursPassed > 0f)
                 {
-                    float addedHours = gameHoursPassed * BLACK_LUNG_COAL_SCENE_WORSENING_MULTIPLIER;
+                    float addedHours = unprotectedGameHoursPassed * BLACK_LUNG_COAL_SCENE_WORSENING_MULTIPLIER;
                     activeBlackLung.EndTime += addedHours;
-                    AccumulateBlackLungWorseningLog(sceneName, gameHoursPassed, addedHours);
+                    AccumulateBlackLungWorseningLog(sceneName, unprotectedGameHoursPassed, addedHours);
                 }
                 else
                 {
@@ -1507,11 +1644,11 @@ namespace MajorMiseries
 
             float oldExposure = Core.State.BlackLungExposure;
 
-            if (inCoalScene)
+            if (inCoalScene && unprotectedGameHoursPassed > 0f)
             {
-                Core.State.BlackLungExposure = Mathf.Clamp(Core.State.BlackLungExposure + (gameHoursPassed * BLACK_LUNG_EXPOSURE_GAIN_PER_HOUR), 0f, BLACK_LUNG_EXPOSURE_MAX);
+                Core.State.BlackLungExposure = Mathf.Clamp(Core.State.BlackLungExposure + (unprotectedGameHoursPassed * BLACK_LUNG_EXPOSURE_GAIN_PER_HOUR), 0f, BLACK_LUNG_EXPOSURE_MAX);
             }
-            else
+            else if (!inCoalScene)
             {
                 Core.State.BlackLungExposure = Mathf.Clamp(Core.State.BlackLungExposure - (gameHoursPassed * BLACK_LUNG_EXPOSURE_DECAY_PER_HOUR), 0f, BLACK_LUNG_EXPOSURE_MAX);
             }
@@ -1521,7 +1658,7 @@ namespace MajorMiseries
                 Core.Instance?.MarkDirty();
             }
 
-            if (inCoalScene && Core.State.BlackLungExposure >= BLACK_LUNG_RISK_START_THRESHOLD)
+            if (inCoalScene && unprotectedGameHoursPassed > 0f && Core.State.BlackLungExposure >= BLACK_LUNG_RISK_START_THRESHOLD)
             {
                 new BlackLungRiskAffliction(AfflictionBodyArea.Head).Start();
             }
@@ -1580,6 +1717,9 @@ namespace MajorMiseries
         private const float CO_EXPOSURE_ROLL_CHANCE = 10f;           // percent per roll
         private const float CO_LINGER_AFTER_FIRE_OUT_HOURS = 2f;     // contaminated scene lingers for 2h after last valid fire
 
+        private const float CO_RESPIRATOR_CANISTER_DRAIN_MULTIPLIER = 0.5f;
+        private const float CO_RESPIRATOR_CANISTER_SECONDS_PER_GAME_HOUR = 300f;
+
         private sealed class CORiskSceneState
         {
             public float LastRollTimeHours = -999f;
@@ -1588,6 +1728,138 @@ namespace MajorMiseries
         }
 
         private static readonly Dictionary<string, CORiskSceneState> _coSceneStates = new();
+
+        private enum CORespiratorState
+        {
+            Unknown,
+            Unequipped,
+            EquippedInactive,
+            Protected
+        }
+
+        private static CORespiratorState s_CORespiratorLastLoggedState = CORespiratorState.Unknown;
+
+        private static CORespiratorState GetCORespiratorState()
+        {
+            try
+            {
+                if (!RespiratorManager.IsEquipped) return CORespiratorState.Unequipped;
+
+                var respirator = RespiratorManager.CurrentEquipped;
+                if (respirator == null) return CORespiratorState.Unequipped;
+
+                bool protectionActive = RespiratorManager.IsProtectionActive() || respirator.HasActiveProtection;
+
+                return protectionActive ? CORespiratorState.Protected : CORespiratorState.EquippedInactive;
+            }
+            catch
+            {
+                return CORespiratorState.Unequipped;
+            }
+        }
+
+        internal static void ResetCORespiratorProtectionState()
+        {
+            s_CORespiratorLastLoggedState = CORespiratorState.Unknown;
+        }
+
+        internal static float UpdateCORespiratorProtectionAndGetUnprotectedHours(float gameHoursPassed, string sceneName)
+        {
+            if (gameHoursPassed <= 0f) return 0f;
+
+            CORespiratorState respiratorState = GetCORespiratorState();
+            float unprotectedGameHoursPassed = gameHoursPassed;
+
+            if (respiratorState == CORespiratorState.Protected)
+            {
+                unprotectedGameHoursPassed = 0f;
+
+                try
+                {
+                    var respirator = RespiratorManager.CurrentEquipped;
+
+                    if (respirator != null)
+                    {
+                        var canister = respirator.m_AttachedCanister;
+
+                        if (canister != null && canister.IsValid)
+                        {
+                            GearItem canisterGear = canister.GearItem;
+
+                            if (canisterGear != null)
+                            {
+                                float durationSeconds = Mathf.Max(1f, canister.m_ProtectionDurationRTSeconds);
+                                float conditionBefore = canister.NormalizedCondition;
+
+                                float filterSecondsToConsume = gameHoursPassed * CO_RESPIRATOR_CANISTER_SECONDS_PER_GAME_HOUR * CO_RESPIRATOR_CANISTER_DRAIN_MULTIPLIER;
+
+                                float conditionDrain = filterSecondsToConsume / durationSeconds;
+                                float conditionAfter = Mathf.Clamp01(conditionBefore - conditionDrain);
+
+                                if (!Mathf.Approximately(conditionBefore, conditionAfter))
+                                {
+                                    canisterGear.SetNormalizedHP(conditionAfter, false);
+
+                                    if (conditionBefore > 0f && conditionAfter <= 0f)
+                                    {
+                                        float protectedFraction = conditionDrain > 0f ? Mathf.Clamp01(conditionBefore / conditionDrain) : 1f;
+
+                                        unprotectedGameHoursPassed = gameHoursPassed * (1f - protectedFraction);
+                                        respiratorState = CORespiratorState.EquippedInactive;
+
+                                        RespiratorManager.MaybeForceExpireCanister();
+                                        Core.Log($"Respirator canister depleted in '{sceneName}' while blocking CO exposure.");
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            unprotectedGameHoursPassed = gameHoursPassed;
+                            respiratorState = CORespiratorState.EquippedInactive;
+                        }
+                    }
+                    else
+                    {
+                        unprotectedGameHoursPassed = gameHoursPassed;
+                        respiratorState = CORespiratorState.Unequipped;
+                    }
+                }
+                catch
+                {
+                    unprotectedGameHoursPassed = gameHoursPassed;
+                    respiratorState = CORespiratorState.Unequipped;
+                }
+            }
+
+            if (respiratorState != s_CORespiratorLastLoggedState)
+            {
+                CORespiratorState previousState = s_CORespiratorLastLoggedState;
+                s_CORespiratorLastLoggedState = respiratorState;
+
+                bool suppressInitialUnequippedLog = previousState == CORespiratorState.Unknown && respiratorState == CORespiratorState.Unequipped;
+
+                if (!suppressInitialUnequippedLog)
+                {
+                    switch (respiratorState)
+                    {
+                        case CORespiratorState.Protected:
+                            Core.Log($"Respirator protection active in '{sceneName}' -> CO exposure and CO poisoning progression are blocked.");
+                            break;
+
+                        case CORespiratorState.EquippedInactive:
+                            Core.Log($"Respirator equipped in '{sceneName}' but protection is inactive -> no usable canister, CO can still affect the survivor.");
+                            break;
+
+                        case CORespiratorState.Unequipped:
+                            Core.Log($"Respirator unequipped in '{sceneName}' -> CO protection inactive.");
+                            break;
+                    }
+                }
+            }
+
+            return unprotectedGameHoursPassed;
+        }
 
         internal static void UpdateCOExposure(float gameHoursPassed)
         {
@@ -1602,15 +1874,47 @@ namespace MajorMiseries
 
             if (HasAffliction<COPoisoningAffliction>()) return;
 
-            if (!IsPlayerInIndoorScene()) return;
+            if (!IsPlayerInIndoorScene())
+            {
+                ResetCORespiratorProtectionState();
+                return;
+            }
 
             string sceneName = GetCurrentSceneName();
-            if (string.IsNullOrEmpty(sceneName)) return;
+            if (string.IsNullOrEmpty(sceneName))
+            {
+                ResetCORespiratorProtectionState();
+                return;
+            }
 
             float nowHours = tod.GetHoursPlayedNotPaused();
             CORiskSceneState state = GetOrCreateCOSceneState(sceneName);
 
             bool hasValidFire = TryGetIndoorValidCOFireInfo(nowHours, out float qualifyingSinceHours);
+            bool sceneStillContaminated = state.SceneContaminated && IsSceneStillCOContaminated(state, nowHours, hasValidFire);
+
+            float unprotectedGameHoursPassed = gameHoursPassed;
+            bool coHazardActive = hasValidFire || sceneStillContaminated;
+
+            if (coHazardActive)
+            {
+                unprotectedGameHoursPassed = UpdateCORespiratorProtectionAndGetUnprotectedHours(gameHoursPassed, sceneName);
+
+                if (unprotectedGameHoursPassed <= 0f)
+                {
+                    if (hasValidFire)
+                    {
+                        state.LastValidFireSeenTimeHours = nowHours;
+                        state.LastRollTimeHours = nowHours;
+                    }
+
+                    return;
+                }
+            }
+            else
+            {
+                ResetCORespiratorProtectionState();
+            }
 
             if (hasValidFire)
             {
@@ -1618,7 +1922,11 @@ namespace MajorMiseries
 
                 if (state.LastRollTimeHours < 0f)
                 {
-                    state.LastRollTimeHours = qualifyingSinceHours;
+                    state.LastRollTimeHours = unprotectedGameHoursPassed < gameHoursPassed ? nowHours - unprotectedGameHoursPassed : qualifyingSinceHours;
+                }
+                else if (unprotectedGameHoursPassed < gameHoursPassed)
+                {
+                    state.LastRollTimeHours = Mathf.Max(state.LastRollTimeHours, nowHours - unprotectedGameHoursPassed);
                 }
             }
 
