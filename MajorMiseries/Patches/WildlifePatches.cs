@@ -179,24 +179,49 @@ namespace MajorMiseries.Patches
             {
                 if (_ai == null) return;
 
-                float stalkMultiplier = AfflictionLogic.GetPredatorRushDistanceMultiplier();
-                float chanceMultiplier = 1f + ((stalkMultiplier - 1f) * 0.5f);
+                float threatMultiplier = AfflictionLogic.GetPredatorRushDistanceMultiplier();
+                float smellMultiplier = AfflictionLogic.GetPredatorSmellDistanceMultiplier();
 
-                _ai.m_CuriousFollowDistance = _curiousFollowDistance * stalkMultiplier;
+                float cougarRangeMultiplier = 1f + ((threatMultiplier - 1f) * 0.5f);
+                float cougarAttackMultiplier = 1f + ((threatMultiplier - 1f) * 0.5f);
+                float chanceMultiplier = 1f + ((threatMultiplier - 1f) * 0.5f);
+
+                float scaledDetectionRange = _detectionRange * cougarRangeMultiplier;
+                float scaledHearFootstepsRange = _hearFootstepsRange * cougarRangeMultiplier;
+
+                float scaledCuriousFollowDistance = _curiousFollowDistance * cougarRangeMultiplier;
+                float scaledStalkingFollowDistance = _stalkingFollowDistance * cougarRangeMultiplier;
+                float scaledBreakStalkingRange = _breakStalkingRange * cougarRangeMultiplier;
+
+                if (threatMultiplier > 1.01f)
+                {
+                    scaledCuriousFollowDistance = Mathf.Max(scaledCuriousFollowDistance, scaledDetectionRange);
+                    scaledStalkingFollowDistance = Mathf.Max(scaledStalkingFollowDistance, scaledDetectionRange);
+                    scaledBreakStalkingRange = Mathf.Max(scaledBreakStalkingRange, scaledStalkingFollowDistance + 10f);
+                }
+
+                _ai.m_SmellRange = _smellRange * smellMultiplier;
+                _ai.m_HearFootstepsRange = scaledHearFootstepsRange;
+                _ai.m_DetectionRange = scaledDetectionRange;
+
+                _ai.m_CuriousFollowDistance = scaledCuriousFollowDistance;
                 _ai.m_CuriousEnterStalkingChance = Mathf.Clamp(_curiousEnterStalkingChance * chanceMultiplier, 0f, 100f);
 
-                _ai.m_StalkingFollowDistance = _stalkingFollowDistance * stalkMultiplier;
+                _ai.m_StalkingFollowDistance = scaledStalkingFollowDistance;
                 _ai.m_CurrentStalkingFollowDistance = _ai.m_StalkingFollowDistance;
 
-                _ai.m_StalkingBeginChasingDistance = _stalkingBeginChasingDistance * stalkMultiplier;
-                _ai.m_StalkingBeginChasingWeakTargetDistance = _stalkingBeginChasingWeakTargetDistance * stalkMultiplier;
+                _ai.m_BreakSlalkingRange = scaledBreakStalkingRange;
+
+                _ai.m_StalkingBeginChasingDistance = _stalkingBeginChasingDistance * cougarAttackMultiplier;
+                _ai.m_StalkingBeginChasingWeakTargetDistance = _stalkingBeginChasingWeakTargetDistance * cougarAttackMultiplier;
 
                 _ai.m_StalkingChanceWhenTargetDetected = Mathf.Clamp(Mathf.RoundToInt(_stalkingChanceWhenTargetDetected * chanceMultiplier), 0, 100);
+                _ai.m_StalkingLoseInterestChance = Mathf.Clamp(_stalkingLoseInterestChance / Mathf.Max(1f, cougarRangeMultiplier), 0f, 100f);
 
-                _ai.m_StalkingLoseInterestChance = Mathf.Clamp(_stalkingLoseInterestChance / Mathf.Max(1f, stalkMultiplier), 0f, 100f);
+                _ai.m_ForceStalkPlayerDistance = _forceStalkPlayerDistance * cougarRangeMultiplier;
 
-                _ai.m_ForceStalkPlayerDistance = _forceStalkPlayerDistance * stalkMultiplier;
-                _ai.m_PassingAttackRange = _passingAttackRange * stalkMultiplier;
+                _ai.m_RangeMeleeAttack = _rangeMeleeAttack * cougarAttackMultiplier;
+                _ai.m_PassingAttackRange = _passingAttackRange * cougarAttackMultiplier;
             }
 
             private void MaybeLogPredatorModeTransition()
@@ -409,26 +434,49 @@ namespace MajorMiseries.Patches
 
                 case AiSubType.Cougar:
                     {
+                        float cougarRangeMultiplier = 1f + ((threatMultiplier - 1f) * 0.5f);
+                        float cougarAttackMultiplier = 1f + ((threatMultiplier - 1f) * 0.5f);
                         float chanceMultiplier = 1f + ((threatMultiplier - 1f) * 0.5f);
 
-                        float newCuriousFollow = controller._curiousFollowDistance * threatMultiplier;
+                        float newSmellRange = controller._smellRange * smellMultiplier;
+                        float newHearFootsteps = controller._hearFootstepsRange * cougarRangeMultiplier;
+                        float newDetectionRange = controller._detectionRange * cougarRangeMultiplier;
+
+                        float newCuriousFollow = controller._curiousFollowDistance * cougarRangeMultiplier;
+                        float newStalkingFollow = controller._stalkingFollowDistance * cougarRangeMultiplier;
+                        float newBreakStalkingRange = controller._breakStalkingRange * cougarRangeMultiplier;
+
+                        if (threatMultiplier > 1.01f)
+                        {
+                            newCuriousFollow = Mathf.Max(newCuriousFollow, newDetectionRange);
+                            newStalkingFollow = Mathf.Max(newStalkingFollow, newDetectionRange);
+                            newBreakStalkingRange = Mathf.Max(newBreakStalkingRange, newStalkingFollow + 10f);
+                        }
+
                         float newCuriousEnter = Mathf.Clamp(controller._curiousEnterStalkingChance * chanceMultiplier, 0f, 100f);
 
-                        float newStalkingFollow = controller._stalkingFollowDistance * threatMultiplier;
-                        float newBeginChase = controller._stalkingBeginChasingDistance * threatMultiplier;
-                        float newWeakBeginChase = controller._stalkingBeginChasingWeakTargetDistance * threatMultiplier;
+                        float newBeginChase = controller._stalkingBeginChasingDistance * cougarAttackMultiplier;
+                        float newWeakBeginChase = controller._stalkingBeginChasingWeakTargetDistance * cougarAttackMultiplier;
+
                         int newTargetDetected = Mathf.Clamp(Mathf.RoundToInt(controller._stalkingChanceWhenTargetDetected * chanceMultiplier), 0, 100);
-                        float newLoseInterest = Mathf.Clamp(controller._stalkingLoseInterestChance / Mathf.Max(1f, threatMultiplier), 0f, 100f);
-                        float newForceStalk = controller._forceStalkPlayerDistance * threatMultiplier;
-                        float newPassingAttack = controller._passingAttackRange * threatMultiplier;
+                        float newLoseInterest = Mathf.Clamp(controller._stalkingLoseInterestChance / Mathf.Max(1f, cougarRangeMultiplier), 0f, 100f);
+
+                        float newForceStalk = controller._forceStalkPlayerDistance * cougarRangeMultiplier;
+                        float newMeleeRange = controller._rangeMeleeAttack * cougarAttackMultiplier;
+                        float newPassingAttack = controller._passingAttackRange * cougarAttackMultiplier;
 
                         Core.Log(
                             $"predator cougar ranges -> " +
+                            $"SmellRange {controller._smellRange:0.0}->{newSmellRange:0.0} | " +
+                            $"HearFootsteps {controller._hearFootstepsRange:0.0}->{newHearFootsteps:0.0} | " +
+                            $"DetectionRange {controller._detectionRange:0.0}->{newDetectionRange:0.0} | " +
                             $"CuriousFollow {controller._curiousFollowDistance:0.0}->{newCuriousFollow:0.0} | " +
                             $"StalkFollow {controller._stalkingFollowDistance:0.0}->{newStalkingFollow:0.0} | " +
+                            $"BreakStalkRange {controller._breakStalkingRange:0.0}->{newBreakStalkingRange:0.0} | " +
                             $"BeginChase {controller._stalkingBeginChasingDistance:0.0}->{newBeginChase:0.0} | " +
                             $"WeakBeginChase {controller._stalkingBeginChasingWeakTargetDistance:0.0}->{newWeakBeginChase:0.0} | " +
                             $"ForceStalk {controller._forceStalkPlayerDistance:0.0}->{newForceStalk:0.0} | " +
+                            $"MeleeRange {controller._rangeMeleeAttack:0.0}->{newMeleeRange:0.0} | " +
                             $"PassingAttack {controller._passingAttackRange:0.0}->{newPassingAttack:0.0}");
 
                         Core.Log(
