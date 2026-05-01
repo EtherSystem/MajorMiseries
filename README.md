@@ -128,7 +128,7 @@ Effects:
 | Maximum sleep duration | Vanilla maximum sleep hours -4 hours |
 | Body temperature | -5°C |
 | Movement speed | -10% |
-| Sprint slope/sprint speed multiplier | 0.75x while sprinting, unless vanilla Weak Joints is already active |
+| sprint speed | -25% speed while sprinting, unless vanilla Weak Joints is already active |
 | Base Predator Threat | 3 |
 
 
@@ -151,7 +151,7 @@ Effects:
 | Maximum sleep duration | Vanilla maximum sleep hours -4 hours |
 | Body temperature | -5°C |
 | Movement speed | -10% |
-| Sprint slope/sprint speed multiplier | -25% while sprinting, unless vanilla Weak Joints is already active |
+| sprint speed | -25% speed while sprinting, unless vanilla Weak Joints is already active |
 | Natural condition recovery | Disabled |
 | Willpower condition recovery | Disabled |
 | Incoming condition damage | 2x |
@@ -451,6 +451,8 @@ Default risk behavior:
 
 If Black Lung Risk reaches 100, it becomes Black Lung.
 
+Black Lung exposure and Black Lung Risk can be avoided by wearing a respirator.
+
 ### Black Lung
 
 Black Lung is a severe respiratory illness.
@@ -493,6 +495,8 @@ Once a qualifying unsafe fire has burned for more than two in-game hours, Major 
 If exposure starts, the player has 30 in-game minutes before it becomes Carbon Monoxide Poisoning.
 
 Leaving the contaminated indoor scene stops the active exposure before it becomes poisoning.
+
+Carbon Monoxide Exposure can be avoided by wearing a respirator.
 
 Safe stoves and proper chimney-style fireplaces are designed to avoid false positives as much as possible (it is entirely possible that there are exceptions not taken into account, any feedback is appreciated !).
 
