@@ -206,9 +206,12 @@ namespace MajorMiseries.Afflictions
                 float hpPerMinute = hpPerHour / 60f;
                 float hpLoss = hpPerMinute * minuteDelta;
 
-                cond.AddHealth(-hpLoss, DamageSource.Unspecified);
+                float appliedHpLoss = AfflictionLogic.ApplyChunkedConditionDrain(cond, hpLoss);
 
-                m_DrainLogHpLoss += hpLoss;
+                if (appliedHpLoss <= 0f)
+                    return;
+
+                m_DrainLogHpLoss += appliedHpLoss;
                 m_DrainLogMinutes += minuteDelta;
 
                 if (m_DrainLogMinutes >= DRAIN_LOG_INTERVAL_MINUTES) FlushDrainLog();

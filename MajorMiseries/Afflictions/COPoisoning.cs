@@ -142,9 +142,12 @@ namespace MajorMiseries.Afflictions
                 if (hpLoss <= 0f)
                     return;
 
-                condition.AddHealth(-hpLoss, DamageSource.Unspecified);
+                float appliedHpLoss = AfflictionLogic.ApplyChunkedConditionDrain(condition, hpLoss);
 
-                m_DrainLogHpLoss += hpLoss;
+                if (appliedHpLoss <= 0f)
+                    return;
+
+                m_DrainLogHpLoss += appliedHpLoss;
                 m_DrainLogMinutes += minuteDelta;
 
                 if (m_DrainLogMinutes >= DRAIN_LOG_INTERVAL_MINUTES)

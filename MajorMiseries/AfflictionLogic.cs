@@ -1063,6 +1063,53 @@ namespace MajorMiseries
             return healthDelta * 2f;
         }
 
+        internal static float ApplyChunkedConditionDrain(Condition condition, float rawHpLoss, DamageSource damageSource = DamageSource.Unspecified)
+        {
+            if (condition == null || rawHpLoss <= 0f) return 0f;
+
+            if (condition.m_CurrentHP <= 0f) return 0f;
+
+            float damageMultiplier = Mathf.Abs(ApplyIncomingDamageMultiplier(-1f));
+            if (damageMultiplier <= 0f) damageMultiplier = 1f;
+
+            const float SAFE_EFFECTIVE_CHUNK = 0.02f;
+
+            float safeRawChunk = SAFE_EFFECTIVE_CHUNK / damageMultiplier;
+            if (safeRawChunk <= 0f) safeRawChunk = 0.01f;
+
+            float remainingRawLoss = rawHpLoss;
+            float appliedEffectiveLoss = 0f;
+
+            int chunks = 0;
+            const int MAX_CHUNKS_PER_TICK = 128;
+
+            while (remainingRawLoss > 0.0001f && condition.m_CurrentHP > 0f)
+            {
+                float rawChunk = Mathf.Min(remainingRawLoss, safeRawChunk);
+
+                float hpBefore = condition.m_CurrentHP;
+
+                condition.AddHealth(-rawChunk, damageSource);
+
+                float hpAfter = condition.m_CurrentHP;
+                float actualLoss = Mathf.Max(0f, hpBefore - hpAfter);
+
+                appliedEffectiveLoss += actualLoss;
+                remainingRawLoss -= rawChunk;
+
+                chunks++;
+
+                if (chunks >= MAX_CHUNKS_PER_TICK)
+                {
+                    Core.Log($"[ChunkedConditionDrain] Aborted after {MAX_CHUNKS_PER_TICK} chunks | " + $"rawHpLoss:{rawHpLoss:0.#####} | " + $"remainingRaw:{remainingRawLoss:0.#####} | " + $"safeRawChunk:{safeRawChunk:0.#####} | " + $"damageMultiplier:{damageMultiplier:0.###}");
+
+                    break;
+                }
+            }
+
+            return appliedEffectiveLoss;
+        }
+
         internal static float ApplySprintSpeedPenaltyToFinalMultiplier(float multiplier)
         {
             if (!HasStageEffect(RequiemStage.Knell)) return multiplier;
