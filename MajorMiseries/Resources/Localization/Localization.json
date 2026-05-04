@@ -603,5 +603,30 @@
         "German": "Etwas an dieser Region macht dich unruhig. Du magst es hier nicht. Je länger du bleibst, desto schwerer wird dieses Unbehagen.",
         "Turkish": "Bu bölgede bir şey sizi huzursuz ediyor. Burayı sevmiyorsunuz. Ne kadar uzun kalırsanız, bu rahatsızlık o kadar ağırlaşacak.",
         "Russian": "Что-то в этом регионе вызывает у вас тревогу. Вам здесь не нравится. Чем дольше вы останетесь, тем сильнее будет становиться это чувство."
+    },
+
+    "GAMEPLAY_FeverName": {
+        "English": "Fever",
+        "French (France)": "Fièvre",
+        "Spanish (Spain)": "Fiebre",
+        "German": "Fieber",
+        "Turkish": "Ateş",
+        "Russian": "Лихорадка"
+    },
+    "GAMEPLAY_FeverCause": {
+        "English": "Immune Response",
+        "French (France)": "Réponse immunitaire",
+        "Spanish (Spain)": "Respuesta inmunitaria",
+        "German": "Immunreaktion",
+        "Turkish": "Bağışıklık Tepkisi",
+        "Russian": "Иммунный ответ"
+    },
+    "GAMEPLAY_FeverDescription": {
+        "English": "Your body is raising its temperature to fight an infection. This slows infectious progression, but consumes fatigue faster.",
+        "French (France)": "Votre corps augmente sa température pour combattre une infection. Cela ralentit la progression infectieuse, mais consomme la fatigue plus rapidement.",
+        "Spanish (Spain)": "Tu cuerpo está elevando su temperatura para combatir una infección. Esto ralentiza la progresión infecciosa, pero consume fatiga más rápido.",
+        "German": "Dein Körper erhöht seine Temperatur, um eine Infektion zu bekämpfen. Das verlangsamt den Infektionsverlauf, verbraucht aber schneller Müdigkeit.",
+        "Turkish": "Vücudun bir enfeksiyonla savaşmak için sıcaklığını artırıyor. Bu, enfeksiyonun ilerlemesini yavaşlatır ancak yorgunluğu daha hızlı tüketir.",
+        "Russian": "Ваш организм повышает температуру, чтобы бороться с инфекцией. Это замедляет развитие инфекции, но быстрее расходует усталость."
     }
 }

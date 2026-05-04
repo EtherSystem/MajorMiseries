@@ -148,10 +148,10 @@ namespace MajorMiseries.Afflictions
                 float currentTime = GameManager.GetTimeOfDayComponent().GetHoursPlayedNotPaused();
                 float elapsedTime = currentTime - m_LastUpdateTime;
 
-                if (elapsedTime <= 0f)
-                    return;
+                if (elapsedTime <= 0f) return;
 
-                float riskIncrease = elapsedTime * RISK_PER_HOUR;
+                float riskIncrease = elapsedTime * RISK_PER_HOUR * ImmunityManager.GetRiskProgressMultiplier();
+
                 m_RiskValue = Mathf.Min(m_RiskValue + riskIncrease, 100f);
                 m_LastUpdateTime = currentTime;
             }

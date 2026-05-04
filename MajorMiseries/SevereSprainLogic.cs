@@ -25,6 +25,7 @@ namespace MajorMiseries
     internal static class SevereSprainLogic
     {
         private const float RISK_START_VALUE = 99f;
+        private static bool ShouldApplySevereSprainsDirectly => Settings.options.SevereSprainPreset == 4;
 
         private static int SprainsRequiredForRisk
         {
@@ -81,6 +82,7 @@ namespace MajorMiseries
                     1 => 72f,  // Standard
                     2 => 96f,  // Harsh
                     3 => 120f, // Brutal
+                    4 => 120f, // Who Wants to Play Like This?
                     _ => 72f
                 };
             }
@@ -109,6 +111,16 @@ namespace MajorMiseries
                 ClearRisk(joint);
                 ResetTrackingWindow(joint);
                 ApplySevereSprain(kind, bodyArea, "existing severe sprain reset");
+                Core.Instance?.MarkDirty();
+                return true;
+            }
+
+            if (ShouldApplySevereSprainsDirectly)
+            {
+                ClearRisk(joint);
+                ResetTrackingWindow(joint);
+                CureRiskAffliction(kind, bodyArea);
+                ApplySevereSprain(kind, bodyArea, "direct preset");
                 Core.Instance?.MarkDirty();
                 return true;
             }
@@ -148,6 +160,19 @@ namespace MajorMiseries
                 return;
             }
 
+            if (ShouldApplySevereSprainsDirectly)
+            {
+                if (HasAnyStoredValue())
+                {
+                    ClearAllStoredValues();
+                    Core.Instance?.MarkDirty();
+                }
+
+                CureAllAfflictionsOfType<SevereWristSprainRiskAffliction>();
+                CureAllAfflictionsOfType<SevereAnkleSprainRiskAffliction>();
+                return;
+            }
+
             bool changed = false;
 
             changed |= UpdateJointTimers(SevereSprainJoint.LeftWrist, gameHoursPassed);
@@ -170,6 +195,19 @@ namespace MajorMiseries
                 CureAllAfflictionsOfType<SevereWristSprainAffliction>();
                 CureAllAfflictionsOfType<SevereAnkleSprainAffliction>();
                 Core.Instance?.MarkDirty();
+                return;
+            }
+
+            if (ShouldApplySevereSprainsDirectly)
+            {
+                if (HasAnyStoredValue())
+                {
+                    ClearAllStoredValues();
+                    Core.Instance?.MarkDirty();
+                }
+
+                CureAllAfflictionsOfType<SevereWristSprainRiskAffliction>();
+                CureAllAfflictionsOfType<SevereAnkleSprainRiskAffliction>();
                 return;
             }
 
@@ -212,6 +250,17 @@ namespace MajorMiseries
             if (joint == SevereSprainJoint.None)
             {
                 Core.Log($"SevereSprain dev command ignored unknown body area -> kind={kind}, bodyArea={bodyArea}");
+                return;
+            }
+
+            if (ShouldApplySevereSprainsDirectly)
+            {
+                ClearRisk(joint);
+                ResetTrackingWindow(joint);
+                CureRiskAffliction(kind, bodyArea);
+                ApplySevereSprain(kind, bodyArea, "dev command, direct preset");
+                Core.Instance?.MarkDirty();
+                Core.Log($"DEV: SevereSprainRisk converted to severe sprain by direct preset -> {joint}");
                 return;
             }
 

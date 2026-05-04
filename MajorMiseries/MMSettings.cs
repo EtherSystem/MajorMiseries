@@ -89,7 +89,7 @@
 
         [Name("Severe Sprain Preset")]
         [Description("Choose how quickly repeated sprains can become severe.")]
-        [Choice("Forgiving", "Standard", "Harsh", "Brutal")]
+        [Choice("Forgiving", "Standard", "Harsh", "Brutal", "Who Wants to Play Like This?")]
         public int SevereSprainPreset = 1;
 
 
@@ -216,6 +216,16 @@
         [Slider(1f, 336f, 336, NumberFormat = "{0:0}h")]
         public int RegionalDistressDelayHours = 72;
 
+        [Section("Immunity Shield")]
+
+        [Name("Enable Immunity Shield")]
+        [Description("Enable or disable the Immunity Shield system.")]
+        public bool EnableImmunityShield = true;
+
+        [Name("Max Condition Penalties Block Immunity Regen")]
+        [Description("If enabled, max condition reductions such as Requiem stages can prevent Immunity Shield regeneration. If disabled, condition is evaluated against the current adjusted max condition instead.")]
+        public bool MaxConditionPenaltiesBlockImmunityRegen = true;
+
 
         [Section("Advanced")]
 
@@ -285,6 +295,11 @@
             if (field.Name == nameof(EnableCorpseSickness))
             {
                 Settings.UpdateCorpseSicknessVisibility();
+            }
+
+            if (field.Name == nameof(EnableImmunityShield))
+            {
+                Settings.UpdateImmunityShieldVisibility();
             }
 
             bool regionalSettingChanged =
@@ -358,6 +373,7 @@
             UpdateCorpseSicknessVisibility();
             UpdateSevereSprainVisibility();
             UpdateRegionalAfflictionVisibility();
+            UpdateImmunityShieldVisibility();
             UpdateShinyAfflictionIconChanceVisibility();
         }
 
@@ -405,6 +421,13 @@
             options.SetFieldVisible(nameof(options.HomeSicknessDelayHours), showRegionalSettings && options.HomeRegion > 0);
             options.SetFieldVisible(nameof(options.RegionalDistressRegion), showRegionalSettings);
             options.SetFieldVisible(nameof(options.RegionalDistressDelayHours), showRegionalSettings && options.RegionalDistressRegion > 0);
+        }
+
+        internal static void UpdateImmunityShieldVisibility()
+        {
+            bool showImmunitySettings = options.EnableImmunityShield;
+
+            options.SetFieldVisible(nameof(options.MaxConditionPenaltiesBlockImmunityRegen), showImmunitySettings);
         }
 
         internal static void UpdateShinyAfflictionIconChanceVisibility()

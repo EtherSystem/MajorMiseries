@@ -291,12 +291,12 @@ namespace MajorMiseries.Patches
         }
 
         [HarmonyPatch(typeof(BloodLoss), nameof(BloodLoss.BloodLossStart))]
-        [HarmonyPriority(Priority.Last)] // <-- Priority.Last to avoid conflit with ImprovedAfflictions
+        [HarmonyPriority(Priority.Last)] // Run after ImprovedAfflictions so MajorM converts the final BloodLoss result.
         internal static class BloodLossToSevereLacerationPatch
         {
-            private static void Postfix(ref string cause)
+            private static void Postfix(BloodLoss __instance, ref string cause)
             {
-                AfflictionLogic.TryConvertPredatorBloodLossToSevereLaceration(cause);
+                AfflictionLogic.TryConvertPredatorBloodLossToSevereLaceration(__instance, cause);
             }
         }
 

@@ -70,6 +70,7 @@ namespace MajorMiseries
             AfflictionLogic.ResetRuntime();
             Patches.WildlifePatches.ResetRuntime();
             RegionalAfflictionLogic.ResetRuntime();
+            ImmunityManager.ResetRuntime();
         }
 
         public void OnStateLoaded()
@@ -89,7 +90,8 @@ namespace MajorMiseries
             string oldCurrentLogicalRegion = State.CurrentLogicalRegion ?? string.Empty;
             string oldConfiguredHomeRegion = State.ConfiguredHomeRegion ?? string.Empty;
             string oldConfiguredRegionalDistressRegion = State.ConfiguredRegionalDistressRegion ?? string.Empty;
-
+            float oldImmunityShield = State.ImmunityShield;
+            
             State.PredatorHostility = Mathf.Max(0f, State.PredatorHostility);
             State.HoursSinceLastPredatorKill = Mathf.Max(0f, State.HoursSinceLastPredatorKill);
             State.BlackLungExposure = Mathf.Clamp(State.BlackLungExposure, 0f, AfflictionLogic.GetBlackLungExposureMax());
@@ -103,7 +105,9 @@ namespace MajorMiseries
             State.ConfiguredRegionalDistressRegion ??= string.Empty;
 
             RegionalAfflictionLogic.RestoreFromState();
+            ImmunityManager.OnStateLoaded();
 
+            if (!Mathf.Approximately(oldImmunityShield, State.ImmunityShield)) changed = true;
             if (!Mathf.Approximately(oldHostility, State.PredatorHostility)) changed = true;
             if (!Mathf.Approximately(oldSinceKill, State.HoursSinceLastPredatorKill)) changed = true;
             if (!Mathf.Approximately(oldBlackLungExposure, State.BlackLungExposure)) changed = true;
@@ -177,7 +181,7 @@ namespace MajorMiseries
             AfflictionLogic.UpdateCOExposure(gameHoursPassed);
             AfflictionLogic.UpdateCorpseExposure(gameHoursPassed);
             RegionalAfflictionLogic.Update(gameHoursPassed);
-
+            ImmunityManager.Update(gameHoursPassed);
             SevereSprainLogic.Update(gameHoursPassed);
         }
     }

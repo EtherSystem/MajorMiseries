@@ -62,6 +62,7 @@ namespace MajorMiseries
             _applyingSevere = false;
             _pendingSevere = false;
             _severeWasActive = false;
+            _loggedPendingSevereSuppression = false;
 
             _processingFallInjury = false;
             _conditionBeforeFall = -1f;
@@ -360,13 +361,13 @@ namespace MajorMiseries
         private static int GetDynamicPredatorThreatLevelFromHeat(float heat)
         {
             if (heat >= 30f) return 8;
-            if (heat >= 20f) return 7;
-            if (heat >= 15f) return 6;
-            if (heat >= 10f) return 5;
-            if (heat >= 8f) return 4;
-            if (heat >= 6f) return 3;
-            if (heat >= 4f) return 2;
-            if (heat >= 2f) return 1;
+            if (heat >= 25f) return 7;
+            if (heat >= 20f) return 6;
+            if (heat >= 16f) return 5;
+            if (heat >= 12f) return 4;
+            if (heat >= 9f) return 3;
+            if (heat >= 6f) return 2;
+            if (heat >= 3f) return 1;
             return 0;
         }
 
@@ -466,8 +467,11 @@ namespace MajorMiseries
         private static bool _applyingSevere;
         private static bool _pendingSevere;
         private static bool _severeWasActive;
+        private static bool _loggedPendingSevereSuppression;
 
-        internal static void TryConvertPredatorBloodLossToSevereLaceration(string cause)
+        internal static bool IsApplyingSevereLacerationConversion => _applyingSevere;
+
+        internal static void TryConvertPredatorBloodLossToSevereLaceration(BloodLoss bloodLoss, string cause)
         {
             RefreshEffectsIfNeeded();
 
@@ -476,20 +480,127 @@ namespace MajorMiseries
             PlayerManager player = GameManager.GetPlayerManagerComponent();
             if (player == null || player.PlayerIsDead()) return;
 
-            if (_applyingSevere || _pendingSevere) return;
+            string forwardedCause = string.IsNullOrWhiteSpace(cause) ? "Predator Attack" : cause;
+
+            if (!IsPredatorBloodLossCause(forwardedCause))
+            {
+                Core.Log($"blood loss conversion ignored -> non-predator cause:'{forwardedCause}'");
+                return;
+            }
 
             SevereLacerations severe = GameManager.GetSevereLacerations();
-            if (severe == null || severe.HasAffliction()) return;
+            if (severe == null)
+            {
+                Core.Log($"blood loss conversion failed -> SevereLacerations component missing | cause:'{forwardedCause}'");
+                return;
+            }
 
-            string forwardedCause = string.IsNullOrWhiteSpace(cause) ? "Predator Attack" : cause;
-            string lowerCause = forwardedCause.ToLowerInvariant();
+            bool bloodLossStopped = TryStopConvertedBloodLoss(bloodLoss, forwardedCause);
 
-            bool isPredatorCause = lowerCause.Contains("wolf") || lowerCause.Contains("bear") || lowerCause.Contains("cougar") || lowerCause.Contains("predator");
+            if (severe.HasAffliction())
+            {
+                Core.Log($"blood loss conversion consumed -> SevereLacerations already active | cause:'{forwardedCause}' | bloodLossStopped:{bloodLossStopped}");
+                return;
+            }
 
-            if (!isPredatorCause) return;
+            if (_pendingSevere)
+            {
+                if (!_loggedPendingSevereSuppression)
+                {
+                    Core.Log($"blood loss conversion consumed -> SevereLacerations already pending | cause:'{forwardedCause}' | bloodLossStopped:{bloodLossStopped}");
+                    _loggedPendingSevereSuppression = true;
+                }
+
+                return;
+            }
 
             _pendingSevere = true;
+            _loggedPendingSevereSuppression = false;
+
+            Core.Log($"blood loss conversion queued -> SevereLacerations | cause:'{forwardedCause}' | bloodLossStopped:{bloodLossStopped} | stagesEnabled:{Settings.options.EnableRequiemStages} | stage:{GetCurrentStage()} | mode:{Settings.options.PredatorBloodLossToSevereLacerationsMode}");
+
             MelonCoroutines.Start(ApplySevereNextFrame(forwardedCause));
+        }
+
+        private static bool IsPredatorBloodLossCause(string cause)
+        {
+            if (string.IsNullOrWhiteSpace(cause)) return false;
+
+            string lowerCause = cause.ToLowerInvariant();
+
+            return lowerCause.Contains("wolf")
+                || lowerCause.Contains("timberwolf")
+                || lowerCause.Contains("bear")
+                || lowerCause.Contains("cougar")
+                || lowerCause.Contains("predator")
+                || lowerCause.Contains("loup")
+                || lowerCause.Contains("ours")
+                || lowerCause.Contains("puma");
+        }
+
+        private static bool TryStopConvertedBloodLoss(BloodLoss bloodLoss, string cause)
+        {
+            if (bloodLoss == null) return false;
+
+            string[] stopMethodNames =
+            {
+                "BloodLossStop",
+                "BloodLossEnd",
+                "StopBloodLoss",
+                "Stop",
+                "Cure",
+                "Reset"
+            };
+
+            Type type = bloodLoss.GetType();
+
+            for (int i = 0; i < stopMethodNames.Length; i++)
+            {
+                MethodInfo? method = type.GetMethod(stopMethodNames[i], BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                if (method == null) continue;
+
+                ParameterInfo[] parameters = method.GetParameters();
+                if (parameters.Length > 0) continue;
+
+                try
+                {
+                    method.Invoke(bloodLoss, null);
+                    Core.Log($"blood loss conversion -> stopped vanilla BloodLoss via {stopMethodNames[i]}() | cause:'{cause}'");
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    Core.Log($"blood loss conversion -> failed to call {stopMethodNames[i]}(): {e.Message}");
+                }
+            }
+
+            string[] activeFieldNames =
+            {
+                "m_Active",
+                "m_IsActive",
+                "m_BloodLossActive",
+                "m_HasBloodLoss"
+            };
+
+            for (int i = 0; i < activeFieldNames.Length; i++)
+            {
+                FieldInfo? field = type.GetField(activeFieldNames[i], BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                if (field == null || field.FieldType != typeof(bool)) continue;
+
+                try
+                {
+                    field.SetValue(bloodLoss, false);
+                    Core.Log($"blood loss conversion -> disabled vanilla BloodLoss field {activeFieldNames[i]} | cause:'{cause}'");
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    Core.Log($"blood loss conversion -> failed to disable {activeFieldNames[i]}: {e.Message}");
+                }
+            }
+
+            Core.Log($"blood loss conversion warning -> could not stop vanilla BloodLoss after conversion | cause:'{cause}'");
+            return false;
         }
 
         internal static void TryHandleSevereLacerationHealing(SevereLacerations severe)
@@ -533,13 +644,29 @@ namespace MajorMiseries
                 SevereLacerations severe = GameManager.GetSevereLacerations();
                 if (severe == null || severe.HasAffliction()) yield break;
 
+                Condition condition = GameManager.GetConditionComponent();
+
+                float hpBefore = condition != null ? condition.m_CurrentHP : -1f;
+                float normalizedBefore = condition != null ? condition.GetNormalizedCondition() : -1f;
+
                 _applyingSevere = true;
+
                 severe.ApplySevereLacerations(cause);
+
+                float hpAfter = condition != null ? condition.m_CurrentHP : -1f;
+                float normalizedAfter = condition != null ? condition.GetNormalizedCondition() : -1f;
+
+                Core.Log($"blood loss converted -> SevereLacerations applied | cause:'{cause}' | active:{severe.HasAffliction()} | condition:{hpBefore:0.##}->{hpAfter:0.##} HP | normalized:{normalizedBefore * 100f:0.#}%->{normalizedAfter * 100f:0.#}%");
+            }
+            catch (Exception e)
+            {
+                Core.Log($"blood loss conversion failed while applying SevereLacerations: {e}");
             }
             finally
             {
                 _applyingSevere = false;
                 _pendingSevere = false;
+                _loggedPendingSevereSuppression = false;
             }
         }
 
@@ -895,7 +1022,6 @@ namespace MajorMiseries
             }
 
             _conditionBeforeFall = cond.GetNormalizedCondition();
-            Core.Log($"fall damage begin -> conditionBefore={_conditionBeforeFall:0.###}");
         }
 
         internal static void EndFallDamageEvaluation()
@@ -928,7 +1054,7 @@ namespace MajorMiseries
             float conditionAfter = cond.GetNormalizedCondition();
             float lost = Mathf.Max(0f, _conditionBeforeFall - conditionAfter);
 
-            Core.Log($"fall damage delayed end -> conditionBefore={_conditionBeforeFall:0.###}, conditionAfter={conditionAfter:0.###}, lost={lost:0.###}");
+            if (lost >= FALL_BROKEN_LEG_CHANCE_THRESHOLD) Core.Log($"fall damage delayed end -> conditionBefore={_conditionBeforeFall:0.###}, conditionAfter={conditionAfter:0.###}, lost={lost:0.###}");
 
             _conditionBeforeFall = -1f;
 
@@ -957,7 +1083,7 @@ namespace MajorMiseries
 
             if (!guaranteed && !eligibleChance)
             {
-                Core.Log($"fall fracture skipped -> damage too low ({normalizedConditionLost:0.###})");
+                if (normalizedConditionLost > 0.001f) Core.Log($"fall fracture skipped -> damage too low ({normalizedConditionLost:0.###})");
                 return;
             }
 
@@ -1058,6 +1184,13 @@ namespace MajorMiseries
 
         internal static float ApplyIncomingDamageMultiplier(float healthDelta)
         {
+            if (_applyingSevere && healthDelta < 0f)
+            {
+                Core.Log($"blocked condition damage during SevereLacerations conversion -> hpDelta:{healthDelta:0.###}");
+                return 0f;
+            }
+
+            if (!Settings.options.EnableRequiemStages) return healthDelta;
             if (!HasStageEffect(RequiemStage.Requiem) || healthDelta >= 0f) return healthDelta;
 
             return healthDelta * 2f;
@@ -1761,7 +1894,7 @@ namespace MajorMiseries
 
         private const float CO_MIN_FIRE_BURN_HOURS = 2f;
         private const float CO_ROLL_INTERVAL_HOURS = 10f / 60f;      // 10 in-game minutes
-        private const float CO_EXPOSURE_ROLL_CHANCE = 10f;           // percent per roll
+        private const float CO_EXPOSURE_ROLL_CHANCE = 10f;           // percent per roll, per valid fire
         private const float CO_LINGER_AFTER_FIRE_OUT_HOURS = 2f;     // contaminated scene lingers for 2h after last valid fire
 
         private const float CO_RESPIRATOR_CANISTER_DRAIN_MULTIPLIER = 0.5f;
@@ -1937,7 +2070,7 @@ namespace MajorMiseries
             float nowHours = tod.GetHoursPlayedNotPaused();
             CORiskSceneState state = GetOrCreateCOSceneState(sceneName);
 
-            bool hasValidFire = TryGetIndoorValidCOFireInfo(nowHours, out float qualifyingSinceHours);
+            bool hasValidFire = TryGetIndoorValidCOFireInfo(nowHours, out float qualifyingSinceHours, out int eligibleFireCount);
             bool sceneStillContaminated = state.SceneContaminated && IsSceneStillCOContaminated(state, nowHours, hasValidFire);
 
             float unprotectedGameHoursPassed = gameHoursPassed;
@@ -1998,18 +2131,20 @@ namespace MajorMiseries
             int rollCount = Mathf.FloorToInt(elapsed / CO_ROLL_INTERVAL_HOURS);
             if (rollCount <= 0) return;
 
+            float rollChance = GetCORollChanceForFireCount(eligibleFireCount);
+
             for (int i = 0; i < rollCount; i++)
             {
                 float roll = Random.Range(0f, 100f);
-                Core.Log($"CO roll -> chance={CO_EXPOSURE_ROLL_CHANCE:0.##}% roll={roll:0.##} scene='{sceneName}'");
+                Core.Log($"CO roll -> fires={eligibleFireCount} chance={rollChance:0.##}% roll={roll:0.##} scene='{sceneName}'");
 
-                if (roll <= CO_EXPOSURE_ROLL_CHANCE)
+                if (roll <= rollChance)
                 {
                     state.SceneContaminated = true;
                     state.LastValidFireSeenTimeHours = nowHours;
                     state.LastRollTimeHours += (i + 1) * CO_ROLL_INTERVAL_HOURS;
 
-                    Core.Log($"CO roll succeeded -> scene '{sceneName}' is now contaminated, applying COExposure.");
+                    Core.Log($"CO roll succeeded -> scene '{sceneName}' is now contaminated, applying COExposure. fires={eligibleFireCount}, chance={rollChance:0.##}%");
                     new COExposureAffliction(AfflictionBodyArea.Head).Start();
                     return;
                 }
@@ -2031,7 +2166,7 @@ namespace MajorMiseries
             if (!_coSceneStates.TryGetValue(sceneName, out CORiskSceneState? state) || state == null || !state.SceneContaminated) return false;
 
             float nowHours = tod.GetHoursPlayedNotPaused();
-            bool hasValidFire = TryGetIndoorValidCOFireInfo(nowHours, out _);
+            bool hasValidFire = TryGetIndoorValidCOFireInfo(nowHours, out _, out _);
 
             if (hasValidFire)
             {
@@ -2046,9 +2181,10 @@ namespace MajorMiseries
             return false;
         }
 
-        private static bool TryGetIndoorValidCOFireInfo(float nowHours, out float qualifyingSinceHours)
+        private static bool TryGetIndoorValidCOFireInfo(float nowHours, out float qualifyingSinceHours, out int eligibleFireCount)
         {
             qualifyingSinceHours = -1f;
+            eligibleFireCount = 0;
 
             if (!IsPlayerInIndoorScene()) return false;
 
@@ -2069,14 +2205,23 @@ namespace MajorMiseries
                 float burnHours = fire.GetBurningTimeTODHours();
                 if (burnHours < CO_MIN_FIRE_BURN_HOURS) continue;
 
+                eligibleFireCount++;
+
                 if (burnHours > longestBurnHours)
                     longestBurnHours = burnHours;
             }
 
-            if (longestBurnHours < CO_MIN_FIRE_BURN_HOURS) return false;
+            if (eligibleFireCount <= 0 || longestBurnHours < CO_MIN_FIRE_BURN_HOURS) return false;
 
             qualifyingSinceHours = nowHours - (longestBurnHours - CO_MIN_FIRE_BURN_HOURS);
             return true;
+        }
+
+        private static float GetCORollChanceForFireCount(int eligibleFireCount)
+        {
+            if (eligibleFireCount <= 0) return 0f;
+
+            return Mathf.Clamp(CO_EXPOSURE_ROLL_CHANCE * eligibleFireCount, 0f, 100f);
         }
 
         private static bool IsCOEligibleFire(Fire fire)
@@ -2525,11 +2670,13 @@ namespace MajorMiseries
 
         internal static void QueueAnimalCarcassReseed(string reason)
         {
+            bool alreadyQueued = s_AnimalCarcassReseedQueued;
+
             s_AnimalCarcassReseedQueued = true;
             s_AnimalCarcassReseedDueTime = Time.unscaledTime + CORPSE_ANIMAL_RESEED_DELAY_REALTIME_SECONDS;
             s_AnimalCarcassReseedReason = reason ?? string.Empty;
 
-            LogCorpseDebug($"Animal carcass reseed queued in {CORPSE_ANIMAL_RESEED_DELAY_REALTIME_SECONDS:0.##}s | reason='{s_AnimalCarcassReseedReason}'");
+            if (!alreadyQueued) LogCorpseDebug($"Animal carcass reseed queued in {CORPSE_ANIMAL_RESEED_DELAY_REALTIME_SECONDS:0.##}s | reason='{s_AnimalCarcassReseedReason}'");
         }
 
         private static void MaybeProcessQueuedAnimalCarcassReseed()

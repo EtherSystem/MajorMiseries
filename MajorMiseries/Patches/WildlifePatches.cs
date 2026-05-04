@@ -148,6 +148,14 @@ namespace MajorMiseries.Patches
                 float scaledDetectionRange = _detectionRange * threatMultiplier;
                 float scaledBeginChase = _stalkingBeginChasingDistance * threatMultiplier;
                 float scaledWeakBeginChase = _stalkingBeginChasingWeakTargetDistance * threatMultiplier;
+                float scaledStalkingFollowDistance = _stalkingFollowDistance * threatMultiplier;
+                float scaledBreakStalkingRange = _breakStalkingRange * threatMultiplier;
+
+                if (threatMultiplier > 1.01f)
+                {
+                    scaledStalkingFollowDistance = Mathf.Max(scaledStalkingFollowDistance, scaledDetectionRange);
+                    scaledBreakStalkingRange = Mathf.Max(scaledBreakStalkingRange, scaledDetectionRange);
+                }
 
                 _ai.m_SmellRange = _smellRange * smellMultiplier;
                 _ai.m_HearFootstepsRange = _hearFootstepsRange * threatMultiplier;
@@ -158,11 +166,10 @@ namespace MajorMiseries.Patches
 
                 _ai.m_RangeMeleeAttack = _rangeMeleeAttack * threatMultiplier;
 
-                _ai.m_StalkingFollowDistance = Mathf.Max(_stalkingFollowDistance * threatMultiplier, scaledDetectionRange);
-
+                _ai.m_StalkingFollowDistance = scaledStalkingFollowDistance;
                 _ai.m_CurrentStalkingFollowDistance = _ai.m_StalkingFollowDistance;
 
-                _ai.m_BreakSlalkingRange = Mathf.Max(_breakStalkingRange * threatMultiplier, scaledDetectionRange);
+                _ai.m_BreakSlalkingRange = scaledBreakStalkingRange;
             }
 
             private void ApplyMooseThreatValues()
@@ -321,6 +328,7 @@ namespace MajorMiseries.Patches
             if (ai.m_CurrentHP <= 0f) return;
 
             int key = ai.GetInstanceID();
+            bool alreadyTracked = _pendingPredatorKills.ContainsKey(key);
 
             _pendingPredatorKills[key] = new PendingKill
             {
@@ -328,7 +336,7 @@ namespace MajorMiseries.Patches
                 LastDamageSource = damageSource
             };
 
-            Core.Log($"predator hostility track -> {GetPredatorName(subType)} marked as player-damaged ({sourceHook})");
+            if (!alreadyTracked) Core.Log($"predator hostility track -> {GetPredatorName(subType)} marked as player-damaged ({sourceHook})");
         }
 
         private static void TryRegisterPredatorKill(BaseAi ai, string hookName)
@@ -343,6 +351,12 @@ namespace MajorMiseries.Patches
 
             float hostilityAdded = GetPredatorHostilityGain(pending.SubType);
             if (hostilityAdded <= 0f) return;
+
+            if (!AfflictionLogic.IsPredatorHostilityEnabled())
+            {
+                Core.Log($"predator hostility death ignored -> {GetPredatorName(pending.SubType)} killed by player but Predator Hostility is disabled for current stage/mode ({hookName})");
+                return;
+            }
 
             Core.Log($"predator hostility death -> {GetPredatorName(pending.SubType)} confirmed from {hookName}");
             AfflictionLogic.RegisterPredatorKill(hostilityAdded);
@@ -405,8 +419,14 @@ namespace MajorMiseries.Patches
                 case AiSubType.Bear:
                     {
                         float scaledDetectionRange = controller._detectionRange * threatMultiplier;
-                        float scaledStalkingFollowDistance = Mathf.Max(controller._stalkingFollowDistance * threatMultiplier, scaledDetectionRange);
-                        float scaledBreakStalkingRange = Mathf.Max(controller._breakStalkingRange * threatMultiplier, scaledDetectionRange);
+                        float scaledStalkingFollowDistance = controller._stalkingFollowDistance * threatMultiplier;
+                        float scaledBreakStalkingRange = controller._breakStalkingRange * threatMultiplier;
+
+                        if (threatMultiplier > 1.01f)
+                        {
+                            scaledStalkingFollowDistance = Mathf.Max(scaledStalkingFollowDistance, scaledDetectionRange);
+                            scaledBreakStalkingRange = Mathf.Max(scaledBreakStalkingRange, scaledDetectionRange);
+                        }
 
                         Core.Log(
                             $"predator bear values -> " +

@@ -2,6 +2,10 @@
 {
     internal class MMState
     {
+        public float ImmunityShield = 100f;
+        public float FeverOnsetHours = 0f;
+        public float FeverLingerHoursRemaining = 0f;
+
         public float PredatorHostility = 0f;
         public float HoursSinceLastPredatorKill = 0f;
         public float BlackLungExposure = 0f;

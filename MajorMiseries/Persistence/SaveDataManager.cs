@@ -31,6 +31,9 @@ namespace MajorMiseries.Persistence
                     $"Scene:{GetCurrentSceneLogName()} | " +
                     $"Region:{RegionalAfflictionLogic.GetRegionLogName(Core.State.CurrentLogicalRegion)} | " +
                     $"LastKnownRegion:{RegionalAfflictionLogic.GetRegionLogName(Core.State.LastKnownLogicalRegion)} | " +
+                    $"ImmunityShield:{Core.State.ImmunityShield:0.###} | " +
+                    $"FeverOnset:{Core.State.FeverOnsetHours:0.###} | " +
+                    $"FeverLinger:{Core.State.FeverLingerHoursRemaining:0.###} | " +
                     $"HomeAway:{Core.State.HomeSicknessHoursAway:0.###} | " +
                     $"RegionalDistress:{Core.State.RegionalDistressHoursInRegion:0.###} | " +
                     $"PredatorHostility:{Core.State.PredatorHostility:0.###} | " +
@@ -73,6 +76,9 @@ namespace MajorMiseries.Persistence
                     $"Scene:{GetCurrentSceneLogName()} | " +
                     $"Region:{RegionalAfflictionLogic.GetRegionLogName(Core.State.CurrentLogicalRegion)} | " +
                     $"LastKnownRegion:{RegionalAfflictionLogic.GetRegionLogName(Core.State.LastKnownLogicalRegion)} | " +
+                    $"ImmunityShield:{Core.State.ImmunityShield:0.###} | " +
+                    $"FeverOnset:{Core.State.FeverOnsetHours:0.###} | " +
+                    $"FeverLinger:{Core.State.FeverLingerHoursRemaining:0.###} | " +
                     $"HomeAway:{Core.State.HomeSicknessHoursAway:0.###} | " +
                     $"RegionalDistress:{Core.State.RegionalDistressHoursInRegion:0.###} | " +
                     $"PredatorHostility:{Core.State.PredatorHostility:0.###} | " +
@@ -93,6 +99,10 @@ namespace MajorMiseries.Persistence
         private static void ClampAndFix()
         {
             EnsureState();
+
+            Core.State.ImmunityShield = Mathf.Clamp(Core.State.ImmunityShield, 0f, 100f);
+            Core.State.FeverOnsetHours = Mathf.Clamp(Core.State.FeverOnsetHours, 0f, 1f);
+            Core.State.FeverLingerHoursRemaining = Mathf.Clamp(Core.State.FeverLingerHoursRemaining, 0f, 3f);
 
             Core.State.PredatorHostility = Mathf.Max(0f, Core.State.PredatorHostility);
             Core.State.HoursSinceLastPredatorKill = Mathf.Max(0f, Core.State.HoursSinceLastPredatorKill);
