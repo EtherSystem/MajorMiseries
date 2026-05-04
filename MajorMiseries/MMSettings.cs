@@ -216,14 +216,15 @@
         [Slider(1f, 336f, 336, NumberFormat = "{0:0}h")]
         public int RegionalDistressDelayHours = 72;
 
+
         [Section("Immunity Shield")]
 
         [Name("Enable Immunity Shield")]
         [Description("Enable or disable the Immunity Shield system.")]
         public bool EnableImmunityShield = true;
 
-        [Name("Max Condition Penalties Block Immunity Regen")]
-        [Description("If enabled, max condition reductions such as Requiem stages can prevent Immunity Shield regeneration. If disabled, condition is evaluated against the current adjusted max condition instead.")]
+        [Name("Max Condition Affects Immunity Regen")]
+        [Description("If enabled, regen requires more than 50 condition. If disabled, regen only requires more than 20 condition.")]
         public bool MaxConditionPenaltiesBlockImmunityRegen = true;
 
 

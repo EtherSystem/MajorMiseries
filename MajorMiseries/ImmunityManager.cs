@@ -15,8 +15,8 @@ namespace MajorMiseries
         private const float RegenAllowedStatThresholdPercent = 25f;
         private const float RegenBonusStatThresholdPercent = 75f;
         private const float ConditionRegenThresholdPercent = 50f;
+        private const float ReducedConditionRegenThresholdPercent = 20f;
         private const float ConditionRegenBonusThresholdPercent = 75f;
-        private const float AbsoluteConditionRegenFloorPercent = 20f;
 
         private const float MaxDrainPerStatPerHour = 1f;
         private const float ZeroStatExtraDrainMultiplier = 0.5f;
@@ -240,13 +240,7 @@ namespace MajorMiseries
         {
             if (condition == null) return 0f;
 
-            float absoluteConditionPercent = Mathf.Clamp01(condition.GetNormalizedCondition()) * 100f;
-
-            if (Settings.options.MaxConditionPenaltiesBlockImmunityRegen) return absoluteConditionPercent;
-            if (absoluteConditionPercent <= AbsoluteConditionRegenFloorPercent) return 0f;
-
-            float adjustedMaxHp = Mathf.Max(1f, 100f + condition.GetAdjustedMaxHPModifier());
-            return Mathf.Clamp01(condition.m_CurrentHP / adjustedMaxHp) * 100f;
+            return Mathf.Clamp01(condition.GetNormalizedCondition()) * 100f;
         }
 
         private static float GetBodyStatDrainPerHour(BodyStats stats, out int activeDrainStats, out int zeroStats, out float zeroDrainMultiplier)
@@ -302,7 +296,9 @@ namespace MajorMiseries
         {
             if (biologicalThreat) return 0f;
 
-            if (stats.ConditionPercent <= ConditionRegenThresholdPercent) return 0f;
+            float conditionRegenThreshold = Settings.options.MaxConditionPenaltiesBlockImmunityRegen ? ConditionRegenThresholdPercent : ReducedConditionRegenThresholdPercent;
+
+            if (stats.ConditionPercent <= conditionRegenThreshold) return 0f;
 
             if (stats.EnergyPercent <= RegenAllowedStatThresholdPercent) return 0f;
             if (stats.CaloriesPercent <= RegenAllowedStatThresholdPercent) return 0f;
