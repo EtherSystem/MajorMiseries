@@ -16,7 +16,7 @@ namespace MajorMiseries.Afflictions
             private const string ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.COPoisoning.png";
             private const string ALT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Alt.COPoisoning_ALT.png";
 
-            public const float PASSIVE_FATIGUE_PER_HOUR = 6f;
+            public const float FATIGUE_INCREASE_MULTIPLIER = 3f;
             public const float CONDITION_LOSS_PER_HOUR = 5f;
 
             private float m_LastWholeMinute = -1f;
@@ -130,9 +130,6 @@ namespace MajorMiseries.Afflictions
                 m_LastWholeMinute = currentMinute;
 
                 float hoursDelta = minuteDelta / 60f;
-
-                Fatigue? fatigue = GameManager.GetFatigueComponent();
-                fatigue?.AddFatigue(hoursDelta * PASSIVE_FATIGUE_PER_HOUR);
 
                 Condition? condition = GameManager.GetConditionComponent();
                 if (condition == null || condition.m_CurrentHP <= 0f)

@@ -817,7 +817,7 @@ namespace MajorMiseries
             CureAllAfflictionsOfType<CorpseSicknessAffliction>();
         }
 
-        private static void CureAllAfflictionsOfType<TAffliction>() where TAffliction : class
+        internal static void CureAllAfflictionsOfType<TAffliction>() where TAffliction : class
         {
             AfflictionManager mgr = AfflictionManager.GetAfflictionManagerInstance();
             if (mgr?.m_Afflictions == null) return;
@@ -2977,7 +2977,7 @@ namespace MajorMiseries
             return Mathf.Max(0, ((day - 1) * 24) + hour);
         }
 
-        private static bool HasAffliction<T>() where T : class
+        internal static bool HasAffliction<T>() where T : class
         {
             var mgr = AfflictionManager.GetAfflictionManagerInstance();
             if (mgr?.m_Afflictions == null) return false;
@@ -3011,7 +3011,7 @@ namespace MajorMiseries
             }
         }
 
-        private static T? GetAffliction<T>() where T : class
+        internal static T? GetAffliction<T>() where T : class
         {
             var mgr = AfflictionManager.GetAfflictionManagerInstance();
             if (mgr?.m_Afflictions == null) return null;

@@ -228,6 +228,43 @@
         public bool MaxConditionPenaltiesBlockImmunityRegen = true;
 
 
+        [Section("Body Temperature Gain")]
+
+        [Name("Enable Body Heat")]
+        [Description("Enable or disable the Body Heat system.")]
+        public bool EnableBodyHeat = true;
+
+        [Name("Environment Heat Gain")]
+        [Description("Default: 50 - Maximum body heat gain from high environmental temperature.")]
+        [Slider(0f, 500f, 501, NumberFormat = "{0}/h")]
+        public int PassiveHeatGain = 50;
+
+        [Name("Walking Heat Gain")]
+        [Description("Default: 5 - Body heat gain while walking.")]
+        [Slider(0f, 50f, 51, NumberFormat = "{0}/h")]
+        public int WalkHeatGain = 5;
+
+        [Name("Encumbered Heat Gain")]
+        [Description("Default: 25 - Extra body heat gain while encumbered.")]
+        [Slider(0f, 50f, 51, NumberFormat = "{0}/h")]
+        public int EncumberedHeatGain = 25;
+
+        [Name("Sprinting Heat Gain")]
+        [Description("Default: 100 - Body heat gain while sprinting.")]
+        [Slider(0f, 200f, 201, NumberFormat = "{0}/h")]
+        public int SprintHeatGain = 100;
+
+        [Name("Climbing Heat Gain")]
+        [Description("Default: 200 - Body heat gain while climbing.")]
+        [Slider(0f, 500f, 501, NumberFormat = "{0}/h")]
+        public int ClimbHeatGain = 200;
+
+        [Name("Cooling Loss")]
+        [Description("Default: 10 - Body heat loss while idle in cool conditions.")]
+        [Slider(0f, 100f, 101, NumberFormat = "{0}/h")]
+        public int CoolingLoss = 10;
+
+
         [Section("Advanced")]
 
         //[Name("Hunger lock arc rotation")]
@@ -303,16 +340,29 @@
                 Settings.UpdateImmunityShieldVisibility();
             }
 
-            bool regionalSettingChanged =
+            if (field.Name == nameof(EnableBodyHeat))
+            {
+                Settings.UpdateBodyHeatVisibility();
+            }
+
+            bool regionalVisibilityChanged =
                 field.Name == nameof(EnableRegionalAfflictions) ||
                 field.Name == nameof(HomeRegion) ||
+                field.Name == nameof(RegionalDistressRegion);
+
+            if (regionalVisibilityChanged)
+            {
+                Settings.UpdateRegionalAfflictionVisibility();
+            }
+
+            bool regionalRuntimeSettingChanged =
+                field.Name == nameof(EnableRegionalAfflictions) ||
                 field.Name == nameof(HomeSicknessDelayHours) ||
                 field.Name == nameof(RegionalDistressRegion) ||
                 field.Name == nameof(RegionalDistressDelayHours);
 
-            if (regionalSettingChanged)
+            if (regionalRuntimeSettingChanged)
             {
-                Settings.UpdateRegionalAfflictionVisibility();
                 RegionalAfflictionLogic.RequestSettingsSync();
             }
 
@@ -358,6 +408,15 @@
                 AfflictionLogic.SyncSettingsControlledAfflictions();
             }
         }
+
+        protected override void OnConfirm()
+        {
+            base.OnConfirm();
+
+            Settings.UpdateRegionalAfflictionVisibility();
+
+            RegionalAfflictionLogic.SyncFromSettings(logSettingsChanges: true, allowHomeRegionChange: true);
+        }
     }
 
     internal static class Settings
@@ -375,6 +434,7 @@
             UpdateSevereSprainVisibility();
             UpdateRegionalAfflictionVisibility();
             UpdateImmunityShieldVisibility();
+            UpdateBodyHeatVisibility();
             UpdateShinyAfflictionIconChanceVisibility();
         }
 
@@ -429,6 +489,18 @@
             bool showImmunitySettings = options.EnableImmunityShield;
 
             options.SetFieldVisible(nameof(options.MaxConditionPenaltiesBlockImmunityRegen), showImmunitySettings);
+        }
+
+        internal static void UpdateBodyHeatVisibility()
+        {
+            bool showBodyHeatSettings = options.EnableBodyHeat;
+
+            options.SetFieldVisible(nameof(options.PassiveHeatGain), showBodyHeatSettings);
+            options.SetFieldVisible(nameof(options.WalkHeatGain), showBodyHeatSettings);
+            options.SetFieldVisible(nameof(options.EncumberedHeatGain), showBodyHeatSettings);
+            options.SetFieldVisible(nameof(options.SprintHeatGain), showBodyHeatSettings);
+            options.SetFieldVisible(nameof(options.ClimbHeatGain), showBodyHeatSettings);
+            options.SetFieldVisible(nameof(options.CoolingLoss), showBodyHeatSettings);
         }
 
         internal static void UpdateShinyAfflictionIconChanceVisibility()

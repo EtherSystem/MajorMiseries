@@ -6,6 +6,8 @@
         public float FeverOnsetHours = 0f;
         public float FeverLingerHoursRemaining = 0f;
 
+        public float InternalBodyTemp = 37f;
+
         public float PredatorHostility = 0f;
         public float HoursSinceLastPredatorKill = 0f;
         public float BlackLungExposure = 0f;
@@ -18,6 +20,8 @@
         public string ConfiguredRegionalDistressRegion = "";
         public float HomeSicknessHoursAway = 0f;
         public float RegionalDistressHoursInRegion = 0f;
+        public float HomeRegionRelocationCooldownHoursRemaining = 0f;
+        public bool HomeRegionRelocationReadyMessageShown = false;
 
         public int LeftWristSprainCount = 0;
         public float LeftWristSprainWindowHours = 0f;

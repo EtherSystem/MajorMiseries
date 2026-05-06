@@ -6,78 +6,81 @@ namespace MajorMiseries
 {
     internal static class ImmunityManager
     {
-        private const string ImmunityWidgetName = "Immunity Shield";
-
-        private const float ShieldMin = 0f;
-        private const float ShieldMax = 100f;
-
-        private const float LowStatThresholdPercent = 25f;
-        private const float RegenAllowedStatThresholdPercent = 25f;
-        private const float RegenBonusStatThresholdPercent = 75f;
-        private const float ConditionRegenThresholdPercent = 50f;
-        private const float ReducedConditionRegenThresholdPercent = 20f;
-        private const float ConditionRegenBonusThresholdPercent = 75f;
-
-        private const float MaxDrainPerStatPerHour = 1f;
-        private const float ZeroStatExtraDrainMultiplier = 0.5f;
-        private const float MaxTotalDrainPerHour = 8f;
-
-        private const float InfectionRiskDrainPerHour = 0.25f;
-        private const float InfectionDrainPerHour = 0.75f;
-        private const float SepsisRiskDrainPerHour = 1f;
-        private const float SepsisDrainPerHour = 2f;
-        private const float IntestinalParasitesRiskDrainPerHour = 0.20f;
-        private const float IntestinalParasitesDrainPerHour = 0.50f;
-        private const float FoodPoisoningDrainPerHour = 0.50f;
-        private const float DysenteryDrainPerHour = 0.75f;
-        private const float CorpseSicknessRiskDrainPerHour = 0.40f;
-        private const float CorpseSicknessDrainPerHour = 0.80f;
-
-        private const float AwakeRegenPerHour = 0.10f;
-        private const float SleepRegenPerHour = 1.00f;
-        private const float StatHighBonusMultiplier = 0.025f;
-        private const float ConditionHighBonusMultiplier = 0.05f;
-        private const float HomeComfortRegenMultiplier = 1.05f;
-
-        private const float FeverMinShield = 50f;
-        private const float FeverOnsetRequiredHours = 1f;
-        private const float FeverLingerHours = 3f;
-
-        private const float EffectiveFeverFatiguePerHour = 3f;
-        private const float LingeringFeverFatiguePerHour = 1f;
-        private const float EffectiveFeverThirstPerHour = 3f;
-        private const float LingeringFeverThirstPerHour = 1f;
-
-        private const float FeverRiskMultiplier = 0.90f;
-        private const float MinRiskProgressMultiplier = 0.45f;
-        private const float MaxRiskProgressMultiplier = 4f;
-
-        private const float FeverInfectionRiskRecoveryMinShield = 90f;
-        private const float FeverInfectionRiskRecoveryRollHours = 1f;
-        private const float FeverInfectionRiskRecoveryChance = 5f;
+        private static readonly ClothingRegion[] BodyHeatRegions =
+        {
+            ClothingRegion.Head,
+            ClothingRegion.Chest,
+            ClothingRegion.Hands,
+            ClothingRegion.Legs,
+            ClothingRegion.Feet
+        };
 
         private static int s_LastLoggedShieldBucket = -1;
         private static string s_LastLoggedMode = string.Empty;
+        private static int s_LastLoggedDrainBucket = -1;
+        private static int s_LastLoggedBodyDrainBucket = -1;
+        private static int s_LastLoggedBiologicalDrainBucket = -1;
+        private static int s_LastLoggedLowStatCount = -1;
+        private static int s_LastLoggedZeroStatCount = -1;
+        private static FeverMode s_LastLoggedShieldFeverMode = FeverMode.None;
+        private static string s_LastLoggedBiologicalSources = string.Empty;
 
         private static FeverMode s_FeverMode = FeverMode.None;
         private static float s_FeverInfectionRiskRecoveryHours;
+        private static float s_FeverTargetBodyTempC;
+        private static float s_LingeringFeverTargetBodyTempC;
 
-        internal static bool IsFeverActive => s_FeverMode == FeverMode.Effective || s_FeverMode == FeverMode.Lingering;
+        private static float s_BodyHeatRealAccum;
+        private static double s_BodyHeatGameSecondsAccum;
+
+        private static float s_HeatStaggerPhase;
+        private static float s_HeatHeadachePulseRealTimer;
+        private static bool s_LastHeatHeadacheActive;
+
+        private static FeverMode s_LastLoggedFeverModeState = FeverMode.None;
+        private static int s_LastLoggedFeverTargetBucket = int.MinValue;
+        private static string s_LastLoggedFeverSources = string.Empty;
 
         internal static void ResetRuntime()
         {
             s_LastLoggedShieldBucket = -1;
             s_LastLoggedMode = string.Empty;
+            s_LastLoggedDrainBucket = -1;
+            s_LastLoggedBodyDrainBucket = -1;
+            s_LastLoggedBiologicalDrainBucket = -1;
+            s_LastLoggedLowStatCount = -1;
+            s_LastLoggedZeroStatCount = -1;
+            s_LastLoggedShieldFeverMode = FeverMode.None;
+            s_LastLoggedBiologicalSources = string.Empty;
 
             s_FeverMode = FeverMode.None;
             s_FeverInfectionRiskRecoveryHours = 0f;
+            s_FeverTargetBodyTempC = 0f;
+            s_LingeringFeverTargetBodyTempC = 0f;
+
+            s_BodyHeatRealAccum = 0f;
+            s_BodyHeatGameSecondsAccum = 0.0;
+
+            s_HeatHeadachePulseRealTimer = 0f;
+            s_LastHeatHeadacheActive = false;
+
+            s_LastLoggedFeverModeState = FeverMode.None;
+            s_LastLoggedFeverTargetBucket = int.MinValue;
+            s_LastLoggedFeverSources = string.Empty;
+
+            ResetHeatNeurologicalEffects();
         }
 
         internal static void ClampState()
         {
-            Core.State.ImmunityShield = Mathf.Clamp(Core.State.ImmunityShield, ShieldMin, ShieldMax);
-            Core.State.FeverOnsetHours = Mathf.Clamp(Core.State.FeverOnsetHours, 0f, FeverOnsetRequiredHours);
-            Core.State.FeverLingerHoursRemaining = Mathf.Clamp(Core.State.FeverLingerHoursRemaining, 0f, FeverLingerHours);
+            Core.State.ImmunityShield = Mathf.Clamp(Core.State.ImmunityShield, 0f, 100f);
+            Core.State.FeverOnsetHours = Mathf.Clamp(Core.State.FeverOnsetHours, 0f, 1f);
+            Core.State.FeverLingerHoursRemaining = Mathf.Clamp(Core.State.FeverLingerHoursRemaining, 0f, 3f);
+
+            if (Core.State.InternalBodyTemp < 30f || Core.State.InternalBodyTemp > 43f)
+                Core.State.InternalBodyTemp = 37f;
+
+            Core.State.InternalBodyTemp = Mathf.Clamp(Core.State.InternalBodyTemp, 34f, 43f);
         }
 
         internal static void OnStateLoaded()
@@ -96,6 +99,8 @@ namespace MajorMiseries
                 Core.State.FeverLingerHoursRemaining = 0f;
                 s_FeverMode = FeverMode.None;
                 s_FeverInfectionRiskRecoveryHours = 0f;
+                s_FeverTargetBodyTempC = 0f;
+                s_LingeringFeverTargetBodyTempC = 0f;
 
                 SyncFeverAffliction(false);
 
@@ -113,7 +118,7 @@ namespace MajorMiseries
 
             if (biologicalDrainPerHour > 0f) biologicalDrainPerHour *= zeroDrainMultiplier;
 
-            float drainPerHour = Mathf.Clamp(bodyDrainPerHour + biologicalDrainPerHour, 0f, MaxTotalDrainPerHour);
+            float drainPerHour = Mathf.Clamp(bodyDrainPerHour + biologicalDrainPerHour, 0f, 8f);
 
             string mode;
 
@@ -137,49 +142,53 @@ namespace MajorMiseries
                 }
             }
 
-            Core.State.ImmunityShield = Mathf.Clamp(Core.State.ImmunityShield, ShieldMin, ShieldMax);
+            Core.State.ImmunityShield = Mathf.Clamp(Core.State.ImmunityShield, 0f, 100f);
 
-            UpdateFeverState(gameHoursPassed, biologicalThreat);
+            UpdateFeverState(gameHoursPassed);
             SyncFeverAffliction(ShouldFeverAfflictionBeVisible());
 
             UpdateFeverInfectionRiskRecovery(gameHoursPassed);
 
             if (!Mathf.Approximately(oldShield, Core.State.ImmunityShield)) Core.Instance?.MarkDirty();
 
-            LogStateIfChanged(mode, stats, drainPerHour, bodyDrainPerHour, biologicalDrainPerHour);
+            LogStateIfChanged(mode, stats, drainPerHour, bodyDrainPerHour, biologicalDrainPerHour, activeDrainStats, zeroStats, biologicalSources);
         }
 
         internal static bool IsEffectiveFeverActive()
         {
-            return s_FeverMode == FeverMode.Effective;
+            return s_FeverMode == FeverMode.Moderate || s_FeverMode == FeverMode.Severe || s_FeverMode == FeverMode.Critical;
         }
 
         internal static bool ShouldFeverAfflictionBeVisible()
         {
-            return s_FeverMode == FeverMode.Effective || s_FeverMode == FeverMode.Lingering;
+            return s_FeverMode == FeverMode.Moderate || s_FeverMode == FeverMode.Severe || s_FeverMode == FeverMode.Critical || s_FeverMode == FeverMode.Lingering;
         }
 
-        internal static float GetFeverFatiguePerHour()
+        internal static float GetFeverFatigueMultiplier()
         {
-            if (s_FeverMode == FeverMode.Effective) return EffectiveFeverFatiguePerHour;
-            if (s_FeverMode == FeverMode.Lingering) return LingeringFeverFatiguePerHour;
+            if (s_FeverMode == FeverMode.Moderate) return 2f;
+            if (s_FeverMode == FeverMode.Severe) return 2.5f;
+            if (s_FeverMode == FeverMode.Critical) return 3f;
+            if (s_FeverMode == FeverMode.Lingering) return 1.25f;
 
-            return 0f;
+            return 1f;
         }
 
-        internal static float GetFeverThirstPerHour()
+        internal static float GetFeverThirstMultiplier()
         {
-            if (s_FeverMode == FeverMode.Effective) return EffectiveFeverThirstPerHour;
-            if (s_FeverMode == FeverMode.Lingering) return LingeringFeverThirstPerHour;
+            if (s_FeverMode == FeverMode.Moderate) return 2f;
+            if (s_FeverMode == FeverMode.Severe) return 2.5f;
+            if (s_FeverMode == FeverMode.Critical) return 3f;
+            if (s_FeverMode == FeverMode.Lingering) return 1.25f;
 
-            return 0f;
+            return 1f;
         }
 
         internal static float GetRiskProgressMultiplier()
         {
             if (!IsEnabled()) return 1f;
 
-            float shield = Mathf.Clamp(Core.State.ImmunityShield, ShieldMin, ShieldMax);
+            float shield = Mathf.Clamp(Core.State.ImmunityShield, 0f, 100f);
             float multiplier;
 
             if (shield >= 50f)
@@ -191,9 +200,9 @@ namespace MajorMiseries
                 multiplier = Mathf.Lerp(4f, 1f, shield / 50f);
             }
 
-            if (IsEffectiveFeverActive()) multiplier *= FeverRiskMultiplier;
+            if (IsEffectiveFeverActive()) multiplier *= 0.90f;
 
-            return Mathf.Clamp(multiplier, MinRiskProgressMultiplier, MaxRiskProgressMultiplier);
+            return Mathf.Clamp(multiplier, 0.45f, 4f);
         }
 
         internal static string GetFirstAidText()
@@ -203,9 +212,442 @@ namespace MajorMiseries
             return $"{Core.State.ImmunityShield:0}%";
         }
 
+        internal static string GetBodyHeatFirstAidText()
+        {
+            return $"{Core.State.InternalBodyTemp:0.0}°C";
+        }
+
+        internal static void UpdateBodyHeatRealtime(string scene)
+        {
+            if (GameManager.m_Instance == null || GameManager.m_IsPaused)
+            {
+                ResetHeatNeurologicalEffects();
+                ResetHeatHeadacheEffect();
+                return;
+            }
+
+            if (Settings.options == null)
+            {
+                ResetHeatNeurologicalEffects();
+                ResetHeatHeadacheEffect();
+                return;
+            }
+
+            if (!IsBodyHeatEnabled())
+            {
+                s_BodyHeatRealAccum = 0f;
+                s_BodyHeatGameSecondsAccum = 0.0;
+                ResetHeatNeurologicalEffects();
+                ResetHeatHeadacheEffect();
+                return;
+            }
+
+            if (scene == "MainMenu" || scene == "Boot" || scene == "Empty")
+            {
+                ResetHeatNeurologicalEffects();
+                ResetHeatHeadacheEffect();
+                return;
+            }
+
+            PlayerManager pm = GameManager.GetPlayerManagerComponent();
+            Weather wc = GameManager.GetWeatherComponent();
+            TimeOfDay tod = GameManager.GetTimeOfDayComponent();
+            Freezing freezing = GameManager.GetFreezingComponent();
+
+            if (pm == null || wc == null || tod == null || freezing == null)
+            {
+                ResetHeatNeurologicalEffects();
+                ResetHeatHeadacheEffect();
+                return;
+            }
+
+            UpdateHeatNeurologicalEffects();
+            UpdateHeatHeadacheEffect();
+
+            s_BodyHeatRealAccum += Time.unscaledDeltaTime;
+            if (s_BodyHeatRealAccum < 0.25f) return;
+
+            float realElapsed = s_BodyHeatRealAccum;
+            s_BodyHeatRealAccum = 0f;
+
+            float gameHoursPassed = tod.GetTODHours(realElapsed);
+            if (gameHoursPassed <= 0f) return;
+
+            if (gameHoursPassed > 12f)
+            {
+                s_BodyHeatGameSecondsAccum = 0.0;
+
+                Core.Warn("Body Heat time jump detected (>12 game hours). Reset accumulator.");
+
+                return;
+            }
+
+            float oldBodyTemp = Core.State.InternalBodyTemp;
+
+            GetMovementState(pm, out bool walking, out bool encumbered, out bool sprinting, out bool climbing);
+
+            float ambientFeelsLikeC = GetAmbientFeelsLikeC(pm, wc);
+            float fireHeatC = GetNearbyFireHeatC();
+            float totalFeelsLikeC = ambientFeelsLikeC + fireHeatC;
+
+            float warmth01 = GetWarmth01(freezing);
+            bool effortHeatAllowed = warmth01 > 0.25f;
+
+            float baseTargetC = Mathf.Lerp(34f, 37f, warmth01);
+            float targetC = baseTargetC;
+
+            float passive01 = Mathf.Clamp01(Mathf.InverseLerp(10f, 30f, ambientFeelsLikeC));
+            float fire01 = Mathf.Clamp01(fireHeatC / 80f);
+
+            if (passive01 > 0f)
+            {
+                float passiveTargetC = effortHeatAllowed
+                    ? Mathf.Lerp(37f, 39f, passive01)
+                    : Mathf.Lerp(baseTargetC, 37f, passive01);
+
+                targetC = Mathf.Max(targetC, passiveTargetC);
+            }
+
+            if (fire01 > 0f)
+            {
+                float fireTargetC = effortHeatAllowed
+                    ? Mathf.Lerp(37f, 40f, fire01)
+                    : Mathf.Lerp(baseTargetC, 37f, fire01);
+
+                targetC = Mathf.Max(targetC, fireTargetC);
+            }
+
+            if (effortHeatAllowed)
+            {
+                if (walking) targetC = Mathf.Max(targetC, 37.5f);
+                if (encumbered) targetC = Mathf.Max(targetC, 38f);
+                if (sprinting) targetC = Mathf.Max(targetC, 39f);
+                if (climbing) targetC = Mathf.Max(targetC, 39f);
+            }
+
+            float rawFeverTargetC = GetFeverBodyHeatTargetC();
+            float feverTargetC = GetEffectiveFeverBodyHeatTargetC(rawFeverTargetC, baseTargetC, totalFeelsLikeC);
+
+            if (feverTargetC > 37f) targetC = Mathf.Max(targetC, feverTargetC);
+
+            targetC = Mathf.Clamp(targetC, 34f, 43f);
+
+            float heatGainPerHour = 0f;
+
+            if (passive01 > 0f) heatGainPerHour += Settings.options.PassiveHeatGain * passive01 * 0.05f;
+            if (fire01 > 0f) heatGainPerHour += 8f * fire01;
+
+            if (effortHeatAllowed && Core.State.InternalBodyTemp < 39f)
+            {
+                if (walking) heatGainPerHour += Settings.options.WalkHeatGain * 0.05f;
+                if (encumbered) heatGainPerHour += Settings.options.EncumberedHeatGain * 0.05f;
+                if (sprinting) heatGainPerHour += Settings.options.SprintHeatGain * 0.05f;
+                if (climbing) heatGainPerHour += Settings.options.ClimbHeatGain * 0.05f;
+            }
+
+            if (feverTargetC > 37f) heatGainPerHour += 4f * Mathf.Clamp01(Mathf.InverseLerp(37f, 43f, feverTargetC));
+
+            float coolingPerHour = GetBodyHeatCoolingPerHour(totalFeelsLikeC);
+            float changePerHour = targetC > Core.State.InternalBodyTemp ? heatGainPerHour : coolingPerHour;
+
+            if (changePerHour > 0f)
+                Core.State.InternalBodyTemp = Mathf.MoveTowards(Core.State.InternalBodyTemp, targetC, changePerHour * gameHoursPassed);
+
+            Core.State.InternalBodyTemp = Mathf.Clamp(Core.State.InternalBodyTemp, 34f, 43f);
+
+            if (!Mathf.Approximately(oldBodyTemp, Core.State.InternalBodyTemp)) Core.Instance?.MarkDirty();
+
+            float sweat01 = Mathf.Clamp01(Mathf.InverseLerp(37.2f, 39.5f, Core.State.InternalBodyTemp));
+            bool triggered = sweat01 > 0f;
+
+
+            if (!triggered)
+            {
+                s_BodyHeatGameSecondsAccum = 0.0;
+                return;
+            }
+
+            s_BodyHeatGameSecondsAccum += (double)gameHoursPassed * 3600.0;
+            if (s_BodyHeatGameSecondsAccum < 5f) return;
+
+            int ticks = (int)(s_BodyHeatGameSecondsAccum / 5f);
+            s_BodyHeatGameSecondsAccum -= ticks * 5f;
+
+            float perTick = Mathf.Lerp(0.02f, 0.2f, sweat01);
+            float totalAmount = perTick * ticks;
+
+
+            ApplySweat(pm, totalAmount);
+        }
+
         private static bool IsEnabled()
         {
             return Settings.options != null && Settings.options.EnableImmunityShield;
+        }
+
+        private static bool IsBodyHeatEnabled()
+        {
+            return Settings.options != null && Settings.options.EnableBodyHeat;
+        }
+
+        private static float GetAmbientFeelsLikeC(PlayerManager pm, Weather wc)
+        {
+            float airTemp = wc.GetCurrentTemperature();
+            float clothingBonus = pm.m_WarmthBonusFromClothing;
+            float windChill = wc.GetCurrentWindchill();
+            float clothingWindBonus = pm.m_WindproofBonusFromClothing;
+            float netWindChill = Mathf.Min(windChill + clothingWindBonus, 0f);
+
+            return airTemp + clothingBonus + netWindChill;
+        }
+
+        private static float GetWarmth01(Freezing freezing)
+        {
+            if (freezing == null) return 1f;
+
+            float maxFreezing = Mathf.Max(1f, freezing.m_MaxFreezing);
+            return Mathf.Clamp01(1f - freezing.m_CurrentFreezing / maxFreezing);
+        }
+
+        private static float GetFeverBodyHeatTargetC()
+        {
+            if (s_FeverMode == FeverMode.Moderate ||
+                s_FeverMode == FeverMode.Severe ||
+                s_FeverMode == FeverMode.Critical ||
+                s_FeverMode == FeverMode.Lingering)
+            {
+                return Mathf.Clamp(s_FeverTargetBodyTempC, 37f, 43f);
+            }
+
+            return 0f;
+        }
+
+        private static float GetEffectiveFeverBodyHeatTargetC(float rawFeverTargetC, float baseTargetC, float totalFeelsLikeC)
+        {
+            if (rawFeverTargetC <= 37f) return 0f;
+
+            float cold01 = Mathf.Clamp01(Mathf.InverseLerp(10f, -30f, totalFeelsLikeC));
+            if (cold01 <= 0f) return rawFeverTargetC;
+
+            float coldTargetC = Mathf.Min(37f, baseTargetC);
+            float suppression01 = cold01 * 0.75f;
+
+            return Mathf.Clamp(Mathf.Lerp(rawFeverTargetC, coldTargetC, suppression01), coldTargetC, rawFeverTargetC);
+        }
+
+        private static float GetBodyHeatCoolingPerHour(float totalFeelsLikeC)
+        {
+            float baseCooling = Settings.options.CoolingLoss * 0.05f;
+
+            if (totalFeelsLikeC >= 10f) return baseCooling;
+
+            float coldPressure01 = Mathf.Clamp01(Mathf.InverseLerp(10f, -30f, totalFeelsLikeC));
+            return baseCooling * Mathf.Lerp(1f, 4f, coldPressure01);
+        }
+
+        private static float GetNearbyFireHeatC()
+        {
+            FireManager fireManager = GameManager.GetFireManagerComponent();
+            Transform playerTransform = GameManager.GetPlayerTransform();
+
+            if (fireManager == null || playerTransform == null) return 0f;
+            if (FireManager.m_Fires == null) return 0f;
+
+            Vector3 playerPos = playerTransform.position;
+
+            float strongest = 0f;
+            float extra = 0f;
+
+            for (int i = 0; i < FireManager.m_Fires.Count; i++)
+            {
+                Fire fire = FireManager.m_Fires[i];
+                if (fire == null || !fire.IsBurning()) continue;
+                if (fire.m_HeatSource == null) continue;
+
+                float heatAtPlayer = GetFireHeatAtPosition(fire, playerPos);
+                if (heatAtPlayer <= 0f) continue;
+
+                if (heatAtPlayer > strongest)
+                {
+                    extra += strongest;
+                    strongest = heatAtPlayer;
+                }
+                else
+                {
+                    extra += heatAtPlayer;
+                }
+            }
+
+            return strongest + extra * 0.33f;
+        }
+
+        private static float GetFireHeatAtPosition(Fire fire, Vector3 playerPos)
+        {
+            if (fire == null || fire.m_HeatSource == null) return 0f;
+
+            try
+            {
+                return Mathf.Max(0f, fire.m_HeatSource.GetTempIncrease(playerPos));
+            }
+            catch
+            {
+                return Mathf.Max(0f, fire.GetCurrentTempIncrease());
+            }
+        }
+
+        private static void UpdateHeatNeurologicalEffects()
+        {
+            float stagger01 = Mathf.Clamp01(Mathf.InverseLerp(42f, 43f, Core.State.InternalBodyTemp));
+
+            if (stagger01 <= 0f)
+            {
+                ResetHeatNeurologicalEffects();
+                return;
+            }
+
+            ApplyHeatPhysicalStagger(stagger01);
+        }
+
+        private static void UpdateHeatHeadacheEffect()
+        {
+            float headache01 = Mathf.Clamp01(Mathf.InverseLerp(40f, 43f, Core.State.InternalBodyTemp));
+
+            if (headache01 <= 0f)
+            {
+                ResetHeatHeadacheEffect();
+
+                if (s_LastHeatHeadacheActive)
+                {
+                    s_LastHeatHeadacheActive = false;
+                    Core.Log($"Heat headache camera effect ended -> Body:{Core.State.InternalBodyTemp:0.0}C");
+                }
+
+                return;
+            }
+
+            s_HeatHeadachePulseRealTimer += Time.unscaledDeltaTime;
+
+            float pulseInterval = Mathf.Lerp(14f, 5f, headache01);
+            if (s_HeatHeadachePulseRealTimer < pulseInterval) return;
+
+            s_HeatHeadachePulseRealTimer = 0f;
+
+            try
+            {
+                CameraStatusEffects cameraStatusEffects = GameManager.GetCameraStatusEffects();
+                if (cameraStatusEffects == null) return;
+
+                float amount = Mathf.Lerp(0.1f, 0.6f, headache01);
+
+                cameraStatusEffects.HeadachePulse(amount);
+
+                if (!s_LastHeatHeadacheActive)
+                {
+                    s_LastHeatHeadacheActive = true;
+                    Core.Log($"Heat headache camera effect started -> Body:{Core.State.InternalBodyTemp:0.0}C | Intensity:{headache01:0.00} | Amount:{amount:0.00}");
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        private static void ResetHeatHeadacheEffect()
+        {
+            s_HeatHeadachePulseRealTimer = 0f;
+        }
+
+        private static void ResetHeatNeurologicalEffects()
+        {
+            s_HeatStaggerPhase = 0f;
+        }
+
+        private static void ApplyHeatPhysicalStagger(float stagger01)
+        {
+            if (stagger01 <= 0f) return;
+
+            try
+            {
+                PlayerManager pm = GameManager.GetPlayerManagerComponent();
+                if (pm == null) return;
+                if (!pm.PlayerIsWalking() && !pm.PlayerIsSprinting()) return;
+
+                var player = GameManager.GetVpFPSPlayer();
+                if (player == null || player.Controller == null) return;
+
+                Transform transform = player.transform;
+                if (transform == null) return;
+
+                float smoothStagger01 = stagger01 * stagger01 * stagger01;
+
+                s_HeatStaggerPhase += Time.deltaTime * 0.70f;
+
+                float side = Mathf.Sin(s_HeatStaggerPhase) * 0.00045f * smoothStagger01;
+                float forward = Mathf.Sin(s_HeatStaggerPhase * 0.61f + 2.2f) * 0.00006f * smoothStagger01;
+
+                Vector3 force = transform.right * side + transform.forward * forward;
+
+                player.Controller.AddForce(force);
+            }
+            catch
+            {
+            }
+        }
+
+        private static void GetMovementState(PlayerManager pm, out bool walking, out bool encumbered, out bool sprinting, out bool climbing)
+        {
+            var enc = GameManager.GetEncumberComponent();
+
+            walking = false;
+            encumbered = false;
+            sprinting = false;
+            climbing = false;
+
+            if (pm == null || enc == null) return;
+
+            walking = pm.PlayerIsWalking();
+            encumbered = enc.IsEncumbered();
+            sprinting = pm.PlayerIsSprinting();
+            climbing = pm.PlayerIsClimbing();
+        }
+
+        private static void ApplySweat(PlayerManager pm, float amount)
+        {
+            foreach (ClothingRegion region in BodyHeatRegions)
+            {
+                float overflow = 0f;
+
+                overflow = AddWetnessUpTo(pm, region, ClothingLayer.Base, amount * 0.55f + overflow, 80f);
+                overflow = AddWetnessUpTo(pm, region, ClothingLayer.Mid, amount * 0.25f + overflow, 60f);
+                overflow = AddWetnessUpTo(pm, region, ClothingLayer.Top, amount * 0.15f + overflow, 40f);
+                AddWetnessUpTo(pm, region, ClothingLayer.Top2, amount * 0.05f + overflow, 30f);
+            }
+        }
+
+        private static float AddWetnessUpTo(PlayerManager pm, ClothingRegion region, ClothingLayer layer, float add, float cap)
+        {
+            if (add <= 0f) return 0f;
+
+            var gi = pm.GetClothingInSlot(region, layer);
+            if (gi == null || gi.m_ClothingItem == null) return add;
+
+            var ci = gi.m_ClothingItem;
+
+            float before = ci.m_PercentWet;
+            if (before >= cap) return add;
+
+            float wanted = Mathf.Min(add, cap - before);
+            if (wanted <= 0f) return add;
+
+            float target = Mathf.Min(before + wanted, cap);
+            ci.m_PercentWet = target;
+
+            float after = ci.m_PercentWet;
+            float delta = after - before;
+
+            if (delta <= 0.0001f) return add;
+
+            return add - delta;
         }
 
         private static bool TryGetBodyStats(out BodyStats stats)
@@ -230,17 +672,10 @@ namespace MajorMiseries
             stats.CaloriesPercent = Mathf.Clamp01(hunger.m_CurrentReserveCalories / hungerMax) * 100f;
             stats.HydrationPercent = Mathf.Clamp01(1f - thirst.m_CurrentThirst / thirstMax) * 100f;
             stats.WarmthPercent = Mathf.Clamp01(1f - freezing.m_CurrentFreezing / freezingMax) * 100f;
-            stats.ConditionPercent = GetConditionPercentForRegen(condition);
+            stats.ConditionPercent = Mathf.Clamp01(condition.GetNormalizedCondition()) * 100f;
             stats.Sleeping = player.PlayerIsSleeping();
 
             return true;
-        }
-
-        private static float GetConditionPercentForRegen(Condition condition)
-        {
-            if (condition == null) return 0f;
-
-            return Mathf.Clamp01(condition.GetNormalizedCondition()) * 100f;
         }
 
         private static float GetBodyStatDrainPerHour(BodyStats stats, out int activeDrainStats, out int zeroStats, out float zeroDrainMultiplier)
@@ -260,7 +695,7 @@ namespace MajorMiseries
                 if (values[i] <= 0.01f) zeroStats++;
             }
 
-            zeroDrainMultiplier = GetZeroStatDrainMultiplier(zeroStats);
+            zeroDrainMultiplier = zeroStats <= 0 ? 1f : 1f + zeroStats * 0.5f;
 
             activeDrainStats = 0;
             float rawTotal = 0f;
@@ -277,45 +712,38 @@ namespace MajorMiseries
             return rawTotal * zeroDrainMultiplier;
         }
 
-        private static float GetZeroStatDrainMultiplier(int zeroStats)
-        {
-            if (zeroStats <= 0) return 1f;
-
-            return 1f + zeroStats * ZeroStatExtraDrainMultiplier;
-        }
-
         private static float GetSingleStatDrainPerHour(float statPercent)
         {
-            if (statPercent >= LowStatThresholdPercent) return 0f;
+            if (statPercent >= 25f) return 0f;
 
-            float pressure01 = Mathf.Clamp01((LowStatThresholdPercent - statPercent) / LowStatThresholdPercent);
-            return MaxDrainPerStatPerHour * pressure01 * pressure01;
+            float pressure01 = Mathf.Clamp01((25f - statPercent) / 25f);
+            return pressure01 * pressure01;
         }
 
         private static float GetRegenPerHour(BodyStats stats, bool biologicalThreat)
         {
             if (biologicalThreat) return 0f;
 
-            float conditionRegenThreshold = Settings.options.MaxConditionPenaltiesBlockImmunityRegen ? ConditionRegenThresholdPercent : ReducedConditionRegenThresholdPercent;
+            float conditionRegenThreshold = Settings.options.MaxConditionPenaltiesBlockImmunityRegen ? 50f : 20f;
 
             if (stats.ConditionPercent <= conditionRegenThreshold) return 0f;
 
-            if (stats.EnergyPercent <= RegenAllowedStatThresholdPercent) return 0f;
-            if (stats.CaloriesPercent <= RegenAllowedStatThresholdPercent) return 0f;
-            if (stats.HydrationPercent <= RegenAllowedStatThresholdPercent) return 0f;
-            if (stats.WarmthPercent <= RegenAllowedStatThresholdPercent) return 0f;
+            if (stats.EnergyPercent <= 25f) return 0f;
+            if (stats.CaloriesPercent <= 25f) return 0f;
+            if (stats.HydrationPercent <= 25f) return 0f;
+            if (stats.WarmthPercent <= 25f) return 0f;
 
-            float regen = stats.Sleeping ? SleepRegenPerHour : AwakeRegenPerHour;
+            float regen = stats.Sleeping ? 1f : 0.10f;
             float multiplier = 1f;
 
-            if (stats.EnergyPercent > RegenBonusStatThresholdPercent) multiplier += StatHighBonusMultiplier;
-            if (stats.CaloriesPercent > RegenBonusStatThresholdPercent) multiplier += StatHighBonusMultiplier;
-            if (stats.HydrationPercent > RegenBonusStatThresholdPercent) multiplier += StatHighBonusMultiplier;
-            if (stats.WarmthPercent > RegenBonusStatThresholdPercent) multiplier += StatHighBonusMultiplier;
+            if (stats.EnergyPercent > 75f) multiplier += 0.025f;
+            if (stats.CaloriesPercent > 75f) multiplier += 0.025f;
+            if (stats.HydrationPercent > 75f) multiplier += 0.025f;
+            if (stats.WarmthPercent > 75f) multiplier += 0.025f;
 
-            if (stats.ConditionPercent > ConditionRegenBonusThresholdPercent) multiplier += ConditionHighBonusMultiplier;
+            if (stats.ConditionPercent > 75f) multiplier += 0.05f;
 
-            if (HomeComfort.HomeComfortBuff.IsActive) multiplier *= HomeComfortRegenMultiplier;
+            if (HomeComfort.HomeComfortBuff.IsActive) multiplier *= 1.05f;
 
             return regen * multiplier;
         }
@@ -342,18 +770,18 @@ namespace MajorMiseries
 
                 if (condition != null)
                 {
-                    Add(condition.HasSpecificAffliction(AfflictionType.InfectionRisk), InfectionRiskDrainPerHour, "InfectionRisk");
-                    Add(condition.HasSpecificAffliction(AfflictionType.Infection), InfectionDrainPerHour, "Infection");
-                    Add(condition.HasSpecificAffliction(AfflictionType.IntestinalParasitesRisk), IntestinalParasitesRiskDrainPerHour, "ParasitesRisk");
-                    Add(condition.HasSpecificAffliction(AfflictionType.IntestinalParasites), IntestinalParasitesDrainPerHour, "Parasites");
-                    Add(condition.HasSpecificAffliction(AfflictionType.FoodPoisioning), FoodPoisoningDrainPerHour, "FoodPoisoning");
-                    Add(condition.HasSpecificAffliction(AfflictionType.Dysentery), DysenteryDrainPerHour, "Dysentery");
+                    Add(condition.HasSpecificAffliction(AfflictionType.InfectionRisk), 0.25f, "InfectionRisk");
+                    Add(condition.HasSpecificAffliction(AfflictionType.Infection), 0.75f, "Infection");
+                    Add(condition.HasSpecificAffliction(AfflictionType.IntestinalParasitesRisk), 0.20f, "ParasitesRisk");
+                    Add(condition.HasSpecificAffliction(AfflictionType.IntestinalParasites), 0.50f, "Parasites");
+                    Add(condition.HasSpecificAffliction(AfflictionType.FoodPoisioning), 0.50f, "FoodPoisoning");
+                    Add(condition.HasSpecificAffliction(AfflictionType.Dysentery), 0.75f, "Dysentery");
                 }
 
-                Add(HasCustomAfflictionByTypeName("SepsisRiskAffliction"), SepsisRiskDrainPerHour, "SepsisRisk");
-                Add(HasCustomAfflictionByTypeName("SepsisAffliction"), SepsisDrainPerHour, "Sepsis");
-                Add(HasCustomAfflictionByTypeName("CorpseSicknessRiskAffliction"), CorpseSicknessRiskDrainPerHour, "CorpseSicknessRisk");
-                Add(HasCustomAfflictionByTypeName("CorpseSicknessAffliction"), CorpseSicknessDrainPerHour, "CorpseSickness");
+                Add(HasCustomAfflictionByTypeName("SepsisRiskAffliction"), 1f, "SepsisRisk");
+                Add(HasCustomAfflictionByTypeName("SepsisAffliction"), 2f, "Sepsis");
+                Add(HasCustomAfflictionByTypeName("CorpseSicknessRiskAffliction"), 0.40f, "CorpseSicknessRisk");
+                Add(HasCustomAfflictionByTypeName("CorpseSicknessAffliction"), 0.80f, "CorpseSickness");
             }
             catch
             {
@@ -366,6 +794,47 @@ namespace MajorMiseries
             biologicalSources = biologicalThreat ? string.Join(",", sources) : string.Empty;
 
             return total;
+        }
+
+        private static float GetBiologicalFeverCapC(out string feverSources)
+        {
+            feverSources = string.Empty;
+
+            float cap = 37f;
+            List<string> sources = new();
+
+            void Add(bool active, float feverCapC, string source)
+            {
+                if (!active) return;
+
+                cap = Mathf.Max(cap, feverCapC);
+                sources.Add($"{source}:{feverCapC:0.#}C");
+            }
+
+            try
+            {
+                Condition condition = GameManager.GetConditionComponent();
+
+                if (condition != null)
+                {
+                    Add(condition.HasSpecificAffliction(AfflictionType.InfectionRisk), 39f, "InfectionRisk");
+                    Add(condition.HasSpecificAffliction(AfflictionType.Infection), 41f, "Infection");
+                    Add(condition.HasSpecificAffliction(AfflictionType.IntestinalParasites), 38f, "Parasites");
+                    Add(condition.HasSpecificAffliction(AfflictionType.FoodPoisioning), 40f, "FoodPoisoning");
+                    Add(condition.HasSpecificAffliction(AfflictionType.Dysentery), 41f, "Dysentery");
+                }
+
+                Add(HasCustomAfflictionByTypeName("SepsisAffliction"), 43f, "Sepsis");
+                Add(HasCustomAfflictionByTypeName("CorpseSicknessAffliction"), 38f, "CorpseSickness");
+            }
+            catch
+            {
+                feverSources = "error";
+                return 37f;
+            }
+
+            feverSources = sources.Count > 0 ? string.Join(",", sources) : string.Empty;
+            return cap;
         }
 
         private static string BuildDrainMode(int activeDrainStats, int zeroStats, float bodyDrainPerHour, float biologicalDrainPerHour, string biologicalSources)
@@ -382,67 +851,129 @@ namespace MajorMiseries
             return "draining";
         }
 
-        private static void UpdateFeverState(float gameHoursPassed, bool biologicalThreat)
+        private static void UpdateFeverState(float gameHoursPassed)
         {
             FeverMode oldMode = s_FeverMode;
             float oldOnset = Core.State.FeverOnsetHours;
             float oldLinger = Core.State.FeverLingerHoursRemaining;
+            float oldTarget = s_FeverTargetBodyTempC;
 
-            bool canHaveEffectiveFever = biologicalThreat && Core.State.ImmunityShield >= FeverMinShield;
+            bool wasVisible = ShouldFeverAfflictionBeVisible();
 
-            if (canHaveEffectiveFever)
+            float feverCapC = GetBiologicalFeverCapC(out string feverSources);
+            bool biologicalFeverThreat = feverCapC > 37f;
+            bool canHaveFever = biologicalFeverThreat && Core.State.ImmunityShield >= 50f;
+
+            if (canHaveFever)
             {
                 Core.State.FeverLingerHoursRemaining = 0f;
+                s_LingeringFeverTargetBodyTempC = 0f;
 
-                if (ShouldFeverAfflictionBeVisible())
+                if (wasVisible && s_FeverMode != FeverMode.Building)
                 {
-                    Core.State.FeverOnsetHours = FeverOnsetRequiredHours;
-                    s_FeverMode = FeverMode.Effective;
+                    Core.State.FeverOnsetHours = 1f;
+                    s_FeverMode = GetFeverModeForTargetC(feverCapC);
+                    s_FeverTargetBodyTempC = feverCapC;
                 }
                 else
                 {
-                    Core.State.FeverOnsetHours = Mathf.Min(Core.State.FeverOnsetHours + gameHoursPassed, FeverOnsetRequiredHours);
-                    s_FeverMode = Core.State.FeverOnsetHours >= FeverOnsetRequiredHours ? FeverMode.Effective : FeverMode.Building;
+                    Core.State.FeverOnsetHours = Mathf.Min(Core.State.FeverOnsetHours + gameHoursPassed, 1f);
+
+                    if (Core.State.FeverOnsetHours >= 1f)
+                    {
+                        s_FeverMode = GetFeverModeForTargetC(feverCapC);
+                        s_FeverTargetBodyTempC = feverCapC;
+                    }
+                    else
+                    {
+                        s_FeverMode = FeverMode.Building;
+                        s_FeverTargetBodyTempC = 0f;
+                    }
                 }
             }
             else
             {
                 Core.State.FeverOnsetHours = 0f;
 
-                if (ShouldFeverAfflictionBeVisible() && Core.State.FeverLingerHoursRemaining <= 0f)
-                    Core.State.FeverLingerHoursRemaining = FeverLingerHours;
+                if (wasVisible && Core.State.FeverLingerHoursRemaining <= 0f)
+                {
+                    Core.State.FeverLingerHoursRemaining = 3f;
+                    s_LingeringFeverTargetBodyTempC = Mathf.Max(s_FeverTargetBodyTempC, 37f);
+                }
 
                 if (Core.State.FeverLingerHoursRemaining > 0f)
                 {
                     Core.State.FeverLingerHoursRemaining = Mathf.Max(0f, Core.State.FeverLingerHoursRemaining - gameHoursPassed);
-                    s_FeverMode = Core.State.FeverLingerHoursRemaining > 0f ? FeverMode.Lingering : FeverMode.None;
+
+                    if (Core.State.FeverLingerHoursRemaining > 0f)
+                    {
+                        float linger01 = Mathf.Clamp01(Core.State.FeverLingerHoursRemaining / 3f);
+                        s_FeverMode = FeverMode.Lingering;
+                        s_FeverTargetBodyTempC = Mathf.Lerp(37f, s_LingeringFeverTargetBodyTempC, linger01);
+                    }
+                    else
+                    {
+                        s_FeverMode = FeverMode.None;
+                        s_FeverTargetBodyTempC = 0f;
+                        s_LingeringFeverTargetBodyTempC = 0f;
+                    }
                 }
                 else
                 {
                     s_FeverMode = FeverMode.None;
+                    s_FeverTargetBodyTempC = 0f;
+                    s_LingeringFeverTargetBodyTempC = 0f;
                 }
             }
 
             bool stateChanged = oldMode != s_FeverMode;
             bool timerChanged = !Mathf.Approximately(oldOnset, Core.State.FeverOnsetHours) || !Mathf.Approximately(oldLinger, Core.State.FeverLingerHoursRemaining);
+            bool targetChanged = !Mathf.Approximately(oldTarget, s_FeverTargetBodyTempC);
 
-            if (stateChanged)
-            {
-                Core.Log($"Fever state -> {oldMode} => {s_FeverMode} | Shield:{Core.State.ImmunityShield:0.#}% | Threat:{biologicalThreat} | Onset:{Core.State.FeverOnsetHours:0.##}h | Linger:{Core.State.FeverLingerHoursRemaining:0.##}h");
-            }
+            LogFeverStateIfChanged(oldMode, feverSources);
 
-            if (stateChanged || timerChanged) Core.Instance?.MarkDirty();
+            if (stateChanged || timerChanged || targetChanged) Core.Instance?.MarkDirty();
+        }
+
+        private static void LogFeverStateIfChanged(FeverMode oldMode, string feverSources)
+        {
+            if (Settings.options == null || !Settings.options.IsLogging) return;
+
+            int targetBucket = Mathf.FloorToInt(s_FeverTargetBodyTempC * 2f);
+
+            bool shouldLog =
+                oldMode != s_FeverMode ||
+                s_FeverMode != s_LastLoggedFeverModeState ||
+                targetBucket != s_LastLoggedFeverTargetBucket ||
+                !string.Equals(feverSources, s_LastLoggedFeverSources, StringComparison.Ordinal);
+
+            if (!shouldLog) return;
+
+            s_LastLoggedFeverModeState = s_FeverMode;
+            s_LastLoggedFeverTargetBucket = targetBucket;
+            s_LastLoggedFeverSources = feverSources ?? string.Empty;
+
+            Core.Log($"Fever state -> {oldMode} => {s_FeverMode} | Shield:{Core.State.ImmunityShield:0.#}% | Sources:{feverSources} | Target:{s_FeverTargetBodyTempC:0.0}C | Fatigue x{GetFeverFatigueMultiplier():0.00} | Thirst x{GetFeverThirstMultiplier():0.00} | Onset:{Core.State.FeverOnsetHours:0.##}h | Linger:{Core.State.FeverLingerHoursRemaining:0.##}h");
+        }
+
+        private static FeverMode GetFeverModeForTargetC(float targetC)
+        {
+            if (targetC <= 37f) return FeverMode.None;
+            if (targetC <= 39f) return FeverMode.Moderate;
+            if (targetC <= 41f) return FeverMode.Severe;
+
+            return FeverMode.Critical;
         }
 
         private static void SyncFeverAffliction(bool shouldBeVisible)
         {
-            FeverAffliction? fever = GetAffliction<FeverAffliction>();
+            FeverAffliction? fever = AfflictionLogic.GetAffliction<FeverAffliction>();
 
             if (shouldBeVisible)
             {
                 if (fever == null)
                 {
-                    Core.Log($"Fever response visible -> Mode:{s_FeverMode} | Shield:{Core.State.ImmunityShield:0.#}%");
+                    Core.Log($"Fever response visible -> Mode:{s_FeverMode} | Target:{s_FeverTargetBodyTempC:0.0}C | Shield:{Core.State.ImmunityShield:0.#}%");
                     new FeverAffliction(AfflictionBodyArea.Head).Start();
                 }
 
@@ -466,7 +997,7 @@ namespace MajorMiseries
                 return;
             }
 
-            if (Core.State.ImmunityShield < FeverInfectionRiskRecoveryMinShield)
+            if (Core.State.ImmunityShield < 90f)
             {
                 s_FeverInfectionRiskRecoveryHours = 0f;
                 return;
@@ -481,9 +1012,9 @@ namespace MajorMiseries
 
             s_FeverInfectionRiskRecoveryHours += gameHoursPassed;
 
-            while (s_FeverInfectionRiskRecoveryHours >= FeverInfectionRiskRecoveryRollHours)
+            while (s_FeverInfectionRiskRecoveryHours >= 1f)
             {
-                s_FeverInfectionRiskRecoveryHours -= FeverInfectionRiskRecoveryRollHours;
+                s_FeverInfectionRiskRecoveryHours -= 1f;
                 RollFeverInfectionRiskRecovery(infectionRisk);
             }
         }
@@ -499,13 +1030,13 @@ namespace MajorMiseries
 
                 float roll = UnityEngine.Random.Range(0f, 100f);
 
-                if (roll > FeverInfectionRiskRecoveryChance)
+                if (roll > 10f)
                 {
-                    Core.Log($"Fever failed to contain InfectionRisk -> Index:{i} | Shield:{Core.State.ImmunityShield:0.#}% | Chance:{FeverInfectionRiskRecoveryChance:0.#}% | Roll:{roll:0.#}");
+                    Core.Log($"Fever failed to contain InfectionRisk -> Index:{i} | Mode:{s_FeverMode} | Target:{s_FeverTargetBodyTempC:0.0}C | Shield:{Core.State.ImmunityShield:0.#}% | Chance:{5f:0.#}% | Roll:{roll:0.#}");
                     continue;
                 }
 
-                Core.Log($"Fever contained InfectionRisk -> Index:{i} | Shield:{Core.State.ImmunityShield:0.#}% | Chance:{FeverInfectionRiskRecoveryChance:0.#}% | Roll:{roll:0.#}");
+                Core.Log($"Fever contained InfectionRisk -> Index:{i} | Mode:{s_FeverMode} | Target:{s_FeverTargetBodyTempC:0.0}C | Shield:{Core.State.ImmunityShield:0.#}% | Chance:{5f:0.#}% | Roll:{roll:0.#}");
                 infectionRisk.InfectionRiskEnd(i, false);
             }
         }
@@ -531,30 +1062,46 @@ namespace MajorMiseries
             return false;
         }
 
-        private static T? GetAffliction<T>() where T : class
+        private static void LogStateIfChanged(string mode, BodyStats stats, float drainPerHour, float bodyDrainPerHour, float biologicalDrainPerHour, int activeDrainStats, int zeroStats, string biologicalSources)
         {
-            AfflictionManager mgr = AfflictionManager.GetAfflictionManagerInstance();
-            if (mgr?.m_Afflictions == null) return null;
+            int shieldBucket = Mathf.FloorToInt(Core.State.ImmunityShield / 5f) * 5;
+            string modeBucket = GetShieldLogModeBucket(mode);
+            int drainBucket = Mathf.FloorToInt(drainPerHour * 4f);
+            int bodyDrainBucket = Mathf.FloorToInt(bodyDrainPerHour * 4f);
+            int biologicalDrainBucket = Mathf.FloorToInt(biologicalDrainPerHour * 4f);
+            string sources = biologicalSources ?? string.Empty;
+            string fever = s_FeverMode != FeverMode.None ? $" | Fever:{s_FeverMode} Target:{s_FeverTargetBodyTempC:0.0}C" : string.Empty;
 
-            for (int i = 0; i < mgr.m_Afflictions.Count; i++)
-            {
-                if (mgr.m_Afflictions[i] is T affliction) return affliction;
-            }
+            bool shouldLog =
+                shieldBucket != s_LastLoggedShieldBucket ||
+                modeBucket != s_LastLoggedMode ||
+                drainBucket != s_LastLoggedDrainBucket ||
+                bodyDrainBucket != s_LastLoggedBodyDrainBucket ||
+                biologicalDrainBucket != s_LastLoggedBiologicalDrainBucket ||
+                activeDrainStats != s_LastLoggedLowStatCount ||
+                zeroStats != s_LastLoggedZeroStatCount ||
+                s_FeverMode != s_LastLoggedShieldFeverMode ||
+                !string.Equals(sources, s_LastLoggedBiologicalSources, StringComparison.Ordinal);
 
-            return null;
-        }
+            if (!shouldLog) return;
 
-        private static void LogStateIfChanged(string mode, BodyStats stats, float drainPerHour, float bodyDrainPerHour, float biologicalDrainPerHour)
-        {
-            int bucket = Mathf.FloorToInt(Core.State.ImmunityShield / 10f) * 10;
-            string fever = s_FeverMode != FeverMode.None ? $" | Fever:{s_FeverMode}" : string.Empty;
-
-            if (bucket == s_LastLoggedShieldBucket && mode == s_LastLoggedMode) return;
-
-            s_LastLoggedShieldBucket = bucket;
-            s_LastLoggedMode = mode;
+            s_LastLoggedShieldBucket = shieldBucket;
+            s_LastLoggedMode = modeBucket;
+            s_LastLoggedDrainBucket = drainBucket;
+            s_LastLoggedBodyDrainBucket = bodyDrainBucket;
+            s_LastLoggedBiologicalDrainBucket = biologicalDrainBucket;
+            s_LastLoggedLowStatCount = activeDrainStats;
+            s_LastLoggedZeroStatCount = zeroStats;
+            s_LastLoggedShieldFeverMode = s_FeverMode;
+            s_LastLoggedBiologicalSources = sources;
 
             Core.Log($"ImmunityShield -> {Core.State.ImmunityShield:0.#}% | {mode} | Drain:{drainPerHour:0.###}/h | Body:{bodyDrainPerHour:0.###}/h | Bio:{biologicalDrainPerHour:0.###}/h{fever} | Cond:{stats.ConditionPercent:0}% Energy:{stats.EnergyPercent:0}% Cal:{stats.CaloriesPercent:0}% Hyd:{stats.HydrationPercent:0}% Warm:{stats.WarmthPercent:0}%");
+        }
+
+        private static string GetShieldLogModeBucket(string mode)
+        {
+            if (mode.StartsWith("draining", StringComparison.Ordinal)) return "draining";
+            return mode;
         }
 
         private static GameObject? FindChild(GameObject parent, string childName)
@@ -568,21 +1115,52 @@ namespace MajorMiseries
             return null;
         }
 
-        private static void PositionImmunitySection(GameObject caloriesSection, GameObject immunitySection)
+        private static GameObject GetOrCreateFirstAidWidget(GameObject statusBars, GameObject sourceSection, string widgetName)
         {
-            Vector3 pos = caloriesSection.transform.position;
+            GameObject? widget = FindChild(statusBars, widgetName);
+            if (widget != null) return widget;
 
-            pos.x += 0.02f;
-            pos.y += 0.98f;
+            widget = UnityEngine.Object.Instantiate(sourceSection, sourceSection.transform.parent);
+            widget.name = widgetName;
+            return widget;
+        }
 
-            immunitySection.transform.position = pos;
+        private static void RefreshFirstAidWidget(GameObject anchorSection, GameObject widget, string label, string text, float xOffset, float yOffset, bool enabled)
+        {
+            Vector3 pos = anchorSection.transform.position;
+            pos.x += xOffset;
+            pos.y += yOffset;
+            widget.transform.position = pos;
+
+            widget.SetActive(enabled);
+            if (!enabled) return;
+
+            widget.transform.GetChild(1).GetComponent<UILabel>().text = label;
+            widget.transform.GetChild(2).GetComponent<UILabel>().text = text;
+        }
+
+        private static void RefreshFirstAidWidgets(Panel_FirstAid panel)
+        {
+            GameObject statusBars = panel.gameObject.transform.GetChild(2).gameObject;
+            GameObject caloriesSection = statusBars.transform.GetChild(12).gameObject;
+
+            bool bodyHeatEnabled = IsBodyHeatEnabled();
+            bool immunityEnabled = IsEnabled();
+
+            GameObject bodyHeatSection = GetOrCreateFirstAidWidget(statusBars, caloriesSection, "Body Heat");
+            GameObject immunitySection = GetOrCreateFirstAidWidget(statusBars, caloriesSection, "Immunity Shield");
+
+            RefreshFirstAidWidget(caloriesSection, bodyHeatSection, "BODY HEAT", GetBodyHeatFirstAidText(), -0.31f, 0.98f, bodyHeatEnabled);
+            RefreshFirstAidWidget(bodyHeatSection, immunitySection, "IMMUNITY SHIELD", GetFirstAidText(), 0.33f, 0f, immunityEnabled);
         }
 
         private enum FeverMode
         {
             None,
             Building,
-            Effective,
+            Moderate,
+            Severe,
+            Critical,
             Lingering
         }
 
@@ -692,18 +1270,7 @@ namespace MajorMiseries
             [HarmonyPriority(Priority.Last)]
             private static void Postfix(Panel_FirstAid __instance)
             {
-                GameObject statusBars = __instance.gameObject.transform.GetChild(2).gameObject;
-                GameObject caloriesSection = statusBars.transform.GetChild(12).gameObject;
-
-                GameObject? immunitySection = FindChild(statusBars, ImmunityWidgetName);
-
-                if (immunitySection == null)
-                {
-                    immunitySection = UnityEngine.Object.Instantiate(caloriesSection, caloriesSection.transform.parent);
-                    immunitySection.name = ImmunityWidgetName;
-                }
-
-                PositionImmunitySection(caloriesSection, immunitySection);
+                RefreshFirstAidWidgets(__instance);
             }
         }
 
@@ -713,19 +1280,7 @@ namespace MajorMiseries
             [HarmonyPriority(Priority.Last)]
             private static void Postfix(Panel_FirstAid __instance)
             {
-                GameObject statusBars = __instance.gameObject.transform.GetChild(2).gameObject;
-                GameObject? immunitySection = FindChild(statusBars, ImmunityWidgetName);
-
-                if (immunitySection == null) return;
-
-                immunitySection.SetActive(IsEnabled());
-                if (!IsEnabled()) return;
-
-                GameObject caloriesSection = statusBars.transform.GetChild(12).gameObject;
-                PositionImmunitySection(caloriesSection, immunitySection);
-
-                immunitySection.transform.GetChild(1).GetComponent<UILabel>().text = "IMMUNITY SHIELD";
-                immunitySection.transform.GetChild(2).GetComponent<UILabel>().text = GetFirstAidText();
+                RefreshFirstAidWidgets(__instance);
             }
         }
     }

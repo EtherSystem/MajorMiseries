@@ -16,7 +16,7 @@ namespace MajorMiseries
         {
             string? result = null;
 
-            Stream? stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MajorMiseries.Resources.Localization.Localization.json");
+            Stream? stream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"MajorMiseries.Resources.Localization.{localization}");
 
             if (stream != null)
             {
@@ -33,6 +33,13 @@ namespace MajorMiseries
             if (onlyWhenDebugEnabled && !Settings.options.IsLogging) return;
 
             Instance?.LoggerInstance.Msg(message);
+        }
+
+        internal static void Warn(string message, bool onlyWhenDebugEnabled = true)
+        {
+            if (onlyWhenDebugEnabled && !Settings.options.IsLogging) return;
+
+            Instance?.LoggerInstance.Warning(message);
         }
 
         internal void MarkDirty()
@@ -57,6 +64,7 @@ namespace MajorMiseries
         public void SaveIfDirty()
         {
             if (!_dirty) return;
+
             SaveDataManager.OnSave();
             _dirty = false;
         }
@@ -91,7 +99,8 @@ namespace MajorMiseries
             string oldConfiguredHomeRegion = State.ConfiguredHomeRegion ?? string.Empty;
             string oldConfiguredRegionalDistressRegion = State.ConfiguredRegionalDistressRegion ?? string.Empty;
             float oldImmunityShield = State.ImmunityShield;
-            
+            float oldInternalBodyTemp = State.InternalBodyTemp;
+
             State.PredatorHostility = Mathf.Max(0f, State.PredatorHostility);
             State.HoursSinceLastPredatorKill = Mathf.Max(0f, State.HoursSinceLastPredatorKill);
             State.BlackLungExposure = Mathf.Clamp(State.BlackLungExposure, 0f, AfflictionLogic.GetBlackLungExposureMax());
@@ -107,6 +116,7 @@ namespace MajorMiseries
             RegionalAfflictionLogic.RestoreFromState();
             ImmunityManager.OnStateLoaded();
 
+            if (!Mathf.Approximately(oldInternalBodyTemp, State.InternalBodyTemp)) changed = true;
             if (!Mathf.Approximately(oldImmunityShield, State.ImmunityShield)) changed = true;
             if (!Mathf.Approximately(oldHostility, State.PredatorHostility)) changed = true;
             if (!Mathf.Approximately(oldSinceKill, State.HoursSinceLastPredatorKill)) changed = true;
@@ -138,6 +148,8 @@ namespace MajorMiseries
             if (GameManager.m_Instance == null || GameManager.m_IsPaused) return;
 
             string scene = GameManager.m_ActiveScene;
+
+            ImmunityManager.UpdateBodyHeatRealtime(scene);
 
             if (!RegionalAfflictionLogic.IsGameplayScene(scene)) return;
 

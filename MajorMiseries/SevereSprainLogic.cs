@@ -88,11 +88,6 @@ namespace MajorMiseries
             }
         }
 
-        internal static void ResetRuntime()
-        {
-            // Persistent values live in MMState. Nothing runtime-only for now.
-        }
-
         internal static bool OnVanillaSprainStarted(SevereSprainKind kind, AfflictionBodyArea bodyArea)
         {
             if (!Settings.options.EnableSevereSprains) return false;
@@ -153,10 +148,10 @@ namespace MajorMiseries
                     Core.Instance?.MarkDirty();
                 }
 
-                CureAllAfflictionsOfType<SevereWristSprainRiskAffliction>();
-                CureAllAfflictionsOfType<SevereAnkleSprainRiskAffliction>();
-                CureAllAfflictionsOfType<SevereWristSprainAffliction>();
-                CureAllAfflictionsOfType<SevereAnkleSprainAffliction>();
+                AfflictionLogic.CureAllAfflictionsOfType<SevereWristSprainRiskAffliction>();
+                AfflictionLogic.CureAllAfflictionsOfType<SevereAnkleSprainRiskAffliction>();
+                AfflictionLogic.CureAllAfflictionsOfType<SevereWristSprainAffliction>();
+                AfflictionLogic.CureAllAfflictionsOfType<SevereAnkleSprainAffliction>();
                 return;
             }
 
@@ -168,8 +163,8 @@ namespace MajorMiseries
                     Core.Instance?.MarkDirty();
                 }
 
-                CureAllAfflictionsOfType<SevereWristSprainRiskAffliction>();
-                CureAllAfflictionsOfType<SevereAnkleSprainRiskAffliction>();
+                AfflictionLogic.CureAllAfflictionsOfType<SevereWristSprainRiskAffliction>();
+                AfflictionLogic.CureAllAfflictionsOfType<SevereAnkleSprainRiskAffliction>();
                 return;
             }
 
@@ -190,10 +185,10 @@ namespace MajorMiseries
             if (!Settings.options.EnableSevereSprains)
             {
                 ClearAllStoredValues();
-                CureAllAfflictionsOfType<SevereWristSprainRiskAffliction>();
-                CureAllAfflictionsOfType<SevereAnkleSprainRiskAffliction>();
-                CureAllAfflictionsOfType<SevereWristSprainAffliction>();
-                CureAllAfflictionsOfType<SevereAnkleSprainAffliction>();
+                AfflictionLogic.CureAllAfflictionsOfType<SevereWristSprainRiskAffliction>();
+                AfflictionLogic.CureAllAfflictionsOfType<SevereAnkleSprainRiskAffliction>();
+                AfflictionLogic.CureAllAfflictionsOfType<SevereWristSprainAffliction>();
+                AfflictionLogic.CureAllAfflictionsOfType<SevereAnkleSprainAffliction>();
                 Core.Instance?.MarkDirty();
                 return;
             }
@@ -206,8 +201,8 @@ namespace MajorMiseries
                     Core.Instance?.MarkDirty();
                 }
 
-                CureAllAfflictionsOfType<SevereWristSprainRiskAffliction>();
-                CureAllAfflictionsOfType<SevereAnkleSprainRiskAffliction>();
+                AfflictionLogic.CureAllAfflictionsOfType<SevereWristSprainRiskAffliction>();
+                AfflictionLogic.CureAllAfflictionsOfType<SevereAnkleSprainRiskAffliction>();
                 return;
             }
 
@@ -557,20 +552,6 @@ namespace MajorMiseries
                     ankleRisk.m_Location == bodyArea)
                 {
                     ankleRisk.Cure();
-                }
-            }
-        }
-
-        private static void CureAllAfflictionsOfType<TAffliction>() where TAffliction : class
-        {
-            AfflictionManager mgr = AfflictionManager.GetAfflictionManagerInstance();
-            if (mgr?.m_Afflictions == null) return;
-
-            for (int i = mgr.m_Afflictions.Count - 1; i >= 0; i--)
-            {
-                if (mgr.m_Afflictions[i] is TAffliction afflictionObject && afflictionObject is CustomAffliction affliction)
-                {
-                    affliction.Cure();
                 }
             }
         }

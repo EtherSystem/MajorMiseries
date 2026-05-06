@@ -211,6 +211,11 @@ namespace MajorMiseries
                 }
             }));
 
+            uConsole.RegisterCommand("reset_HR_timer", new Action(() =>
+            {
+                RegionalAfflictionLogic.DevResetHomeRegionRelocationCooldown();
+            }));
+
 
             // -------------------- Batch Risk Afflictions --------------------
 
@@ -485,6 +490,59 @@ namespace MajorMiseries
                 uConsole.Log($"CorpseExposure set to {Core.State.CorpseExposure:0.##}");
 
                 Core.Log($"CorpseExposure set to {Core.State.CorpseExposure:0.##}", false);
+            }));
+
+
+            // -------------------- Immunity Shield & Body Temp State --------------------
+
+            uConsole.RegisterCommand("set_IS", new Action(() =>
+            {
+                var @params = uConsole.GetAllParameters();
+                if (@params == null || @params.Count < 1)
+                {
+                    uConsole.Log("[value 0-100]");
+                    return;
+                }
+
+                if (!float.TryParse(@params[0], out float v))
+                {
+                    uConsole.Log("value must be a number");
+                    return;
+                }
+
+                Core.State ??= new Persistence.MMState();
+
+                Core.State.ImmunityShield = Mathf.Clamp(v, 0f, 100f);
+                Core.Instance?.MarkDirty();
+
+                uConsole.Log($"ImmunityShield set to {Core.State.ImmunityShield:0.#}%");
+
+                Core.Log($"ImmunityShield set to {Core.State.ImmunityShield:0.#}%", false);
+            }));
+
+            uConsole.RegisterCommand("set_BT", new Action(() =>
+            {
+                var @params = uConsole.GetAllParameters();
+                if (@params == null || @params.Count < 1)
+                {
+                    uConsole.Log("[value 34-43]");
+                    return;
+                }
+
+                if (!float.TryParse(@params[0], out float v))
+                {
+                    uConsole.Log("value must be a number");
+                    return;
+                }
+
+                Core.State ??= new Persistence.MMState();
+
+                Core.State.InternalBodyTemp = Mathf.Clamp(v, 34f, 43f);
+                Core.Instance?.MarkDirty();
+
+                uConsole.Log($"InternalBodyTemp set to {Core.State.InternalBodyTemp:0.0}C");
+
+                Core.Log($"InternalBodyTemp set to {Core.State.InternalBodyTemp:0.0}C", false);
             }));
         }
     }

@@ -59,7 +59,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Resources\Icons\" />
+	  <Folder Include="Resources\Icons\Afflictions\Classic\" />
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="Build">

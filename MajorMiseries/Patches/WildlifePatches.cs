@@ -12,7 +12,6 @@ namespace MajorMiseries.Patches
         private sealed class PendingKill
         {
             public AiSubType SubType;
-            public DamageSource LastDamageSource;
         }
 
         public sealed class PredatorThreatController : MonoBehaviour
@@ -332,8 +331,7 @@ namespace MajorMiseries.Patches
 
             _pendingPredatorKills[key] = new PendingKill
             {
-                SubType = subType,
-                LastDamageSource = damageSource
+                SubType = subType
             };
 
             if (!alreadyTracked) Core.Log($"predator hostility track -> {GetPredatorName(subType)} marked as player-damaged ({sourceHook})");

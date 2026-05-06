@@ -13,13 +13,6 @@ namespace MajorMiseries.Afflictions
             private const string CAUSE_KEY = "GAMEPLAY_FeverCause";
             private const string DESC_KEY = "GAMEPLAY_FeverDescription";
 
-            private const float DRAIN_LOG_INTERVAL_MINUTES = 60f;
-
-            private float m_LastWholeMinute = -1f;
-            private float m_DrainLogMinutes = 0f;
-            private float m_DrainLogFatigue = 0f;
-            private float m_DrainLogThirst = 0f;
-
             public static bool IsActive { get; private set; } = false;
 
             public InstanceType Type { get; set; } = InstanceType.Single;
@@ -36,9 +29,7 @@ namespace MajorMiseries.Afflictions
             public void OnFoundExistingInstance(CustomAffliction existingAffliction)
             {
                 if (existingAffliction is FeverAffliction existing)
-                {
                     existing.ResetAffliction(resetRemedies: false);
-                }
             }
 
             public void CureSymptoms()
@@ -48,13 +39,7 @@ namespace MajorMiseries.Afflictions
 
             public void OnCure()
             {
-                FlushDrainLog();
-
                 IsActive = false;
-                m_LastWholeMinute = -1f;
-                m_DrainLogMinutes = 0f;
-                m_DrainLogFatigue = 0f;
-                m_DrainLogThirst = 0f;
             }
 
             public override void OnUpdate()
@@ -72,75 +57,6 @@ namespace MajorMiseries.Afflictions
                     Cure();
                     return;
                 }
-
-                Panel_FirstAid firstAid = InterfaceManager.GetPanel<Panel_FirstAid>();
-                if (firstAid != null && firstAid.isActiveAndEnabled)
-                    return;
-
-                ApplyTimedEffects();
-            }
-
-            private static float GetCurrentWholeMinute()
-            {
-                TimeOfDay tod = GameManager.GetTimeOfDayComponent();
-                if (tod == null) return 0f;
-
-                return Mathf.Floor(tod.GetHoursPlayedNotPaused() * 60f);
-            }
-
-            private void ApplyTimedEffects()
-            {
-                float currentMinute = GetCurrentWholeMinute();
-
-                if (m_LastWholeMinute < 0f)
-                {
-                    m_LastWholeMinute = currentMinute;
-                    return;
-                }
-
-                float minuteDelta = currentMinute - m_LastWholeMinute;
-                if (minuteDelta <= 0f) return;
-
-                m_LastWholeMinute = currentMinute;
-
-                float hoursDelta = minuteDelta / 60f;
-
-                float fatiguePerHour = ImmunityManager.GetFeverFatiguePerHour();
-                float thirstPerHour = ImmunityManager.GetFeverThirstPerHour();
-
-                float fatigueToAdd = hoursDelta * fatiguePerHour;
-                float thirstToAdd = hoursDelta * thirstPerHour;
-
-                Fatigue fatigue = GameManager.GetFatigueComponent();
-                if (fatigue != null && fatigueToAdd > 0f)
-                {
-                    fatigue.AddFatigue(fatigueToAdd);
-                    m_DrainLogFatigue += fatigueToAdd;
-                }
-
-                Thirst thirst = GameManager.GetThirstComponent();
-                if (thirst != null && thirstToAdd > 0f)
-                {
-                    thirst.AddThirst(thirstToAdd);
-                    m_DrainLogThirst += thirstToAdd;
-                }
-
-                m_DrainLogMinutes += minuteDelta;
-
-                if (m_DrainLogMinutes >= DRAIN_LOG_INTERVAL_MINUTES)
-                    FlushDrainLog();
-            }
-
-            private void FlushDrainLog()
-            {
-                if (m_DrainLogMinutes <= 0f) return;
-                if (m_DrainLogFatigue <= 0f && m_DrainLogThirst <= 0f) return;
-
-                Core.Log($"Fever drain: +{m_DrainLogFatigue:0.###} fatigue, +{m_DrainLogThirst:0.###} thirst over {m_DrainLogMinutes:0} min.");
-
-                m_DrainLogMinutes = 0f;
-                m_DrainLogFatigue = 0f;
-                m_DrainLogThirst = 0f;
             }
 
             public void RefreshLocalization()
@@ -153,6 +69,54 @@ namespace MajorMiseries.Afflictions
                 m_DescriptionNoHeal = null;
 
                 Core.Log($"Fever refresh -> '{oldName}' => '{m_Name}'");
+            }
+        }
+
+        [HarmonyPatch(typeof(Fatigue), nameof(Fatigue.CalculateFatigueIncrease))]
+        private static class FeverFatiguePatch
+        {
+            private static void Postfix(ref float __result)
+            {
+                float multiplier = ImmunityManager.GetFeverFatigueMultiplier();
+                if (multiplier <= 1f) return;
+
+                __result *= multiplier;
+            }
+        }
+
+        [HarmonyPatch(typeof(Thirst), nameof(Thirst.Update))]
+        private static class FeverThirstPatch
+        {
+            private struct ThirstPatchState
+            {
+                public bool Applied;
+                public float OriginalThirstIncreasePerDay;
+                public float OriginalThirstIncreasePerDayWhenResting;
+            }
+
+            private static void Prefix(Thirst __instance, ref ThirstPatchState __state)
+            {
+                __state = default;
+
+                if (__instance == null) return;
+
+                float multiplier = ImmunityManager.GetFeverThirstMultiplier();
+                if (multiplier <= 1f) return;
+
+                __state.Applied = true;
+                __state.OriginalThirstIncreasePerDay = __instance.m_ThirstIncreasePerDay;
+                __state.OriginalThirstIncreasePerDayWhenResting = __instance.m_ThirstIncreasePerDayWhenResting;
+
+                __instance.m_ThirstIncreasePerDay *= multiplier;
+                __instance.m_ThirstIncreasePerDayWhenResting *= multiplier;
+            }
+
+            private static void Postfix(Thirst __instance, ThirstPatchState __state)
+            {
+                if (__instance == null || !__state.Applied) return;
+
+                __instance.m_ThirstIncreasePerDay = __state.OriginalThirstIncreasePerDay;
+                __instance.m_ThirstIncreasePerDayWhenResting = __state.OriginalThirstIncreasePerDayWhenResting;
             }
         }
     }

@@ -26,23 +26,7 @@ namespace MajorMiseries.Persistence
             string json = JsonConvert.SerializeObject(Core.State);
             _manager.Save(json, SUFFIX);
 
-            Core.Log(
-                    $"Saved -> " +
-                    $"Scene:{GetCurrentSceneLogName()} | " +
-                    $"Region:{RegionalAfflictionLogic.GetRegionLogName(Core.State.CurrentLogicalRegion)} | " +
-                    $"LastKnownRegion:{RegionalAfflictionLogic.GetRegionLogName(Core.State.LastKnownLogicalRegion)} | " +
-                    $"ImmunityShield:{Core.State.ImmunityShield:0.###} | " +
-                    $"FeverOnset:{Core.State.FeverOnsetHours:0.###} | " +
-                    $"FeverLinger:{Core.State.FeverLingerHoursRemaining:0.###} | " +
-                    $"HomeAway:{Core.State.HomeSicknessHoursAway:0.###} | " +
-                    $"RegionalDistress:{Core.State.RegionalDistressHoursInRegion:0.###} | " +
-                    $"PredatorHostility:{Core.State.PredatorHostility:0.###} | " +
-                    $"HrsSinceLastPredatorKill:{Core.State.HoursSinceLastPredatorKill:0.###} | " +
-                    $"BlackLungExposure:{Core.State.BlackLungExposure:0.###} | " +
-                    $"CorpseExposure:{Core.State.CorpseExposure:0.###} | " +
-                    $"ScarredFleshHistory:{Core.State.ScarredFleshHistoryCount} | " +
-                    $"Sprains:LW={Core.State.LeftWristSprainCount},RW={Core.State.RightWristSprainCount},LA={Core.State.LeftAnkleSprainCount},RA={Core.State.RightAnkleSprainCount}");
-            
+            LogStateSnapshot("Saved");
         }
 
         internal static void OnLoad()
@@ -53,7 +37,7 @@ namespace MajorMiseries.Persistence
             {
                 Core.State = new MMState();
 
-                Core.Log("Loaded -> empty data (fresh slot)");
+                LogStateSnapshot("Loaded", "empty data / fresh slot");
 
                 return;
             }
@@ -71,22 +55,7 @@ namespace MajorMiseries.Persistence
             Core.State = loaded ?? new MMState();
             ClampAndFix();
 
-            Core.Log(
-                    $"Loaded -> " +
-                    $"Scene:{GetCurrentSceneLogName()} | " +
-                    $"Region:{RegionalAfflictionLogic.GetRegionLogName(Core.State.CurrentLogicalRegion)} | " +
-                    $"LastKnownRegion:{RegionalAfflictionLogic.GetRegionLogName(Core.State.LastKnownLogicalRegion)} | " +
-                    $"ImmunityShield:{Core.State.ImmunityShield:0.###} | " +
-                    $"FeverOnset:{Core.State.FeverOnsetHours:0.###} | " +
-                    $"FeverLinger:{Core.State.FeverLingerHoursRemaining:0.###} | " +
-                    $"HomeAway:{Core.State.HomeSicknessHoursAway:0.###} | " +
-                    $"RegionalDistress:{Core.State.RegionalDistressHoursInRegion:0.###} | " +
-                    $"PredatorHostility:{Core.State.PredatorHostility:0.###} | " +
-                    $"HrsSinceLastPredatorKill:{Core.State.HoursSinceLastPredatorKill:0.###} | " +
-                    $"BlackLungExposure:{Core.State.BlackLungExposure:0.###} | " +
-                    $"CorpseExposure:{Core.State.CorpseExposure:0.###} | " +
-                    $"ScarredFleshHistory:{Core.State.ScarredFleshHistoryCount} | " +
-                    $"Sprains:LW={Core.State.LeftWristSprainCount},RW={Core.State.RightWristSprainCount},LA={Core.State.LeftAnkleSprainCount},RA={Core.State.RightAnkleSprainCount}");
+            LogStateSnapshot(loaded == null ? "Loaded" : "Loaded", loaded == null ? "corrupted data / reset safe" : null);
         }
 
         internal static void OnNewGame()
@@ -96,6 +65,71 @@ namespace MajorMiseries.Persistence
             Core.Log("Clearing data for new game");
         }
 
+        private static void LogStateSnapshot(string title, string? note = null)
+        {
+            EnsureState();
+
+            Core.Log($"================== {title} ==================");
+
+            if (!string.IsNullOrEmpty(note))
+            {
+                Core.Log($"Data : {note}");
+            }
+
+            Core.Log(
+                $"Region : " +
+                $"Scene:{GetCurrentSceneLogName()} | " +
+                $"Current:{RegionalAfflictionLogic.GetRegionLogName(Core.State.CurrentLogicalRegion)} | " +
+                $"LastKnown:{RegionalAfflictionLogic.GetRegionLogName(Core.State.LastKnownLogicalRegion)} | " +
+                $"Home:{RegionalAfflictionLogic.GetRegionLogName(Core.State.ConfiguredHomeRegion)} | " +
+                $"Distress:{RegionalAfflictionLogic.GetRegionLogName(Core.State.ConfiguredRegionalDistressRegion)} | " +
+                $"HomeAway:{Core.State.HomeSicknessHoursAway:0.###} | " +
+                $"RegionalDistress:{Core.State.RegionalDistressHoursInRegion:0.###} | " +
+                $"HomeMoveCooldown:{Core.State.HomeRegionRelocationCooldownHoursRemaining:0.###}");
+
+            Core.Log(
+                $"Immunity : " +
+                $"Shield:{Core.State.ImmunityShield:0.###} | " +
+                $"FeverOnset:{Core.State.FeverOnsetHours:0.###} | " +
+                $"FeverLinger:{Core.State.FeverLingerHoursRemaining:0.###} | " +
+                $"InternalBodyTemp:{Core.State.InternalBodyTemp:0.###}");
+
+            Core.Log("Sprains :");
+            Core.Log(
+                $"  LeftWrist  : " +
+                $"Count:{Core.State.LeftWristSprainCount} | " +
+                $"Window:{Core.State.LeftWristSprainWindowHours:0.###} | " +
+                $"Risk:{Core.State.LeftWristSevereSprainRisk:0.###}");
+
+            Core.Log(
+                $"  RightWrist : " +
+                $"Count:{Core.State.RightWristSprainCount} | " +
+                $"Window:{Core.State.RightWristSprainWindowHours:0.###} | " +
+                $"Risk:{Core.State.RightWristSevereSprainRisk:0.###}");
+
+            Core.Log(
+                $"  LeftAnkle  : " +
+                $"Count:{Core.State.LeftAnkleSprainCount} | " +
+                $"Window:{Core.State.LeftAnkleSprainWindowHours:0.###} | " +
+                $"Risk:{Core.State.LeftAnkleSevereSprainRisk:0.###}");
+
+            Core.Log(
+                $"  RightAnkle : " +
+                $"Count:{Core.State.RightAnkleSprainCount} | " +
+                $"Window:{Core.State.RightAnkleSprainWindowHours:0.###} | " +
+                $"Risk:{Core.State.RightAnkleSevereSprainRisk:0.###}");
+
+            Core.Log(
+                $"Others : " +
+                $"PredatorHostility:{Core.State.PredatorHostility:0.###} | " +
+                $"HrsSinceLastPredatorKill:{Core.State.HoursSinceLastPredatorKill:0.###} | " +
+                $"BlackLungExposure:{Core.State.BlackLungExposure:0.###} | " +
+                $"CorpseExposure:{Core.State.CorpseExposure:0.###} | " +
+                $"ScarredFleshHistory:{Core.State.ScarredFleshHistoryCount}");
+
+            Core.Log("===========================================");
+        }
+
         private static void ClampAndFix()
         {
             EnsureState();
@@ -103,6 +137,7 @@ namespace MajorMiseries.Persistence
             Core.State.ImmunityShield = Mathf.Clamp(Core.State.ImmunityShield, 0f, 100f);
             Core.State.FeverOnsetHours = Mathf.Clamp(Core.State.FeverOnsetHours, 0f, 1f);
             Core.State.FeverLingerHoursRemaining = Mathf.Clamp(Core.State.FeverLingerHoursRemaining, 0f, 3f);
+            Core.State.InternalBodyTemp = NormalizeLoadedBodyTemperature(Core.State.InternalBodyTemp);
 
             Core.State.PredatorHostility = Mathf.Max(0f, Core.State.PredatorHostility);
             Core.State.HoursSinceLastPredatorKill = Mathf.Max(0f, Core.State.HoursSinceLastPredatorKill);
@@ -121,6 +156,13 @@ namespace MajorMiseries.Persistence
             Core.State.ConfiguredRegionalDistressRegion ??= string.Empty;
             Core.State.HomeSicknessHoursAway = Mathf.Max(0f, Core.State.HomeSicknessHoursAway);
             Core.State.RegionalDistressHoursInRegion = Mathf.Max(0f, Core.State.RegionalDistressHoursInRegion);
+        }
+
+        private static float NormalizeLoadedBodyTemperature(float value)
+        {
+            if (value >= 30f && value <= 43f) return value;
+
+            return 37f;
         }
     }
 

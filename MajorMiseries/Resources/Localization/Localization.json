@@ -628,5 +628,39 @@
         "German": "Dein Körper erhöht seine Temperatur, um eine Infektion zu bekämpfen. Das verlangsamt den Infektionsverlauf, verbraucht aber schneller Müdigkeit.",
         "Turkish": "Vücudun bir enfeksiyonla savaşmak için sıcaklığını artırıyor. Bu, enfeksiyonun ilerlemesini yavaşlatır ancak yorgunluğu daha hızlı tüketir.",
         "Russian": "Ваш организм повышает температуру, чтобы бороться с инфекцией. Это замедляет развитие инфекции, но быстрее расходует усталость."
+    },
+
+
+    "GAMEPLAY_HomeRegionMoveBlocked": {
+        "English": "Home Region cannot be moved yet. {0} remaining.",
+        "French (France)": "La région du foyer ne peut pas encore être déplacée. Il reste {0}.",
+        "Spanish (Spain)": "La región del hogar aún no puede moverse. Queda {0}.",
+        "German": "Die Heimatregion kann noch nicht verlegt werden. Noch {0} verbleibend.",
+        "Turkish": "Ev Bölgesi henüz taşınamaz. {0} kaldı.",
+        "Russian": "Домашний регион пока нельзя изменить. Осталось {0}."
+    },
+    "GAMEPLAY_HomeRegionCleared": {
+        "English": "Home Region cleared. It can be moved again in 30 days.",
+        "French (France)": "Région du foyer effacée. Elle pourra être déplacée à nouveau dans 30 jours.",
+        "Spanish (Spain)": "Región del hogar borrada. Podrá moverse de nuevo en 30 días.",
+        "German": "Heimatregion gelöscht. Sie kann in 30 Tagen erneut verlegt werden.",
+        "Turkish": "Ev Bölgesi temizlendi. 30 gün sonra tekrar taşınabilir.",
+        "Russian": "Домашний регион сброшен. Его можно будет изменить снова через 30 дней."
+    },
+    "GAMEPLAY_HomeRegionMoved": {
+        "English": "Home Region moved to {0}. It can be moved again in 30 days.",
+        "French (France)": "Région du foyer déplacée vers {0}. Elle pourra être déplacée à nouveau dans 30 jours.",
+        "Spanish (Spain)": "Región del hogar movida a {0}. Podrá moverse de nuevo en 30 días.",
+        "German": "Heimatregion nach {0} verlegt. Sie kann in 30 Tagen erneut verlegt werden.",
+        "Turkish": "Ev Bölgesi {0} bölgesine taşındı. 30 gün sonra tekrar taşınabilir.",
+        "Russian": "Домашний регион изменён на {0}. Его можно будет изменить снова через 30 дней."
+    },
+    "GAMEPLAY_HomeRegionMoveAvailable": {
+        "English": "Your Home Region can now be moved.",
+        "French (France)": "Votre région du foyer peut maintenant être déplacée.",
+        "Spanish (Spain)": "Tu región del hogar ya puede moverse.",
+        "German": "Deine Heimatregion kann jetzt verlegt werden.",
+        "Turkish": "Ev Bölgeniz artık taşınabilir.",
+        "Russian": "Теперь вы можете изменить домашний регион."
     }
 }

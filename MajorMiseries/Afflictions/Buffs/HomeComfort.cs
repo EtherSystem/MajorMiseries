@@ -20,7 +20,7 @@ namespace MajorMiseries.Afflictions.Buffs
 
             public bool Buff { get; set; } = true;
 
-            public bool BuffCold { get; set; } = false;
+            public bool BuffCold { get; set; } = true;
             public bool BuffFatigue { get; set; } = true;
             public bool BuffHunger { get; set; } = false;
             public bool BuffThirst { get; set; } = false;

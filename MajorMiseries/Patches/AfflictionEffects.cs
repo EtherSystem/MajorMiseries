@@ -24,8 +24,8 @@ namespace MajorMiseries.Patches
         private const float BLACK_LUNG_SPRINT_RECOVERY_MULT = 0.5f;
         private const float BLACK_LUNG_SPRINT_RECOVERY_DELAY_MULT = 1.5f;
 
-        private const float BLACK_LUNG_MIN_SLEEP_HOURS_BEFORE_COUGH = 3f;
-        private const float BLACK_LUNG_MAX_SLEEP_HOURS_BEFORE_COUGH = 6f;
+        private const float BLACK_LUNG_MIN_SLEEP_HOURS_BEFORE_COUGH = 2f;
+        private const float BLACK_LUNG_MAX_SLEEP_HOURS_BEFORE_COUGH = 4f;
 
         private static float _respiratoryEffectTickTimer = 0f;
 
@@ -165,6 +165,17 @@ namespace MajorMiseries.Patches
 
             cameraStatus.m_SprainTarget = Mathf.Max(cameraStatus.m_SprainTarget, 0.25f);
             cameraStatus.m_SprainVignetteColor = Color.white;
+        }
+
+        private static float GetAfflictionFatigueIncreaseMultiplier()
+        {
+            float multiplier = 1f;
+
+            if (COPoisoningAffliction.IsActive) multiplier *= COPoisoningAffliction.FATIGUE_INCREASE_MULTIPLIER;
+
+            if (CorpseSicknessAffliction.IsActive) multiplier *= CorpseSicknessAffliction.FATIGUE_INCREASE_MULTIPLIER;
+
+            return multiplier;
         }
 
         private static void UpdateRespiratoryTimedEffects(Condition condition, float gameHoursPassed)
@@ -333,6 +344,9 @@ namespace MajorMiseries.Patches
             private static void Postfix(ref float __result)
             {
                 __result *= AfflictionLogic.GetMovementSpeedMultiplier();
+
+                bool isSprinting = GameManager.GetPlayerManagerComponent()?.PlayerIsSprinting() ?? false;
+                if (isSprinting) __result = AfflictionLogic.ApplySprintSpeedPenaltyToFinalMultiplier(__result);
             }
         }
 
@@ -351,6 +365,19 @@ namespace MajorMiseries.Patches
             private static void Postfix(ref float __result)
             {
                 __result *= AfflictionLogic.GetMovementFatigueMultiplier();
+                __result *= GetAfflictionFatigueIncreaseMultiplier();
+            }
+        }
+
+        [HarmonyPatch(typeof(Weather), nameof(Weather.CalculateCurrentTemperature))]
+        internal static class HomeComfortCurrentTemperaturePatch
+        {
+            private static void Postfix(ref Weather __instance)
+            {
+                if (__instance == null) return;
+                if (!RegionalAfflictionLogic.ShouldHomeComfortBeActive()) return;
+
+                __instance.m_CurrentTemperature += 1f;
             }
         }
 
@@ -578,18 +605,6 @@ namespace MajorMiseries.Patches
 
                 new SepsisRiskAffliction(resolvedBodyArea).Start();
                 Core.Log($"Vanilla infection started on {resolvedBodyArea}, applying SepsisRisk.");
-            }
-        }
-
-        [HarmonyPatch(typeof(vp_FPSController), nameof(vp_FPSController.GetSlopeMultiplier))]
-        internal static class Vp_FPSController_GetSlopeMultiplier_Patch
-        {
-            [HarmonyPostfix]
-            private static void Postfix(ref float __result)
-            {
-                bool isSprinting = GameManager.GetPlayerManagerComponent()?.PlayerIsSprinting() ?? false;
-
-                if (isSprinting) __result = AfflictionLogic.ApplySprintSpeedPenaltyToFinalMultiplier(__result);
             }
         }
 
