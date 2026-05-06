@@ -45,13 +45,10 @@ namespace MajorMiseries.Afflictions
 
             public void OnFoundExistingInstance(CustomAffliction existingAffliction)
             {
-                // Intentionally empty:
-                // once COExposure has started, re-starting it while already active should not reset its timer.
             }
 
             public void CureSymptoms()
             {
-                // cure symptoms but not the affliction
             }
 
             public void OnCure()

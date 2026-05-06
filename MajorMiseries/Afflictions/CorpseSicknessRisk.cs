@@ -45,12 +45,10 @@ namespace MajorMiseries.Afflictions
 
             public void OnFoundExistingInstance(CustomAffliction existingAffliction)
             {
-                // Single instance only, no refresh behavior needed here.
             }
 
             public void CureSymptoms()
             {
-                // Cure symptoms but not the affliction.
             }
 
             public void OnCure()

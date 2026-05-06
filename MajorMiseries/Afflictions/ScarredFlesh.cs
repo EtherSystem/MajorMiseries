@@ -58,17 +58,14 @@ namespace MajorMiseries.Afflictions
 
             public void CureSymptoms()
             {
-                // cure symptoms but not the affliction
             }
 
             public void OnCure()
             {
-                // when the affliction is cured, apply this code
             }
 
             public override void OnUpdate()
             {
-                // yes theres no effects, its intended
             }
 
             public void RefreshLocalization()

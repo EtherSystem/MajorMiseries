@@ -54,12 +54,10 @@ namespace MajorMiseries.Afflictions
 
             public void CureSymptoms()
             {
-                // Risk affliction has no symptoms to cure.
             }
 
             public void OnCure()
             {
-                // State cleanup is handled by SevereSprainLogic.
             }
 
             public override void OnUpdate()

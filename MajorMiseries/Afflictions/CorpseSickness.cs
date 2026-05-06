@@ -69,7 +69,6 @@ namespace MajorMiseries.Afflictions
 
             public void CureSymptoms()
             {
-                // Cure symptoms but not the affliction.
             }
 
             public void OnCure()

@@ -22,6 +22,7 @@ namespace MajorMiseries.Afflictions
 
             public bool InstantHeal { get; set; } = true;
 
+            // public FeverAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
             public FeverAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, "ico_injury_diabetes", bodyArea)
             {
             }
@@ -34,7 +35,6 @@ namespace MajorMiseries.Afflictions
 
             public void CureSymptoms()
             {
-                // Fever is a visible immune response. Its lifecycle is driven by ImmunityManager.
             }
 
             public void OnCure()

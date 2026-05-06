@@ -51,12 +51,10 @@ namespace MajorMiseries.Afflictions
 
             public void CureSymptoms()
             {
-                // Cure symptoms but not the affliction
             }
 
             public void OnCure()
             {
-                // When the affliction is cured, apply this code
             }
 
             public float GetRiskValue() => DebugForced ? DebugRiskValue : m_RiskValue;

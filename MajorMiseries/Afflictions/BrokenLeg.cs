@@ -84,7 +84,6 @@ namespace MajorMiseries.Afflictions
 
             public void CureSymptoms()
             {
-                // cure symptoms but not the affliction
             }
 
             public void OnCure()
@@ -94,7 +93,6 @@ namespace MajorMiseries.Afflictions
 
             public override void OnUpdate()
             {
-                // yes theres no effects, its intended
             }
 
             public void RefreshLocalization()

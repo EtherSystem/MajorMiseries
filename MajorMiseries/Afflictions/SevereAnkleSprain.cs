@@ -63,7 +63,6 @@ namespace MajorMiseries.Afflictions
 
             public void CureSymptoms()
             {
-                // Treatment stabilizes the injury but does not remove it.
             }
 
             public void OnCure()

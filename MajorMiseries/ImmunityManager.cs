@@ -347,7 +347,7 @@ namespace MajorMiseries
 
             if (feverTargetC > 37f) heatGainPerHour += 4f * Mathf.Clamp01(Mathf.InverseLerp(37f, 43f, feverTargetC));
 
-            float coolingPerHour = GetBodyHeatCoolingPerHour(totalFeelsLikeC);
+            float coolingPerHour = GetBodyHeatCoolingPerHour(totalFeelsLikeC, warmth01);
             float changePerHour = targetC > Core.State.InternalBodyTemp ? heatGainPerHour : coolingPerHour;
 
             if (changePerHour > 0f)
@@ -435,14 +435,27 @@ namespace MajorMiseries
             return Mathf.Clamp(Mathf.Lerp(rawFeverTargetC, coldTargetC, suppression01), coldTargetC, rawFeverTargetC);
         }
 
-        private static float GetBodyHeatCoolingPerHour(float totalFeelsLikeC)
+        private static float GetBodyHeatCoolingPerHour(float totalFeelsLikeC, float warmth01)
         {
             float baseCooling = Settings.options.CoolingLoss * 0.05f;
 
-            if (totalFeelsLikeC >= 10f) return baseCooling;
+            float ambientMultiplier = 1f;
 
-            float coldPressure01 = Mathf.Clamp01(Mathf.InverseLerp(10f, -30f, totalFeelsLikeC));
-            return baseCooling * Mathf.Lerp(1f, 4f, coldPressure01);
+            if (totalFeelsLikeC < 10f)
+            {
+                float coldPressure01 = Mathf.Clamp01(Mathf.InverseLerp(10f, -30f, totalFeelsLikeC));
+                ambientMultiplier = Mathf.Lerp(1f, 4f, coldPressure01);
+            }
+
+            float severeColdMultiplier = 1f;
+
+            if (warmth01 < 0.25f)
+            {
+                float severeCold01 = Mathf.Clamp01(Mathf.InverseLerp(0.25f, 0f, warmth01));
+                severeColdMultiplier = Mathf.Lerp(1f, 4f, severeCold01);
+            }
+
+            return baseCooling * ambientMultiplier * severeColdMultiplier;
         }
 
         private static float GetNearbyFireHeatC()
@@ -750,9 +763,6 @@ namespace MajorMiseries
 
         private static float GetBiologicalThreatDrainPerHour(out bool biologicalThreat, out string biologicalSources)
         {
-            biologicalThreat = false;
-            biologicalSources = string.Empty;
-
             float total = 0f;
             List<string> sources = new();
 
@@ -798,8 +808,6 @@ namespace MajorMiseries
 
         private static float GetBiologicalFeverCapC(out string feverSources)
         {
-            feverSources = string.Empty;
-
             float cap = 37f;
             List<string> sources = new();
 

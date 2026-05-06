@@ -2,7 +2,6 @@
 using AfflictionComponent.Enums;
 using AfflictionComponent.Interfaces;
 using MajorMiseries.Resources.Localization;
-using static MajorMiseries.Afflictions.HomeSickness;
 
 namespace MajorMiseries.Afflictions
 {
