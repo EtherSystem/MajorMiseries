@@ -24,6 +24,8 @@ Instead of only punishing one bad moment, many systems track what the survivor h
 - Spending too long in coal mines can slowly build Black Lung exposure.
 - Living near unsafe indoor fires can create Carbon Monoxide danger.
 - Repeated sprains on the same joint can escalate into severe injuries.
+- Neglecting fatigue, hunger, thirst, warmth, or condition can weaken the Immunity Shield.
+- Internal body temperature can drift into fever, sweating, overheating, or severe cold pressure.
 - Killing predators can make the world more hostile.
 - Remaining away from home, or trapped in a hated region, can wear the survivor down.
 - Repeated catastrophic wounds can permanently scar the body.
@@ -41,6 +43,9 @@ Major Miseries currently includes:
 - Predator Blood Loss conversion
 - Scarred Flesh
 - Sepsis
+- Immunity Shield
+- Body Temperature
+- Fever Response
 - Black Lung
 - Carbon Monoxide Exposure and Poisoning
 - Corpse Sickness
@@ -195,14 +200,14 @@ Predator Hostility contributes to Dynamic Predator Threat as follows:
 
 | Current Predator Hostility | Dynamic Predator Threat |
 |---:|---:|
-| 0 to less than 2 | 0 |
-| 2 to less than 4 | 1 |
-| 4 to less than 6 | 2 |
-| 6 to less than 8 | 3 |
-| 8 to less than 10 | 4 |
-| 10 to less than 15 | 5 |
-| 15 to less than 20 | 6 |
-| 20 to less than 30 | 7 |
+| 0 to less than 3 | 0 |
+| 3 to less than 6 | 1 |
+| 6 to less than 9 | 2 |
+| 9 to less than 12 | 3 |
+| 12 to less than 16 | 4 |
+| 16 to less than 20 | 5 |
+| 20 to less than 25 | 6 |
+| 25 to less than 30 | 7 |
 | 30 or more | 8 |
 
 Total Predator Threat is:
@@ -350,8 +355,6 @@ Broken Leg is designed to make bad movement decisions matter. A survivor with a 
 
 Major Miseries can convert predator-caused Blood Loss into vanilla Severe Lacerations.
 
-This conversion only checks predator-like causes such as wolf, bear, cougar, or predator attack causes.
-
 This can be configured to:
 
 | Setting | Behavior |
@@ -360,7 +363,7 @@ This can be configured to:
 | Always | Predator Blood Loss can become Severe Lacerations at any time. |
 | Disabled | This conversion is disabled. |
 
-Keep in mind that if you're playing with the "Only With Requiem" preset, your maximum condition will already be reduced by 50%, and Severe Lacerations also reduces your maximum condition by 50%, resulting in instant death. This is intentional.
+Keep in mind that if you're playing with the "Only With Requiem" preset, your maximum condition will already be reduced by 50%, and Severe Lacerations also reduces your maximum condition by 50%, resulting in instant death. This is intentional and the only way to survive that is with the well fed buff.
 
 ## Scarred Flesh
 
@@ -386,8 +389,9 @@ Default behavior:
 | Effect | Value |
 |---|---:|
 | Trigger | Vanilla Infection starts |
-| Risk gain while matching infection remains untreated | +25 risk per hour |
-| Time from 0 to 100 risk | 4 hours |
+| Base risk gain while matching infection remains untreated | +25 risk per hour before Immunity Shield modifiers |
+| Time from 0 to 100 risk at normal immunity | 4 hours |
+| Immunity Shield interaction | Strong shield slows Sepsis Risk, weak shield accelerates it |
 | Antibiotics taken for the matching vanilla infection | Cures Sepsis Risk |
 | If the matching vanilla infection disappears | Cures Sepsis Risk |
 
@@ -406,9 +410,170 @@ Default effects:
 | Antibiotics required for treatment display | 4 antibiotics total |
 | Treatment structure | 2 doses of 2 antibiotics |
 | Treatment suppression duration | 120 hours / 5 days |
-| Willpower-style condition recovery | Disabled while Sepsis is active |
+| Natural condition recovery | Disabled while Sepsis is active |
 
 Antibiotics can suppress the worst symptoms, but the affliction still has to be managed carefully over time.
+
+## Immunity Shield
+
+The Immunity Shield is a hidden long-term resistance system displayed in the First Aid panel when enabled.
+
+It represents how much biological resilience the survivor still has left.
+
+The shield ranges from 0% to 100%.
+
+### What drains the Immunity Shield
+
+The shield drains when the survivor is in poor physical condition or under biological pressure.
+
+Default body pressure behavior:
+
+| Source | Shield behavior |
+|---|---|
+| Energy below 25% | Drains the shield |
+| Calories below 25% | Drains the shield |
+| Hydration below 25% | Drains the shield |
+| Warmth below 25% | Drains the shield |
+| Any of these stats at 0% | Makes shield drain harsher |
+
+The lower the stat is below 25%, the stronger the drain becomes. A stat barely under 25% is mild. A stat near 0% is much worse.
+
+Biological threats also drain the shield:
+
+| Active affliction | Base shield drain |
+|---|---|
+| Infection Risk | -0.25 / hour |
+| Infection | -0.75 / hour |
+| Intestinal Parasites Risk | -0.20 / hour |
+| Intestinal Parasites | -0.50 / hour |
+| Food Poisoning | -0.50 / hour |
+| Dysentery | -0.75 / hour |
+| Sepsis Risk | -1.00 / hour |
+| Sepsis | -2.00 / hour |
+| Corpse Sickness Risk | -0.40 / hour |
+| Corpse Sickness | -0.80 / hour |
+
+If multiple biological threats are present, the system only considers the highest threat.  
+
+If the survivor is both physically depleted and biologically threatened, the shield drains faster.
+
+### What restores the Immunity Shield
+
+The shield can recover only when the survivor is stable.
+
+Default recovery requirements:
+
+| Requirement | Value |
+|---|---:|
+| No active biological threat | Required |
+| Energy | Above 25% |
+| Calories | Above 25% |
+| Hydration | Above 25% |
+| Warmth | Above 25% |
+| Condition, default setting | Above 50% |
+| Condition, relaxed setting | Above 20% |
+
+Default recovery speed:
+
+| State | Base shield recovery |
+|---|---:|
+| Awake | +0.10 shield per hour |
+| Sleeping | +1.00 shield per hour |
+
+High energy, calories, hydration, warmth, and condition slightly improve recovery. Home Comfort also slightly improves Immunity Shield recovery.
+
+### What the Immunity Shield changes
+
+The Immunity Shield affects infection-style risks.
+
+| Shield state | Risk behavior |
+|---|---|
+| 100% shield | Infection-style risks progress much slower |
+| 50% shield | Vanilla risk speed |
+| 0% shield | Infection-style risks can progress up to 4x faster |
+
+This affects vanilla Infection Risk, vanilla Intestinal Parasites Risk, and Sepsis Risk.
+
+It does not replace medicine. A strong shield helps the survivor resist problems, but a bad situation can still get worse.
+
+## Body Temperature and Fever
+
+Major Miseries adds an internal body temperature system displayed in the First Aid panel when enabled.
+
+This is separate from the vanilla freezing meter. The freezing meter still matters, but Body Temperature tracks the survivor's internal heat directly.
+
+Default normal body temperature is around 37°C.
+
+### Body Temperature
+
+Body Temperature is affected by cold exposure, warm ambient conditions, nearby fires, movement, fever, and severe overheating.
+
+Default warming and cooling settings:
+
+| Source | Default value |
+|---|---:|
+| Environmental warming | Up to +2.5°C per hour in warm conditions |
+| Walking warming | +0.25°C per hour |
+| Encumbered warming | +1.25°C per hour |
+| Sprinting warming | +5°C per hour |
+| Climbing warming | +10°C per hour |
+| Cold exposure cooling | Base -0.5°C per hour before severe cold multipliers |
+| Nearby fire warmth | Can warm body temperature directly |
+
+Movement heat only helps while the survivor is not already deeply freezing, and sprinting or climbing will not keep pushing body temperature forever.
+
+Cold ambient conditions increase cooling. If the warmth meter is very low, cooling becomes much stronger.
+
+### Sweating, hydration, and overheating
+
+When internal body temperature rises above normal (precisely above 37.2°C), you will begin sweating.
+
+Sweating slowly adds wetness to worn clothing. The hotter the survivor gets, the stronger the sweating becomes.
+
+High internal body temperature also increases hydration consumption. This is not specific to Fever. Any source of body heat can increase hydration pressure if the survivor gets hot enough.
+
+| Body temperature | Hydration consumption |
+|---|---:|
+| 38°C or higher | 1.0x |
+| 39°C or higher | 1.5x |
+| 40°C or higher | 2.0x |
+| 41°C or higher | 2.5x |
+| 42°C or higher | 3.0x |
+| 43°C | 4.0x |
+
+Severe overheating also has direct effects:
+
+| Body temperature | Effect |
+|---|---|
+| Above 40°C | Heat headache camera pulses can begin |
+| Above 42°C | Movement staggering can begin |
+| 43°C | Maximum internal body temperature |
+
+### Fever Response
+
+Fever is part of the Immunity Shield system.
+
+When the survivor has at least 50% Immunity Shield and is fighting a biological threat that can cause fever, fever can appear after about one in-game hour. Fever raises body temperature and increases fatigue pressure. Hydration pressure comes from the survivor's actual internal body temperature, not directly from Fever itself.
+
+Fever severity is based on the fever target temperature caused by the current biological threat. If multiple fever sources are active at the same time, the strongest fever target is used.
+
+| Fever source | Fever target | Fever state | Fatigue pressure |
+|---|---:|---|---:|
+| Intestinal Parasites | 38°C | Moderate Fever | 2.0x |
+| Corpse Sickness | 38°C | Moderate Fever | 2.0x |
+| Infection Risk | 39°C | Moderate Fever | 2.0x |
+| Food Poisoning | 40°C | Severe Fever | 2.5x |
+| Infection | 41°C | Severe Fever | 2.5x |
+| Dysentery | 41°C | Severe Fever | 2.5x |
+| Sepsis | 43°C | Critical Fever | 3.0x |
+
+In practical terms, Moderate Fever means the body is responding to an early or lighter biological problem, Severe Fever means the survivor is fighting a serious active illness, and Critical Fever is reserved for Sepsis-level danger.
+
+Lingering Fever can remain for up to 3 in-game hours after the active fever source stops being valid. During this fading period, fatigue pressure is 1.25x.
+
+Active fever slightly helps resist infection-style risk progression. With a very strong Immunity Shield, fever can sometimes contain vanilla Infection Risk.
+
+Cold can suppress fever temperature. In other words, fever does not make the survivor immune to freezing.
 
 ## Black Lung
 
@@ -451,7 +616,7 @@ Default risk behavior:
 
 If Black Lung Risk reaches 100, it becomes Black Lung.
 
-Black Lung exposure and Black Lung Risk can be avoided by wearing a respirator.
+Black Lung exposure and Black Lung Risk can be avoided by wearing a respirator with active protection. Blocking coal exposure consumes canister condition slowly.
 
 ### Black Lung
 
@@ -472,7 +637,7 @@ Other effects:
 | Delay before sprint stamina recovery | 1.5x |
 | Sleep recovery against Black Lung duration | Each hour slept removes 10 hours from remaining duration |
 | Coal-scene worsening while Black Lung is active | Each hour in coal exposure adds 10 hours to remaining duration |
-| Sleep cough interval | Randomly every 3 to 6 hours of sleep |
+| Sleep cough interval | Randomly every 2 to 4 hours of sleep |
 
 BlackLung is a severe affliction, but in a more vicious way than others, it is not violent through a strong condition drain or any effect of that style, but is severe because it continually disrupts the sleep cycle.
 
@@ -490,13 +655,13 @@ It is not meant to make every indoor fire dangerous. It is meant to punish carel
 
 Carbon Monoxide danger can begin in indoor scenes when an unsafe fire has been burning for long enough.
 
-Once a qualifying unsafe fire has burned for more than two in-game hours, Major Miseries begins checking for Carbon Monoxide danger every 10 in-game minutes. Rolling a chance of 10% each time. If the roll succeed, the indoor scene will be considered as contaminated as long as the fire is burning + 2 hours.
+Once a qualifying unsafe fire has burned for more than two in-game hours, Major Miseries begins checking for Carbon Monoxide danger every 10 in-game minutes. Each eligible unsafe fire adds 10% roll chance, capped at 100%. If the roll succeeds, the indoor scene will be considered contaminated as long as the fire is burning + 2 hours.
 
 If exposure starts, the player has 30 in-game minutes before it becomes Carbon Monoxide Poisoning.
 
 Leaving the contaminated indoor scene stops the active exposure before it becomes poisoning.
 
-Carbon Monoxide Exposure can be avoided by wearing a respirator.
+Carbon Monoxide Exposure can be avoided by wearing a respirator with active protection. Blocking Carbon Monoxide consumes canister condition faster than Black Lung protection.
 
 Safe stoves and proper chimney-style fireplaces are designed to avoid false positives as much as possible (it is entirely possible that there are exceptions not taken into account, any feedback is appreciated !).
 
@@ -510,7 +675,7 @@ Default effects:
 |---|---:|
 | Duration | Random 6 to 24 hours |
 | Condition loss | -5 condition per hour |
-| Fatigue increase | +6 fatigue per hour |
+| Fatigue increase | 3.0x fatigue increase |
 | Sprint stamina usage | 2.0x |
 | Sprint stamina recovery | -70% |
 | Delay before sprint stamina recovery | 2.0x |
@@ -591,7 +756,7 @@ Default effects:
 |---|---:|
 | Duration | Random 48 to 96 hours |
 | Condition loss | -1.5 condition per hour |
-| Fatigue increase | +4 fatigue per hour |
+| Fatigue increase | 2.0x fatigue increase |
 | Willpower condition recovery | Disabled while Corpse Sickness is active |
 | Corpse Exposure after cure | Reset to 0 |
 
@@ -615,7 +780,7 @@ This means repeated injuries to the same joint matter more than random isolated 
 
 ### Severe Sprain Risk
 
-A Severe Sprain Risk appears when the player suffers too many sprains on the same joint within the preset tracking window.
+With most presets, a Severe Sprain Risk appears when the player suffers too many sprains on the same joint within the preset tracking window.
 
 The risk does not immediately become a severe sprain. Instead, it means the joint is now vulnerable. Another sprain on that same joint while the risk is active can become a severe injury.
 
@@ -629,6 +794,9 @@ Default preset values:
 | Standard | 2 | 72 hours / 3 days | 24 hours | 72 hours |
 | Harsh | 2 | 96 hours / 4 days | 36 hours | 96 hours |
 | Brutal | 1 | 120 hours / 5 days | 48 hours | 120 hours |
+| Who Wants to Play Like This? | Every sprain converts directly | - - - - - - - - - - - - | - - - - - - - - - | 240 hours |
+
+The "Who Wants to Play Like This?" preset skips the risk step entirely. Any vanilla sprain becomes a Severe Sprain directly.
 
 ### Severe Wrist Sprain
 
@@ -671,8 +839,9 @@ Default effects:
 
 Major Miseries adds region-based comfort and discomfort systems.
 
-These systems are built around the idea that a survivor can become attached to one region, or feel deeply uncomfortable in another.  
-*(like... Forlorn Muskeg, for example. Just an example... No hard feelings towards that particular region, it could have been... I don't know... another region or something... well, it happened to be this one, bad luck I'd say... hrm, whatever)*.
+These systems are built around the idea that a survivor can become attached to one region, or feel deeply uncomfortable in another.   
+
+*(Like... Forlorn Muskeg, for example. Just an example... I have nothing against that particular region, it could have been... I don't know... another region or something... well, it just so happens that's the one I thought of, bad luck I'd say... Don't get me wrong, I have absolutely nothing against flat and boring regions, I know a particularly flat and boring one myself and I sometimes go there... Of course, comparatively speaking, Mystery Lake is clearly a more interesting region, but hey, who am I to compare the value of one region to another ? You know, I don't believe there are good or bad regions. If I had to summarize my experience on TLD today with you, I'd say it's primarily about encounters. People who reached out to me, perhaps at a time when I couldn't, when I was alone at home. And it's quite curious to think that chances, encounters shape a destiny... Because when you have a taste for ... things, when you have a taste for a job well done, for a beautiful thing, sometimes you don't find the right person to talk to, the mirror that helps you move forward... Well, that's not my case, as I was saying, because on the contrary, I was able to; and I thank life, I thank it, I sing of life, I dance for life... I am nothing but love ! And finally, when people ask me, "But how do you manage to have such humanity ?", I answer them very simply that it's this taste for love, this taste that has driven me today to undertake the development of MajorMiseries... But who knows what tomorrow will bring ? Perhaps simply to put myself at the service of the community, to make the gift... um... the gift of myself... hmm, anyway)*.
 
 ### Home Comfort
 
@@ -684,13 +853,15 @@ Default effects:
 |---|---:|
 | Movement fatigue multiplier | 0.95x |
 | Sleep recovery multiplier | 1.05x |
+| Feels-like temperature | +1°C |
+| Immunity Shield recovery | 1.05x, if Immunity Shield is enabled |
 
-This means the survivor uses about 5% less movement fatigue and recovers about 5% more fatigue from sleep while in their home region.
-
-This is intentionally not a powerful buff, because this system can be very easily abused. Please dont do it.
+This means the survivor uses about 5% less movement fatigue, recovers about 5% more fatigue from sleep, feels slightly warmer, and recovers Immunity Shield a little faster while in their home region.
 
 It is meant to make a chosen home region feel slightly more familiar and easier to endure.  
 *(Like... Mystery Lake, for example. Again its just an example... hrm anyway)*.
+
+Changing the configured Home Region starts a 30-day relocation cooldown before it can be changed again.
 
 ### Home Sickness
 
@@ -749,12 +920,16 @@ Major Miseries touches several important gameplay systems.
 There may be overlap and strange behavior with other mods that modify:
 
 - Status bar behavior or visuals.
-- Hunger, thirst, fatigue, or freezing meters.
+- First Aid panel visuals.
+- Hunger, thirst, fatigue, freezing, or body temperature behavior.
+- Clothing wetness or overheating behavior.
 - Rope climbing.
-- Vanilla infection.
+- Vanilla infection and infection risk.
+- Vanilla intestinal parasites risk.
 - Vanilla sprains.
 - Severe Lacerations.
 - Blood Loss.
+- Respirator or canister behavior.
 - Wildlife AI behavior.
 - Fire behavior.
 
@@ -905,6 +1080,9 @@ Applies Home Comfort.
 **homecomfort_cure**  
 Cures Home Comfort.
 
+**reset_HR_timer**  
+Resets the Home Region relocation cooldown.
+
 ---
 
 ### Predator Hostility Commands
@@ -914,6 +1092,16 @@ Resets Predator Hostility and predator kill decay timer.
 
 **set_PH [value]**  
 Sets Predator Hostility to the provided value.
+
+---
+
+### Immunity Shield and Body Temperature Commands
+
+**set_IS [value]**  
+Sets Immunity Shield to the provided value, clamped from 0 to 100.
+
+**set_BT [value]**  
+Sets internal Body Temperature to the provided value, clamped from 34°C to 43°C.
 
 ---
 
