@@ -85,7 +85,7 @@ namespace MajorMiseries.Afflictions
         }
 
         [HarmonyPatch(typeof(Thirst), nameof(Thirst.Update))]
-        private static class FeverThirstPatch
+        private static class BodyHeatHydrationPatch
         {
             private struct ThirstPatchState
             {
@@ -100,7 +100,7 @@ namespace MajorMiseries.Afflictions
 
                 if (__instance == null) return;
 
-                float multiplier = ImmunityManager.GetFeverThirstMultiplier();
+                float multiplier = ImmunityManager.GetBodyHeatHydrationMultiplier();
                 if (multiplier <= 1f) return;
 
                 __state.Applied = true;

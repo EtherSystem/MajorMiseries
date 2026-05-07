@@ -174,12 +174,18 @@ namespace MajorMiseries
             return 1f;
         }
 
-        internal static float GetFeverThirstMultiplier()
+        internal static float GetBodyHeatHydrationMultiplier()
         {
-            if (s_FeverMode == FeverMode.Moderate) return 2f;
-            if (s_FeverMode == FeverMode.Severe) return 2.5f;
-            if (s_FeverMode == FeverMode.Critical) return 3f;
-            if (s_FeverMode == FeverMode.Lingering) return 1.25f;
+            if (!IsBodyHeatEnabled()) return 1f;
+
+            float bodyTemp = Core.State.InternalBodyTemp;
+
+            if (bodyTemp >= 43f) return 4f;
+            if (bodyTemp >= 42f) return 3f;
+            if (bodyTemp >= 41f) return 2.5f;
+            if (bodyTemp >= 40f) return 2f;
+            if (bodyTemp >= 39f) return 1.5f;
+            if (bodyTemp >= 38f) return 1f;
 
             return 1f;
         }
@@ -334,15 +340,15 @@ namespace MajorMiseries
 
             float heatGainPerHour = 0f;
 
-            if (passive01 > 0f) heatGainPerHour += Settings.options.PassiveHeatGain * passive01 * 0.05f;
+            if (passive01 > 0f) heatGainPerHour += Settings.options.PassiveHeatGain * passive01;
             if (fire01 > 0f) heatGainPerHour += 8f * fire01;
 
             if (effortHeatAllowed && Core.State.InternalBodyTemp < 39f)
             {
-                if (walking) heatGainPerHour += Settings.options.WalkHeatGain * 0.05f;
-                if (encumbered) heatGainPerHour += Settings.options.EncumberedHeatGain * 0.05f;
-                if (sprinting) heatGainPerHour += Settings.options.SprintHeatGain * 0.05f;
-                if (climbing) heatGainPerHour += Settings.options.ClimbHeatGain * 0.05f;
+                if (walking) heatGainPerHour += Settings.options.WalkHeatGain;
+                if (encumbered) heatGainPerHour += Settings.options.EncumberedHeatGain;
+                if (sprinting) heatGainPerHour += Settings.options.SprintHeatGain;
+                if (climbing) heatGainPerHour += Settings.options.ClimbHeatGain;
             }
 
             if (feverTargetC > 37f) heatGainPerHour += 4f * Mathf.Clamp01(Mathf.InverseLerp(37f, 43f, feverTargetC));
@@ -437,7 +443,7 @@ namespace MajorMiseries
 
         private static float GetBodyHeatCoolingPerHour(float totalFeelsLikeC, float warmth01)
         {
-            float baseCooling = Settings.options.CoolingLoss * 0.05f;
+            float baseCooling = Settings.options.CoolingLoss;
 
             float ambientMultiplier = 1f;
 
@@ -961,7 +967,7 @@ namespace MajorMiseries
             s_LastLoggedFeverTargetBucket = targetBucket;
             s_LastLoggedFeverSources = feverSources ?? string.Empty;
 
-            Core.Log($"Fever state -> {oldMode} => {s_FeverMode} | Shield:{Core.State.ImmunityShield:0.#}% | Sources:{feverSources} | Target:{s_FeverTargetBodyTempC:0.0}C | Fatigue x{GetFeverFatigueMultiplier():0.00} | Thirst x{GetFeverThirstMultiplier():0.00} | Onset:{Core.State.FeverOnsetHours:0.##}h | Linger:{Core.State.FeverLingerHoursRemaining:0.##}h");
+            Core.Log($"Fever state -> {oldMode} => {s_FeverMode} | Shield:{Core.State.ImmunityShield:0.#}% | Sources:{feverSources} | Target:{s_FeverTargetBodyTempC:0.0}C | Fatigue x{GetFeverFatigueMultiplier():0.00} | Onset:{Core.State.FeverOnsetHours:0.##}h | Linger:{Core.State.FeverLingerHoursRemaining:0.##}h");
         }
 
         private static FeverMode GetFeverModeForTargetC(float targetC)

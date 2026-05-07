@@ -228,41 +228,41 @@
         public bool MaxConditionPenaltiesBlockImmunityRegen = true;
 
 
-        [Section("Body Temperature Gain")]
+        [Section("Body Temperature")]
 
-        [Name("Enable Body Heat")]
-        [Description("Enable or disable the Body Heat system.")]
+        [Name("Enable Body Temperature")]
+        [Description("Enable or disable the internal body temperature system.")]
         public bool EnableBodyHeat = true;
 
-        [Name("Environment Heat Gain")]
-        [Description("Default: 50 - Maximum body heat gain from high environmental temperature.")]
-        [Slider(0f, 500f, 501, NumberFormat = "{0}/h")]
-        public int PassiveHeatGain = 50;
+        [Name("Environmental Warming Rate")]
+        [Description("Default: 2.5°C/h - Maximum internal body temperature recovery from warm ambient conditions. Scales from 0% at 10°C feels-like to 100% at 30°C feels-like.")]
+        [Slider(0f, 10f, 101, NumberFormat = "{0:0.00}°C/h")]
+        public float PassiveHeatGain = 2.5f;
 
-        [Name("Walking Heat Gain")]
-        [Description("Default: 5 - Body heat gain while walking.")]
-        [Slider(0f, 50f, 51, NumberFormat = "{0}/h")]
-        public int WalkHeatGain = 5;
+        [Name("Walking Warming Rate")]
+        [Description("Default: 0.25°C/h - Internal body temperature gain while walking. Only applies while the cold meter is above 25%.")]
+        [Slider(0f, 2f, 81, NumberFormat = "{0:0.00}°C/h")]
+        public float WalkHeatGain = 0.25f;
 
-        [Name("Encumbered Heat Gain")]
-        [Description("Default: 25 - Extra body heat gain while encumbered.")]
-        [Slider(0f, 50f, 51, NumberFormat = "{0}/h")]
-        public int EncumberedHeatGain = 25;
+        [Name("Encumbered Warming Rate")]
+        [Description("Default: 1.25°C/h - Extra internal body temperature gain while encumbered. Only applies while the cold meter is above 25%.")]
+        [Slider(0f, 5f, 101, NumberFormat = "{0:0.00}°C/h")]
+        public float EncumberedHeatGain = 1.25f;
 
-        [Name("Sprinting Heat Gain")]
-        [Description("Default: 100 - Body heat gain while sprinting.")]
-        [Slider(0f, 200f, 201, NumberFormat = "{0}/h")]
-        public int SprintHeatGain = 100;
+        [Name("Sprinting Warming Rate")]
+        [Description("Default: 5.00°C/h - Internal body temperature gain while sprinting. Only applies while the cold meter is above 25% and body temperature is below 39°C.")]
+        [Slider(0f, 15f, 151, NumberFormat = "{0:0.00}°C/h")]
+        public float SprintHeatGain = 5f;
 
-        [Name("Climbing Heat Gain")]
-        [Description("Default: 200 - Body heat gain while climbing.")]
-        [Slider(0f, 500f, 501, NumberFormat = "{0}/h")]
-        public int ClimbHeatGain = 200;
+        [Name("Climbing Warming Rate")]
+        [Description("Default: 10.00°C/h - Internal body temperature gain while climbing. Only applies while the cold meter is above 25% and body temperature is below 39°C.")]
+        [Slider(0f, 20f, 201, NumberFormat = "{0:0.00}°C/h")]
+        public float ClimbHeatGain = 10f;
 
-        [Name("Cooling Loss")]
-        [Description("Default: 10 - Body heat loss while idle in cool conditions.")]
-        [Slider(0f, 100f, 101, NumberFormat = "{0}/h")]
-        public int CoolingLoss = 10;
+        [Name("Cold Exposure Cooling Rate")]
+        [Description("Default: 0.50°C/h - Base internal body temperature loss in cold conditions. This is multiplied by severe ambient cold and becomes much stronger when the cold meter drops below 25%.")]
+        [Slider(0f, 3f, 121, NumberFormat = "{0:0.00}°C/h")]
+        public float CoolingLoss = 0.5f;
 
 
         [Section("Advanced")]
