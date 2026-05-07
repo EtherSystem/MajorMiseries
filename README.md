@@ -36,24 +36,24 @@ Major Miseries aims to make each game more demanding and complex, so this mod is
 
 Major Miseries currently includes:
 
-- Requiem Stages
-- Predator Hostility
-- Broken Arms
-- Broken Legs
-- Predator Blood Loss conversion
-- Scarred Flesh
-- Sepsis
-- Immunity Shield
-- Body Temperature
-- Fever Response
-- Black Lung
-- Carbon Monoxide Exposure and Poisoning
-- Corpse Sickness
-- Severe Wrist Sprains
-- Severe Ankle Sprains
-- Home Comfort
-- Home Sickness
-- Regional Distress
+- [Requiem Stages](#requiem-stages)
+- [Predator Hostility](#predator-hostility)
+- [Broken Arms](#broken-arm)
+- [Broken Legs](#broken-leg)
+- [Predator Blood Loss conversion](#predator-blood-loss-to-severe-lacerations)
+- [Scarred Flesh](#scarred-flesh)
+- [Sepsis](#sepsis)
+- [Immunity Shield](#immunity-shield)
+- [Body Temperature](#body-temperature-and-fever)
+- [Fever Response](#fever-response)
+- [Black Lung](#black-lung)
+- [Carbon Monoxide Exposure and Poisoning](#carbon-monoxide)
+- [Corpse Sickness](#corpse-sickness)
+- [Severe Wrist Sprains](#severe-wrist-sprain)
+- [Severe Ankle Sprains](#severe-ankle-sprain)
+- [Home Comfort](#home-comfort)
+- [Home Sickness](#home-sickness)
+- [Regional Distress](#regional-distress)
 
 Most systems can be enabled, disabled, or tuned through ModSettings.
 
