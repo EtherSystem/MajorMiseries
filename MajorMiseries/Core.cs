@@ -42,6 +42,14 @@ namespace MajorMiseries
             Instance?.LoggerInstance.Warning(message);
         }
 
+        internal static void Error(string message, bool onlyWhenDebugEnabled = false)
+        {
+            if (onlyWhenDebugEnabled && !Settings.options.IsLogging) return;
+
+            Instance?.LoggerInstance.Error(message);
+        }
+        // -----------------------------------------------------------------------
+
         internal void MarkDirty()
         {
             _dirty = true;

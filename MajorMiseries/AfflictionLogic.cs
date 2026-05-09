@@ -532,75 +532,38 @@ namespace MajorMiseries
                 || lowerCause.Contains("timberwolf")
                 || lowerCause.Contains("bear")
                 || lowerCause.Contains("cougar")
-                || lowerCause.Contains("predator")
-                || lowerCause.Contains("loup")
-                || lowerCause.Contains("ours")
-                || lowerCause.Contains("puma");
+                || lowerCause.Contains("predator");
         }
 
         private static bool TryStopConvertedBloodLoss(BloodLoss bloodLoss, string cause)
         {
             if (bloodLoss == null) return false;
 
-            string[] stopMethodNames =
+            try
             {
-                "BloodLossStop",
-                "BloodLossEnd",
-                "StopBloodLoss",
-                "Stop",
-                "Cure",
-                "Reset"
-            };
-
-            Type type = bloodLoss.GetType();
-
-            for (int i = 0; i < stopMethodNames.Length; i++)
-            {
-                MethodInfo? method = type.GetMethod(stopMethodNames[i], BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                if (method == null) continue;
-
-                ParameterInfo[] parameters = method.GetParameters();
-                if (parameters.Length > 0) continue;
-
-                try
+                int countBefore = bloodLoss.GetAfflictionsCount();
+                if (countBefore <= 0)
                 {
-                    method.Invoke(bloodLoss, null);
-                    Core.Log($"blood loss conversion -> stopped vanilla BloodLoss via {stopMethodNames[i]}() | cause:'{cause}'");
-                    return true;
+                    Core.Log($"blood loss conversion warning -> no active vanilla BloodLoss to stop | cause:'{cause}'");
+                    return false;
                 }
-                catch (Exception e)
-                {
-                    Core.Log($"blood loss conversion -> failed to call {stopMethodNames[i]}(): {e.Message}");
-                }
+
+                int convertedIndex = countBefore - 1;
+
+                bloodLoss.BloodLossEnd(convertedIndex, (AfflictionOptions)0);
+
+                int countAfter = bloodLoss.GetAfflictionsCount();
+                bool stopped = countAfter < countBefore;
+
+                Core.Log($"blood loss conversion -> stopped vanilla BloodLoss via BloodLossEnd({convertedIndex}) | cause:'{cause}' | count:{countBefore}->{countAfter}");
+
+                return stopped;
             }
-
-            string[] activeFieldNames =
+            catch (Exception e)
             {
-                "m_Active",
-                "m_IsActive",
-                "m_BloodLossActive",
-                "m_HasBloodLoss"
-            };
-
-            for (int i = 0; i < activeFieldNames.Length; i++)
-            {
-                FieldInfo? field = type.GetField(activeFieldNames[i], BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                if (field == null || field.FieldType != typeof(bool)) continue;
-
-                try
-                {
-                    field.SetValue(bloodLoss, false);
-                    Core.Log($"blood loss conversion -> disabled vanilla BloodLoss field {activeFieldNames[i]} | cause:'{cause}'");
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    Core.Log($"blood loss conversion -> failed to disable {activeFieldNames[i]}: {e.Message}");
-                }
+                Core.Warn($"blood loss conversion warning -> failed to stop vanilla BloodLoss via BloodLossEnd(): {e.Message} | cause:'{cause}'");
+                return false;
             }
-
-            Core.Log($"blood loss conversion warning -> could not stop vanilla BloodLoss after conversion | cause:'{cause}'");
-            return false;
         }
 
         internal static void TryHandleSevereLacerationHealing(SevereLacerations severe)
