@@ -13,6 +13,16 @@
         [Choice("Only with Requiem Stages", "Always", "Disabled")]
         public int PredatorHostilityMode = 0;
 
+        [Name("Vitamin C Drain")]
+        [Description("Choose when Vitamin C drain should be accelerated.")]
+        [Choice("Only with Requiem Stages", "Always", "Disabled")]
+        public int VitaminCDrainMode = 0;
+
+        [Name("Vitamin C Drain Preset")]
+        [Description("Choose how strongly Vitamin C drain is multiplied when active. Forgiving x1.5, Standard x2, Harsh x3, Brutal x4, Who Wants to Play Like This? x5.")]
+        [Choice("Forgiving", "Standard", "Harsh", "Brutal", "Who Wants to Play Like This?")]
+        public int VitaminCDrainPreset = 1;
+
         [Name("Show Stage Thresholds Customization")]
         [Description("Show or hide day threshold customization sliders for Omen, Dirge, Knell and Requiem.")]
         public bool CustomizeStageThresholds = false;
@@ -320,6 +330,11 @@
                 Settings.UpdateStageThresholdVisibility();
             }
 
+            if (field.Name == nameof(VitaminCDrainMode))
+            {
+                Settings.UpdateVitaminCDrainVisibility();
+            }
+
             if (field.Name == nameof(EnableBlackLung))
             {
                 Settings.UpdateBlackLungVisibility();
@@ -429,6 +444,7 @@
             options.AddToModSettings("Major Miseries");
 
             UpdateStageThresholdVisibility();
+            UpdateVitaminCDrainVisibility();
             UpdateBlackLungVisibility();
             UpdateCorpseSicknessVisibility();
             UpdateSevereSprainVisibility();
@@ -446,6 +462,13 @@
             options.SetFieldVisible(nameof(options.DirgeThreshold), showThresholds);
             options.SetFieldVisible(nameof(options.KnellThreshold), showThresholds);
             options.SetFieldVisible(nameof(options.RequiemThreshold), showThresholds);
+        }
+
+        internal static void UpdateVitaminCDrainVisibility()
+        {
+            bool showPreset = options.VitaminCDrainMode != 2;
+
+            options.SetFieldVisible(nameof(options.VitaminCDrainPreset), showPreset);
         }
 
         internal static void UpdateBlackLungVisibility()

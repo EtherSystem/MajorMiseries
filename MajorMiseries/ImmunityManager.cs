@@ -15,6 +15,9 @@ namespace MajorMiseries
             ClothingRegion.Feet
         };
 
+        private const float FirstAidWidgetBackgroundWidthReduction = 0.2f;
+        private static readonly HashSet<int> s_FirstAidReducedCloneBackgrounds = new();
+
         private static int s_LastLoggedShieldBucket = -1;
         private static string s_LastLoggedMode = string.Empty;
         private static int s_LastLoggedDrainBucket = -1;
@@ -1129,14 +1132,34 @@ namespace MajorMiseries
             return null;
         }
 
-        private static GameObject GetOrCreateFirstAidWidget(GameObject statusBars, GameObject sourceSection, string widgetName)
+        private static GameObject GetOrCreateFirstAidWidget(GameObject statusBars, GameObject sourceSection, string widgetName, bool sourceBackgroundAlreadyReduced)
         {
             GameObject? widget = FindChild(statusBars, widgetName);
             if (widget != null) return widget;
 
             widget = UnityEngine.Object.Instantiate(sourceSection, sourceSection.transform.parent);
             widget.name = widgetName;
+
+            ReduceClonedFirstAidWidgetBackground(widget, sourceBackgroundAlreadyReduced);
+
             return widget;
+        }
+
+        private static void ReduceClonedFirstAidWidgetBackground(GameObject widget, bool sourceBackgroundAlreadyReduced)
+        {
+            if (sourceBackgroundAlreadyReduced) return;
+            if (widget == null || widget.transform.childCount <= 3) return;
+
+            GameObject background = widget.transform.GetChild(3).gameObject;
+            int backgroundId = background.GetInstanceID();
+
+            if (s_FirstAidReducedCloneBackgrounds.Contains(backgroundId)) return;
+
+            Vector3 scale = background.transform.localScale;
+            scale.x -= FirstAidWidgetBackgroundWidthReduction;
+            background.transform.localScale = scale;
+
+            s_FirstAidReducedCloneBackgrounds.Add(backgroundId);
         }
 
         private static void RefreshFirstAidWidget(GameObject anchorSection, GameObject widget, string label, string text, float xOffset, float yOffset, bool enabled)
@@ -1160,9 +1183,10 @@ namespace MajorMiseries
 
             bool bodyHeatEnabled = IsBodyHeatEnabled();
             bool immunityEnabled = IsEnabled();
+            bool sourceBackgroundAlreadyReduced = FindChild(statusBars, "Blood Drug Level") != null;
 
-            GameObject bodyHeatSection = GetOrCreateFirstAidWidget(statusBars, caloriesSection, "Body Heat");
-            GameObject immunitySection = GetOrCreateFirstAidWidget(statusBars, caloriesSection, "Immunity Shield");
+            GameObject bodyHeatSection = GetOrCreateFirstAidWidget(statusBars, caloriesSection, "Body Heat", sourceBackgroundAlreadyReduced);
+            GameObject immunitySection = GetOrCreateFirstAidWidget(statusBars, caloriesSection, "Immunity Shield", sourceBackgroundAlreadyReduced);
 
             RefreshFirstAidWidget(caloriesSection, bodyHeatSection, "BODY HEAT", GetBodyHeatFirstAidText(), -0.31f, 0.98f, bodyHeatEnabled);
             RefreshFirstAidWidget(bodyHeatSection, immunitySection, "IMMUNITY SHIELD", GetFirstAidText(), 0.33f, 0f, immunityEnabled);

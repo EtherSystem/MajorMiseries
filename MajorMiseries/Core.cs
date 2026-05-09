@@ -79,6 +79,7 @@ namespace MajorMiseries
             Patches.WildlifePatches.ResetRuntime();
             RegionalAfflictionLogic.ResetRuntime();
             ImmunityManager.ResetRuntime();
+            RequiemStagesEffects.ResetRuntime();
         }
 
         public void OnStateLoaded()
