@@ -170,8 +170,6 @@ Note : Requiem is not meant to be fair. That's precisely what I want.
 
 Major Miseries can make the vanilla Scurvy system more dangerous by accelerating Vitamin C drain.
 
-It modifies the hidden Vitamin C reserve used by the vanilla Scurvy system, which means Scurvy pressure can arrive sooner if the survivor does not keep eating Vitamin C sources.
-
 Vitamin C Drain can be configured in the Requiem Stages settings.
 
 | Setting | Behavior |
