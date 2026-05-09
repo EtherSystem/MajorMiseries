@@ -13,9 +13,6 @@ namespace MajorMiseries.Afflictions
             private const string CAUSE_KEY = "GAMEPLAY_SevereSprainCause";
             private const string DESC_KEY = "GAMEPLAY_SevereAnkleSprainRiskDescription";
 
-            private const string ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.SevereAnkleSprainRisk.png";
-            private const string ALT_ICON = "MajorMiseries.Resources.Icons.Alt.SevereAnkleSprainRisk_ALT.png";
-
             private float m_RiskValue = 0f;
 
             public InstanceType Type { get; set; } = InstanceType.SingleLocation;
@@ -27,8 +24,7 @@ namespace MajorMiseries.Afflictions
             public Tuple<string, int, int>[] AltRemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
             public bool InstantHeal { get; set; } = true;
 
-            //public SevereAnkleSprainRiskAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
-            public SevereAnkleSprainRiskAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, "ico_injury_sprainedAnkle", bodyArea)
+            public SevereAnkleSprainRiskAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, SevereAnkleSprain.SevereAnkleSprainAffliction.GetIcon(bodyArea), bodyArea, true)
             {
                 UpdateRiskValue();
             }
@@ -62,8 +58,7 @@ namespace MajorMiseries.Afflictions
 
             public override void OnUpdate()
             {
-                if (DebugForced)
-                    return;
+                if (DebugForced) return;
 
                 if (!Settings.options.EnableSevereSprains)
                 {
@@ -71,8 +66,7 @@ namespace MajorMiseries.Afflictions
                     return;
                 }
 
-                if (!Risk)
-                    return;
+                if (!Risk) return;
 
                 UpdateRiskValue();
 

@@ -15,8 +15,8 @@ namespace MajorMiseries.Afflictions
             private const string CAUSE_KEY = "GAMEPLAY_BlackLungRiskCause";
             private const string DESC_KEY = "GAMEPLAY_BlackLungRiskDescription";
 
-            private const string ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.BlackLungRisk.png";
-            private const string ALT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Alt.BlackLungRisk_ALT.png";
+            private const string ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.BlackLung.png";
+            private const string ALT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Alt.BlackLung_ALT.png";
 
             public static bool IsActive { get; private set; } = false;
 
@@ -33,8 +33,7 @@ namespace MajorMiseries.Afflictions
 
             public bool InstantHeal { get; set; } = true;
 
-            //public BlackLungRiskAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
-            public BlackLungRiskAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, "ico_injury_BrokenBody", bodyArea)
+            public BlackLungRiskAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
             {
                 TimeOfDay? tod = GameManager.GetTimeOfDayComponent();
                 m_LastUpdateTime = tod != null ? tod.GetHoursPlayedNotPaused() : 0f;

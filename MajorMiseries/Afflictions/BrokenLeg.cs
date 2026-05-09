@@ -34,8 +34,7 @@ namespace MajorMiseries.Afflictions
 
             public bool InstantHeal { get; set; } = false;
 
-            //public BrokenLegAffliction(AfflictionBodyArea bodyArea, float durationHours, string? causeKey = null) : base(NAME_KEY, causeKey ?? DEFAULT_CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
-            public BrokenLegAffliction(AfflictionBodyArea bodyArea, float durationHours, string? causeKey = null) : base(NAME_KEY, causeKey ?? DEFAULT_CAUSE_KEY, DESC_KEY, null, "ico_injury_BrokenBody", bodyArea)
+            public BrokenLegAffliction(AfflictionBodyArea bodyArea, float durationHours, string? causeKey = null) : base(NAME_KEY, causeKey ?? DEFAULT_CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
             {
                 Duration = durationHours;
                 _causeKey = string.IsNullOrWhiteSpace(causeKey) ? DEFAULT_CAUSE_KEY : causeKey;

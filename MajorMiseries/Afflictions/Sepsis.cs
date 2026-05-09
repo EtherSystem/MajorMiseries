@@ -49,8 +49,7 @@ namespace MajorMiseries.Afflictions
 
             public bool InstantHeal { get; set; } = false;
 
-            //public SepsisAffliction(AfflictionBodyArea bodyArea): base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
-            public SepsisAffliction(AfflictionBodyArea bodyArea): base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, "ico_injury_infectedWound", bodyArea)
+            public SepsisAffliction(AfflictionBodyArea bodyArea): base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
             {
                 float now = GameManager.GetTimeOfDayComponent().GetHoursPlayedNotPaused();
                 EndTime = now + Duration;

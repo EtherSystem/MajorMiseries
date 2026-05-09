@@ -13,8 +13,8 @@ namespace MajorMiseries.Afflictions
             private const string CAUSE_KEY = "GAMEPLAY_SevereSprainCause";
             private const string DESC_KEY = "GAMEPLAY_SevereWristSprainDescription";
 
-            private const string ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.SevereWristSprain.png";
-            private const string ALT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Alt.SevereWristSprain_ALT.png";
+            private const string LEFT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.SevereWristSprain_Left.png";
+            private const string RIGHT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.SevereWristSprain_Right.png";
 
             public InstanceType Type { get; set; } = InstanceType.SingleLocation;
 
@@ -30,13 +30,21 @@ namespace MajorMiseries.Afflictions
             public Tuple<string, int, int>[] AltRemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
             public bool InstantHeal { get; set; } = false;
 
-            //public SevereWristSprainAffliction(AfflictionBodyArea bodyArea, float durationHours) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
-            public SevereWristSprainAffliction(AfflictionBodyArea bodyArea, float durationHours) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, "ico_injury_sprainedWrist", bodyArea)
+            public SevereWristSprainAffliction(AfflictionBodyArea bodyArea, float durationHours) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, GetIcon(bodyArea), bodyArea, true)
             {
                 Duration = durationHours;
                 ResetEndTime();
 
                 Core.Log($"SevereWristSprain prepared on {bodyArea} for {Duration:0.#} hours");
+            }
+
+            internal static string GetIcon(AfflictionBodyArea bodyArea)
+            {
+                return bodyArea switch
+                {
+                    AfflictionBodyArea.HandRight => RIGHT_ICON,
+                    _ => LEFT_ICON,
+                };
             }
 
             public void OnFoundExistingInstance(CustomAffliction existingAffliction)
@@ -53,8 +61,7 @@ namespace MajorMiseries.Afflictions
             public bool IsDurationUp()
             {
                 TimeOfDay? tod = GameManager.GetTimeOfDayComponent();
-                if (tod == null)
-                    return false;
+                if (tod == null) return false;
 
                 return tod.GetHoursPlayedNotPaused() >= EndTime;
             }
@@ -69,8 +76,7 @@ namespace MajorMiseries.Afflictions
 
             public override void OnUpdate()
             {
-                if (!Settings.options.EnableSevereSprains)
-                    Cure();
+                if (!Settings.options.EnableSevereSprains) Cure();
             }
 
             private void ResetEndTime()

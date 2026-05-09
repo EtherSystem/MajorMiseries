@@ -248,13 +248,13 @@ namespace MajorMiseries
                 new SevereWristSprainRiskAffliction(AfflictionBodyArea.HandLeft)
                 {
                     DebugForced = true,
-                    DebugRiskValue = 50f
+                    DebugRiskValue = 99f
                 }.Start();
 
                 new SevereAnkleSprainRiskAffliction(AfflictionBodyArea.FootLeft)
                 {
                     DebugForced = true,
-                    DebugRiskValue = 50f
+                    DebugRiskValue = 99f
                 }.Start();
 
                 uConsole.Log("MajorMiseries risk afflictions applied in debug mode.");

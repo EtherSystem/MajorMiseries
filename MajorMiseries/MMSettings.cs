@@ -251,7 +251,7 @@
 
         [Name("Walking Warming Rate")]
         [Description("Default: 0.25°C/h - Internal body temperature gain while walking. Only applies while the cold meter is above 25%.")]
-        [Slider(0f, 2f, 81, NumberFormat = "{0:0.00}°C/h")]
+        [Slider(0f, 2f, 41, NumberFormat = "{0:0.00}°C/h")]
         public float WalkHeatGain = 0.25f;
 
         [Name("Encumbered Warming Rate")]
@@ -271,7 +271,7 @@
 
         [Name("Cold Exposure Cooling Rate")]
         [Description("Default: 0.50°C/h - Base internal body temperature loss in cold conditions. This is multiplied by severe ambient cold and becomes much stronger when the cold meter drops below 25%.")]
-        [Slider(0f, 3f, 121, NumberFormat = "{0:0.00}°C/h")]
+        [Slider(0f, 3f, 61, NumberFormat = "{0:0.00}°C/h")]
         public float CoolingLoss = 0.5f;
 
 

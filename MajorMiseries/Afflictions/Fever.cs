@@ -13,6 +13,9 @@ namespace MajorMiseries.Afflictions
             private const string CAUSE_KEY = "GAMEPLAY_FeverCause";
             private const string DESC_KEY = "GAMEPLAY_FeverDescription";
 
+            private const string ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.Fever.png";
+            private const string ALT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Alt.Fever_ALT.png";
+
             public static bool IsActive { get; private set; } = false;
 
             public InstanceType Type { get; set; } = InstanceType.Single;
@@ -22,8 +25,7 @@ namespace MajorMiseries.Afflictions
 
             public bool InstantHeal { get; set; } = true;
 
-            // public FeverAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
-            public FeverAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, "ico_injury_diabetes", bodyArea)
+            public FeverAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
             {
             }
 

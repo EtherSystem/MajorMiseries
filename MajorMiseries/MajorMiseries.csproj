@@ -19,11 +19,51 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Resources\Icons\Afflictions\Classic\BlackLung.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\BrokenArm.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\BrokenLeg.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\COExposure.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\COPoisoning.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\CorpseSickness.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\Dirge.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\Fever.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\HomeSickness.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\Knell.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\Omen.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\RegionalDistress.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\Requiem.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\ScarredFlesh.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\Sepsis.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\SevereAnkleSprain_Left.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\SevereAnkleSprain_Right.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\SevereWristSprain_Left.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\SevereWristSprain_Right.png" />
 	  <None Remove="Resources\Icons\Aperture.png" />
+	  <None Remove="Resources\Icons\Buffs\Classic\HomeComfort.png" />
 	  <None Remove="Resources\Localization\Localization.json" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\BlackLung.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\BrokenArm.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\BrokenLeg.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\COExposure.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\COPoisoning.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\CorpseSickness.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\Dirge.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\Fever.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\HomeSickness.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\Knell.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\Omen.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\RegionalDistress.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\Requiem.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\ScarredFlesh.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\Sepsis.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\SevereAnkleSprain_Left.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\SevereAnkleSprain_Right.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\SevereWristSprain_Left.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\SevereWristSprain_Right.png" />
+	  <EmbeddedResource Include="Resources\Icons\Buffs\Classic\HomeComfort.png" />
 	  <EmbeddedResource Include="Resources\Localization\Localization.json" />
 	</ItemGroup>
 
@@ -56,10 +96,6 @@
 		<Using Include="UnityEngine" />
 		<Using Include="ModSettings" />
 		<Using Include="ModComponent" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Resources\Icons\Afflictions\Classic\" />
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="Build">

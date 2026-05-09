@@ -15,8 +15,8 @@ namespace MajorMiseries.Afflictions
             private const string CAUSE_KEY = "GAMEPLAY_CorpseSicknessCause";
             private const string DESC_KEY = "GAMEPLAY_CorpseSicknessRiskDescription";
 
-            private const string ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.CorpseSicknessRisk.png";
-            private const string ALT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Alt.CorpseSicknessRisk_ALT.png";
+            private const string ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.CorpseSickness.png";
+            private const string ALT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Alt.CorpseSickness_ALT.png";
 
             private const float CORPSE_SICKNESS_MIN_DURATION_HOURS = 48f;
             private const float CORPSE_SICKNESS_MAX_DURATION_HOURS = 96f;
@@ -36,8 +36,7 @@ namespace MajorMiseries.Afflictions
 
             public bool InstantHeal { get; set; } = true;
 
-            //public CorpseSicknessRiskAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
-            public CorpseSicknessRiskAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, "ico_injury_BrokenBody", bodyArea)
+            public CorpseSicknessRiskAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
             {
                 TimeOfDay? tod = GameManager.GetTimeOfDayComponent();
                 m_LastUpdateTime = tod != null ? tod.GetHoursPlayedNotPaused() : 0f;
