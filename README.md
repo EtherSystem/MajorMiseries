@@ -7,9 +7,7 @@ Now that you've been warned, it's your fault, not mine.
 
 **PLEASE READ THIS README PLEASE READ THIS README PLEASE READ THIS README PLEASE READ THIS README**
 
-Major Miseries is a mod for The Long Dark that adds severe, long-term afflictions, escalating survival pressure, and consequences that can follow a survivor for days, weeks, or even an entire save.
-
-They are fractures, sicknesses, infections, respiratory damage, psychological discomfort, severe sprains, corpse-related illness, and the slow collapse of safety over time.
+Major Miseries is a mod for The Long Dark that adds severe, long-term afflictions, escalating survival pressure, and consequences that can follow you for days, weeks, months or even an entire save.
 
 *Survival should leave marks. Time is only an issue if you are not prepared, but are you prepared enough...?*
 
@@ -27,8 +25,8 @@ Instead of only punishing one bad moment, many systems track what the survivor h
 - Neglecting fatigue, hunger, thirst, warmth, or condition can weaken the Immunity Shield.
 - Internal body temperature can drift into fever, sweating, overheating, or severe cold pressure.
 - Killing predators can make the world more hostile.
-- Remaining away from home, or trapped in a hated region, can wear the survivor down.
-- Repeated catastrophic wounds can permanently scar the body.
+- Remaining away from home, or trapped in a hated region, can wear you down.
+- Repeated severe lacerations will permanently scar your body.
 
 Major Miseries aims to make each game more demanding and complex, so this mod is not recommended for beginner players.
 
@@ -958,8 +956,8 @@ There may be overlap and strange behavior with other mods that modify:
 - Wildlife AI behavior.
 - Fire behavior.
 
-This doesn't mean these mods are destined to malfunction.
-It simply means these are the areas most likely to overlap and cause strange, unintended behavior.
+This doesn't mean these mods are doomed to malfunction.  
+It simply means these are the areas most likely to overlap and cause strange, unexpected behavior. However, in all the tests performed on this mod, no real incompatibilities with other mods were found.
 
 ## For Developers
 
@@ -1170,6 +1168,18 @@ Displays a Requiem-style test popup.
 
 ## Installation
 
+1. Install MelonLoader.
 2. Install the required dependencies:
     [AfflictionComponent](https://github.com/TLD-Mods/AfflictionComponent), [ModComponent](https://github.com/dommrogers/ModComponent), [ModSettings](https://github.com/DigitalzombieTLD/ModSettings/) and [ModData](https://github.com/dommrogers/ModData)
 3. Place `MajorMiseries.dll` inside your `Mods` folder.
+
+## AI Notice
+
+This mod was partially developed with the assistance of AI tools.
+
+AI support was used for structural guidance, debugging assistance and documentation refinement.  
+
+These tools played a significant role in translating the localization keys used by the mod, so it's highly likely that some translations may be incorrect or seem odd.  
+Please contact me on the TLDModding Discord server if you spot any incorrect translations or if you want to add an unsupported language. Any help in this regard is greatly encouraged.  
+
+Coding, core design decisions, system architecture, balancing, and implementation logic remain fully human-driven.
