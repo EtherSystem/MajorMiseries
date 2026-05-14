@@ -31,8 +31,8 @@ namespace MajorMiseries.Afflictions
             public float Duration { get; set; }
             public float EndTime { get; set; }
 
-            public Tuple<string, int, int>[] RemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
-            public Tuple<string, int, int>[] AltRemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
+            public Tuple<string, int, int>[] RemedyItems { get; set; } = [];
+            public Tuple<string, int, int>[] AltRemedyItems { get; set; } = [];
 
             public bool InstantHeal { get; set; } = true;
 
@@ -83,6 +83,7 @@ namespace MajorMiseries.Afflictions
                     Core.Instance?.MarkDirty();
                     Core.Log("CorpseSickness cured -> CorpseExposure reset to 0.");
                 }
+                AfflictionSaveHelper.QueueSurvivalSave();
             }
 
             public override void OnUpdate()

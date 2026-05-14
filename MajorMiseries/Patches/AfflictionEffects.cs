@@ -604,6 +604,7 @@ namespace MajorMiseries.Patches
                 }
 
                 new SepsisRiskAffliction(resolvedBodyArea).Start();
+                AfflictionSaveHelper.QueueSurvivalSave();
                 Core.Log($"Vanilla infection started on {resolvedBodyArea}, applying SepsisRisk.");
             }
         }

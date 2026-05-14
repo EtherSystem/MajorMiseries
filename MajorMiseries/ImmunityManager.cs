@@ -7,16 +7,16 @@ namespace MajorMiseries
     internal static class ImmunityManager
     {
         private static readonly ClothingRegion[] BodyHeatRegions =
-        {
+        [
             ClothingRegion.Head,
             ClothingRegion.Chest,
             ClothingRegion.Hands,
             ClothingRegion.Legs,
             ClothingRegion.Feet
-        };
+        ];
 
         private const float FirstAidWidgetBackgroundWidthReduction = 0.2f;
-        private static readonly HashSet<int> s_FirstAidReducedCloneBackgrounds = new();
+        private static readonly HashSet<int> s_FirstAidReducedCloneBackgrounds = [];
 
         private static int s_LastLoggedShieldBucket = -1;
         private static string s_LastLoggedMode = string.Empty;
@@ -703,12 +703,12 @@ namespace MajorMiseries
         private static float GetBodyStatDrainPerHour(BodyStats stats, out int activeDrainStats, out int zeroStats, out float zeroDrainMultiplier)
         {
             float[] values =
-            {
+            [
                 stats.EnergyPercent,
                 stats.CaloriesPercent,
                 stats.HydrationPercent,
                 stats.WarmthPercent
-            };
+            ];
 
             zeroStats = 0;
 
@@ -773,7 +773,7 @@ namespace MajorMiseries
         private static float GetBiologicalThreatDrainPerHour(out bool biologicalThreat, out string biologicalSources)
         {
             float total = 0f;
-            List<string> sources = new();
+            List<string> sources = [];
 
             void Add(bool active, float drain, string source)
             {
@@ -818,7 +818,7 @@ namespace MajorMiseries
         private static float GetBiologicalFeverCapC(out string feverSources)
         {
             float cap = 37f;
-            List<string> sources = new();
+            List<string> sources = [];
 
             void Add(bool active, float feverCapC, string source)
             {
@@ -992,6 +992,7 @@ namespace MajorMiseries
                 {
                     Core.Log($"Fever response visible -> Mode:{s_FeverMode} | Target:{s_FeverTargetBodyTempC:0.0}C | Shield:{Core.State.ImmunityShield:0.#}%");
                     new FeverAffliction(AfflictionBodyArea.Head).Start();
+                    AfflictionSaveHelper.QueueSurvivalSave();
                 }
 
                 return;

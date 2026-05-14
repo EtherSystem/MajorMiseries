@@ -32,8 +32,8 @@ namespace MajorMiseries.Afflictions
             public bool DebugForced { get; set; } = false;
             public float DebugRiskValue { get; set; } = 50f;
 
-            public Tuple<string, int, int>[] RemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
-            public Tuple<string, int, int>[] AltRemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
+            public Tuple<string, int, int>[] RemedyItems { get; set; } = [];
+            public Tuple<string, int, int>[] AltRemedyItems { get; set; } = [];
 
             public bool InstantHeal { get; set; } = true;
 
@@ -53,6 +53,7 @@ namespace MajorMiseries.Afflictions
             public void OnCure()
             {
                 IsActive = false;
+                AfflictionSaveHelper.QueueSurvivalSave();
             }
 
             public float GetRiskValue() => DebugForced ? DebugRiskValue : m_RiskValue;
@@ -93,7 +94,7 @@ namespace MajorMiseries.Afflictions
                 {
                     Core.Log("COExposure matured into COPoisoning.");
                     Cure(false);
-                    MelonCoroutines.Start(StartCOPoisoningNextFrame());
+                    MelonCoroutines.Start(StartCOPoisoningNextFrame);
                 }
             }
 
@@ -120,14 +121,18 @@ namespace MajorMiseries.Afflictions
                 m_RiskValue = Mathf.Min(m_RiskValue + riskIncrease, 100f);
             }
 
-            private IEnumerator StartCOPoisoningNextFrame()
+            private static IEnumerator StartCOPoisoningNextFrame
             {
-                yield return null;
+                get
+                {
+                    yield return null;
 
-                float durationHours = UnityEngine.Random.Range(CO_POISONING_MIN_DURATION_HOURS, CO_POISONING_MAX_DURATION_HOURS);
-                Core.Log($"COExposure matured into COPoisoning -> rolled duration {durationHours:0.##}h.");
+                    float durationHours = UnityEngine.Random.Range(CO_POISONING_MIN_DURATION_HOURS, CO_POISONING_MAX_DURATION_HOURS);
+                    Core.Log($"COExposure matured into COPoisoning -> rolled duration {durationHours:0.##}h.");
 
-                new COPoisoningAffliction(AfflictionBodyArea.Head, durationHours).Start();
+                    new COPoisoningAffliction(AfflictionBodyArea.Head, durationHours).Start();
+                    AfflictionSaveHelper.QueueSurvivalSave();
+                }
             }
 
             public void RefreshLocalization()

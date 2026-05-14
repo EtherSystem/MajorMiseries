@@ -321,7 +321,7 @@
         [Name("Your Destiny")]
         [Description("This slider allows you to choose how much you want to alter your destiny, please don't touch it.")]
         [Slider(0f, 100f, 1001, NumberFormat = "{0:0.0}")]
-        public float AltAfflictionIconChance = 0.1f;
+        public float AltAfflictionIconChance = 0f;
 
         protected override void OnChange(FieldInfo field, object? oldValue, object? newValue)
         {

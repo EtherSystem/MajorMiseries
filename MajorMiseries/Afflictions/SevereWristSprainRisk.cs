@@ -20,8 +20,8 @@ namespace MajorMiseries.Afflictions
             public bool DebugForced { get; set; } = false;
             public float DebugRiskValue { get; set; } = 50f;
 
-            public Tuple<string, int, int>[] RemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
-            public Tuple<string, int, int>[] AltRemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
+            public Tuple<string, int, int>[] RemedyItems { get; set; } = [];
+            public Tuple<string, int, int>[] AltRemedyItems { get; set; } = [];
             public bool InstantHeal { get; set; } = true;
 
             public SevereWristSprainRiskAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, SevereWristSprain.SevereWristSprainAffliction.GetIcon(bodyArea), bodyArea, true)
@@ -54,6 +54,7 @@ namespace MajorMiseries.Afflictions
 
             public void OnCure()
             {
+                AfflictionSaveHelper.QueueSurvivalSave();
             }
 
             public override void OnUpdate()

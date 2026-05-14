@@ -41,15 +41,15 @@ namespace MajorMiseries.Afflictions
             public float EndTime { get; set; }
 
             public Tuple<string, int, int>[] RemedyItems { get; set; } =
-            {
+            [
                 Tuple.Create("GEAR_BottleAntibiotics", ANTIBIOTIC_BOTTLES_DISPLAY_COUNT, ANTIBIOTIC_BOTTLES_DISPLAY_COUNT),
-            };
+            ];
 
-            public Tuple<string, int, int>[] AltRemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
+            public Tuple<string, int, int>[] AltRemedyItems { get; set; } = [];
 
             public bool InstantHeal { get; set; } = false;
 
-            public SepsisAffliction(AfflictionBodyArea bodyArea): base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
+            public SepsisAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
             {
                 float now = GameManager.GetTimeOfDayComponent().GetHoursPlayedNotPaused();
                 EndTime = now + Duration;
@@ -96,6 +96,7 @@ namespace MajorMiseries.Afflictions
 
                 IsActive = false;
                 CustomAffliction.ResetRemedyItems(this);
+                AfflictionSaveHelper.QueueSurvivalSave();
             }
 
             public override void OnUpdate()

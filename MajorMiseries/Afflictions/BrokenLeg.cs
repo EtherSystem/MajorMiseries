@@ -25,12 +25,12 @@ namespace MajorMiseries.Afflictions
             public bool IsLimping { get; set; } = true;
 
             public Tuple<string, int, int>[] RemedyItems { get; set; } =
-            {
+            [
                 Tuple.Create("GEAR_HeavyBandage", 4, 4),
                 Tuple.Create("GEAR_BottlePainKillers", 2, 2),
-            };
+            ];
 
-            public Tuple<string, int, int>[] AltRemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
+            public Tuple<string, int, int>[] AltRemedyItems { get; set; } = [];
 
             public bool InstantHeal { get; set; } = false;
 
@@ -88,6 +88,7 @@ namespace MajorMiseries.Afflictions
             public void OnCure()
             {
                 IsLimping = false;
+                AfflictionSaveHelper.QueueSurvivalSave();
             }
 
             public override void OnUpdate()

@@ -25,7 +25,7 @@ namespace MajorMiseries
         private static string s_LastLoggedRegionalDistressState = string.Empty;
 
         private static readonly string[] s_HomeRegionIds =
-        {
+        [
             "",
             "LakeRegion",
             "CoastalRegion",
@@ -50,10 +50,10 @@ namespace MajorMiseries
             "ModPrecariousCauseway",
             "ModRockyThoroughfare",
             "ModShatteredMarsh"
-        };
+        ];
 
         private static readonly string[] s_RegionalDistressRegionIds =
-        {
+        [
             "",
             "LakeRegion",
             "CoastalRegion",
@@ -94,7 +94,7 @@ namespace MajorMiseries
             "ModPrecariousCauseway",
             "ModRockyThoroughfare",
             "ModShatteredMarsh"
-        };
+        ];
 
         private static readonly Dictionary<string, string> s_OutdoorSceneToLogicalRegion = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -536,6 +536,7 @@ namespace MajorMiseries
             if (AfflictionLogic.HasAffliction<HomeComfort.HomeComfortBuff>()) return;
 
             new HomeComfort.HomeComfortBuff(AfflictionBodyArea.Head).Start();
+            AfflictionSaveHelper.QueueSurvivalSave();
 
             AfflictionLogic.ForceRefreshEffects();
 
@@ -547,6 +548,7 @@ namespace MajorMiseries
             if (AfflictionLogic.HasAffliction<HomeSickness.HomeSicknessAffliction>()) return;
 
             new HomeSickness.HomeSicknessAffliction(AfflictionBodyArea.Head).Start();
+            AfflictionSaveHelper.QueueSurvivalSave();
 
             AfflictionLogic.ForceRefreshEffects();
 
@@ -558,6 +560,7 @@ namespace MajorMiseries
             if (AfflictionLogic.HasAffliction<RegionalDistress.RegionalDistressAffliction>()) return;
 
             new RegionalDistress.RegionalDistressAffliction(AfflictionBodyArea.Head).Start();
+            AfflictionSaveHelper.QueueSurvivalSave();
 
             AfflictionLogic.ForceRefreshEffects();
 

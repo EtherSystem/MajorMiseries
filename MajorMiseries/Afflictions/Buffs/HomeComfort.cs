@@ -27,8 +27,8 @@ namespace MajorMiseries.Afflictions.Buffs
 
             public InstanceType Type { get; set; } = InstanceType.Single;
 
-            public Tuple<string, int, int>[] RemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
-            public Tuple<string, int, int>[] AltRemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
+            public Tuple<string, int, int>[] RemedyItems { get; set; } = [];
+            public Tuple<string, int, int>[] AltRemedyItems { get; set; } = [];
 
             public bool InstantHeal { get; set; } = true;
 
@@ -51,6 +51,7 @@ namespace MajorMiseries.Afflictions.Buffs
             public void OnCure()
             {
                 IsActive = false;
+                AfflictionSaveHelper.QueueSurvivalSave();
             }
 
             public override void OnUpdate()

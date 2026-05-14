@@ -259,21 +259,25 @@ namespace MajorMiseries
             {
                 case RequiemStage.Omen:
                     new OmenAffliction(AfflictionBodyArea.Head).Start();
+                    AfflictionSaveHelper.QueueSurvivalSave();
                     Core.Log("omen applied");
                     break;
 
                 case RequiemStage.Dirge:
                     new DirgeAffliction(AfflictionBodyArea.Head).Start();
+                    AfflictionSaveHelper.QueueSurvivalSave();
                     Core.Log("dirge applied");
                     break;
 
                 case RequiemStage.Knell:
                     new KnellAffliction(AfflictionBodyArea.Head).Start();
+                    AfflictionSaveHelper.QueueSurvivalSave();
                     Core.Log("knell applied");
                     break;
 
                 case RequiemStage.Requiem:
                     new RequiemAffliction(AfflictionBodyArea.Head).Start();
+                    AfflictionSaveHelper.QueueSurvivalSave();
                     Core.Log("requiem applied");
                     break;
             }
@@ -710,6 +714,7 @@ namespace MajorMiseries
             }
 
             new ScarredFleshAffliction(AfflictionBodyArea.Chest).Start();
+            AfflictionSaveHelper.QueueSurvivalSave();
         }
 
         internal static void SyncSettingsControlledAfflictions()
@@ -887,6 +892,7 @@ namespace MajorMiseries
 
                 new BrokenArmAffliction(armArea, armDuration).Start();
                 new BrokenLegAffliction(legArea, legDuration, GetBrokenLegCauseKey(brokenLegCause)).Start();
+                AfflictionSaveHelper.QueueSurvivalSave();
                 return;
             }
 
@@ -905,6 +911,7 @@ namespace MajorMiseries
 
                 Core.Log($"{causeText} -> applying BrokenArm ({armArea}) for {armDuration:0.#}h");
                 new BrokenArmAffliction(armArea, armDuration).Start();
+                AfflictionSaveHelper.QueueSurvivalSave();
             }
             else
             {
@@ -919,6 +926,7 @@ namespace MajorMiseries
 
                 Core.Log($"{causeText} -> applying BrokenLeg ({legArea}) for {legDuration:0.#}h");
                 new BrokenLegAffliction(legArea, legDuration, GetBrokenLegCauseKey(brokenLegCause)).Start();
+                AfflictionSaveHelper.QueueSurvivalSave();
             }
         }
 
@@ -1085,6 +1093,7 @@ namespace MajorMiseries
             Core.Log($"{cause} -> applying BrokenLeg ({legArea}) for {duration:0.#}h after losing {normalizedConditionLost * 100f:0.#}% condition");
 
             new BrokenLegAffliction(legArea, duration, GetBrokenLegCauseKey(BrokenLegCause.FallDamage)).Start();
+            AfflictionSaveHelper.QueueSurvivalSave();
             ForceRefreshEffects();
         }
 
@@ -1804,6 +1813,7 @@ namespace MajorMiseries
             if (inCoalScene && unprotectedGameHoursPassed > 0f && Core.State.BlackLungExposure >= BLACK_LUNG_RISK_START_THRESHOLD)
             {
                 new BlackLungRiskAffliction(AfflictionBodyArea.Head).Start();
+                AfflictionSaveHelper.QueueSurvivalSave();
             }
         }
 
@@ -1870,7 +1880,7 @@ namespace MajorMiseries
             public bool SceneContaminated = false;
         }
 
-        private static readonly Dictionary<string, CORiskSceneState> _coSceneStates = new();
+        private static readonly Dictionary<string, CORiskSceneState> _coSceneStates = [];
 
         private enum CORespiratorState
         {
@@ -2079,6 +2089,7 @@ namespace MajorMiseries
                 {
                     Core.Log($"CO contaminated scene re-entry -> applying COExposure immediately in scene '{sceneName}'.");
                     new COExposureAffliction(AfflictionBodyArea.Head).Start();
+                    AfflictionSaveHelper.QueueSurvivalSave();
                     return;
                 }
 
@@ -2109,6 +2120,7 @@ namespace MajorMiseries
 
                     Core.Log($"CO roll succeeded -> scene '{sceneName}' is now contaminated, applying COExposure. fires={eligibleFireCount}, chance={rollChance:0.##}%");
                     new COExposureAffliction(AfflictionBodyArea.Head).Start();
+                    AfflictionSaveHelper.QueueSurvivalSave();
                     return;
                 }
             }
@@ -2363,13 +2375,13 @@ namespace MajorMiseries
         private static string s_AnimalCarcassReseedReason = string.Empty;
 
         // Human corpses = static per scene
-        private static readonly List<Container> s_HumanCorpseContainers = new();
+        private static readonly List<Container> s_HumanCorpseContainers = [];
         private static bool s_HumanCorpseSceneCacheBuilt = false;
         private static string s_HumanCorpseSceneCacheName = string.Empty;
 
         // Animal carcasses = scene-seeded cache + deferred reseed on death events
-        private static readonly List<BodyHarvest> s_AnimalCarcasses = new();
-        private static readonly HashSet<int> s_AnimalCarcassIds = new();
+        private static readonly List<BodyHarvest> s_AnimalCarcasses = [];
+        private static readonly HashSet<int> s_AnimalCarcassIds = [];
         private static bool s_AnimalCarcassSceneSeeded = false;
         private static string s_AnimalCarcassSceneSeedName = string.Empty;
 
@@ -2666,7 +2678,7 @@ namespace MajorMiseries
 
             try
             {
-                GameObject go = bodyHarvest?.gameObject;
+                GameObject? go = bodyHarvest?.gameObject;
                 if (go != null) id = go.GetInstanceID();
             }
             catch { }
@@ -2723,6 +2735,7 @@ namespace MajorMiseries
             {
                 LogCorpseDebug($"Exposure reached risk threshold near {sourceLabel} ({closestDistance:0.##}m). Starting CorpseSicknessRisk.");
                 new CorpseSicknessRiskAffliction(AfflictionBodyArea.Head).Start();
+                AfflictionSaveHelper.QueueSurvivalSave();
             }
         }
 

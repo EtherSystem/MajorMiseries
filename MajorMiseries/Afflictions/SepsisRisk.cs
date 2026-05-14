@@ -29,8 +29,8 @@ namespace MajorMiseries.Afflictions
             public bool DebugForced { get; set; } = false;
             public float DebugRiskValue { get; set; } = 50f;
 
-            public Tuple<string, int, int>[] RemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
-            public Tuple<string, int, int>[] AltRemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
+            public Tuple<string, int, int>[] RemedyItems { get; set; } = [];
+            public Tuple<string, int, int>[] AltRemedyItems { get; set; } = [];
 
             public bool InstantHeal { get; set; } = true;
 
@@ -54,6 +54,7 @@ namespace MajorMiseries.Afflictions
 
             public void OnCure()
             {
+                AfflictionSaveHelper.QueueSurvivalSave();
             }
 
             public float GetRiskValue() => DebugForced ? DebugRiskValue : m_RiskValue;
@@ -162,6 +163,7 @@ namespace MajorMiseries.Afflictions
             {
                 yield return null;
                 new SepsisAffliction(m_BodyArea).Start();
+                AfflictionSaveHelper.QueueSurvivalSave();
             }
 
             public void RefreshLocalization()

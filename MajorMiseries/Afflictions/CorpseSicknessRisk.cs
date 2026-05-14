@@ -31,8 +31,8 @@ namespace MajorMiseries.Afflictions
             public bool DebugForced { get; set; } = false;
             public float DebugRiskValue { get; set; } = 50f;
 
-            public Tuple<string, int, int>[] RemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
-            public Tuple<string, int, int>[] AltRemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
+            public Tuple<string, int, int>[] RemedyItems { get; set; } = [];
+            public Tuple<string, int, int>[] AltRemedyItems { get; set; } = [];
 
             public bool InstantHeal { get; set; } = true;
 
@@ -53,6 +53,7 @@ namespace MajorMiseries.Afflictions
             public void OnCure()
             {
                 IsActive = false;
+                AfflictionSaveHelper.QueueSurvivalSave();
             }
 
             public float GetRiskValue() => DebugForced ? DebugRiskValue : m_RiskValue;
@@ -85,7 +86,7 @@ namespace MajorMiseries.Afflictions
                 {
                     Core.Log("CorpseSicknessRisk evolved into CorpseSickness.");
                     Cure(false);
-                    MelonCoroutines.Start(StartCorpseSicknessNextFrame());
+                    MelonCoroutines.Start(StartCorpseSicknessNextFrame);
                     return;
                 }
 
@@ -123,17 +124,21 @@ namespace MajorMiseries.Afflictions
                 }
             }
 
-            private IEnumerator StartCorpseSicknessNextFrame()
+            private static IEnumerator StartCorpseSicknessNextFrame
             {
-                yield return null;
+                get
+                {
+                    yield return null;
 
-                float durationHours = UnityEngine.Random.Range(
-                    CORPSE_SICKNESS_MIN_DURATION_HOURS,
-                    CORPSE_SICKNESS_MAX_DURATION_HOURS);
+                    float durationHours = UnityEngine.Random.Range(
+                        CORPSE_SICKNESS_MIN_DURATION_HOURS,
+                        CORPSE_SICKNESS_MAX_DURATION_HOURS);
 
-                Core.Log($"CorpseSicknessRisk evolved into CorpseSickness -> applying for {durationHours:0.##}h.");
+                    Core.Log($"CorpseSicknessRisk evolved into CorpseSickness -> applying for {durationHours:0.##}h.");
 
-                new CorpseSicknessAffliction(AfflictionBodyArea.Head, durationHours).Start();
+                    new CorpseSicknessAffliction(AfflictionBodyArea.Head, durationHours).Start();
+                    AfflictionSaveHelper.QueueSurvivalSave();
+                }
             }
 
             public void RefreshLocalization()

@@ -28,8 +28,8 @@ namespace MajorMiseries.Afflictions
             public bool DebugForced { get; set; } = false;
             public float DebugRiskValue { get; set; } = 50f;
 
-            public Tuple<string, int, int>[] RemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
-            public Tuple<string, int, int>[] AltRemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
+            public Tuple<string, int, int>[] RemedyItems { get; set; } = [];
+            public Tuple<string, int, int>[] AltRemedyItems { get; set; } = [];
 
             public bool InstantHeal { get; set; } = true;
 
@@ -50,6 +50,7 @@ namespace MajorMiseries.Afflictions
             public void OnCure()
             {
                 IsActive = false;
+                AfflictionSaveHelper.QueueSurvivalSave();
             }
 
             public float GetRiskValue() => DebugForced ? DebugRiskValue : m_RiskValue;
@@ -82,7 +83,7 @@ namespace MajorMiseries.Afflictions
                 {
                     Core.Log("BlackLungRisk evolved into BlackLung.");
                     Cure(false);
-                    MelonCoroutines.Start(StartBlackLungNextFrame());
+                    MelonCoroutines.Start(StartBlackLungNextFrame);
                     return;
                 }
 
@@ -122,14 +123,18 @@ namespace MajorMiseries.Afflictions
                 }
             }
 
-            private IEnumerator StartBlackLungNextFrame()
+            private static IEnumerator StartBlackLungNextFrame
             {
-                yield return null;
+                get
+                {
+                    yield return null;
 
-                float durationHours = Settings.options.BlackLungDurationMode == 1 ? 360f : 3600f;
-                Core.Log($"BlackLungRisk evolved into BlackLung -> applying for {durationHours:0.##}h.");
+                    float durationHours = Settings.options.BlackLungDurationMode == 1 ? 360f : 3600f;
+                    Core.Log($"BlackLungRisk evolved into BlackLung -> applying for {durationHours:0.##}h.");
 
-                new BlackLungAffliction(AfflictionBodyArea.Head, durationHours).Start();
+                    new BlackLungAffliction(AfflictionBodyArea.Head, durationHours).Start();
+                    AfflictionSaveHelper.QueueSurvivalSave();
+                }
             }
 
             public void RefreshLocalization()

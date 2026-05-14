@@ -22,12 +22,12 @@ namespace MajorMiseries.Afflictions
             public float EndTime { get; set; }
             public bool IsLimping { get; set; } = true;
             public Tuple<string, int, int>[] RemedyItems { get; set; } =
-            {
+            [
                 Tuple.Create("GEAR_HeavyBandage", 2, 2),
                 Tuple.Create("GEAR_BottlePainKillers", 1, 1),
-            };
+            ];
 
-            public Tuple<string, int, int>[] AltRemedyItems { get; set; } = Array.Empty<Tuple<string, int, int>>();
+            public Tuple<string, int, int>[] AltRemedyItems { get; set; } = [];
             public bool InstantHeal { get; set; } = false;
 
             public SevereAnkleSprainAffliction(AfflictionBodyArea bodyArea, float durationHours) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, GetIcon(bodyArea), bodyArea, true)
@@ -75,6 +75,7 @@ namespace MajorMiseries.Afflictions
             public void OnCure()
             {
                 IsLimping = false;
+                AfflictionSaveHelper.QueueSurvivalSave();
             }
 
             public override void OnUpdate()

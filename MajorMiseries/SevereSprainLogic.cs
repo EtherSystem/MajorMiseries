@@ -490,10 +490,12 @@ namespace MajorMiseries
             if (kind == SevereSprainKind.Wrist)
             {
                 new SevereWristSprainRiskAffliction(bodyArea).Start();
+                AfflictionSaveHelper.QueueSurvivalSave();
                 return;
             }
 
             new SevereAnkleSprainRiskAffliction(bodyArea).Start();
+            AfflictionSaveHelper.QueueSurvivalSave();
         }
 
         private static void ApplySevereSprain(SevereSprainKind kind, AfflictionBodyArea bodyArea, string reason)
@@ -504,11 +506,13 @@ namespace MajorMiseries
             {
                 Core.Log($"SevereWristSprain applied -> {bodyArea}, {duration:0.#}h ({reason})");
                 new SevereWristSprainAffliction(bodyArea, duration).Start();
+                AfflictionSaveHelper.QueueSurvivalSave();
                 return;
             }
 
             Core.Log($"SevereAnkleSprain applied -> {bodyArea}, {duration:0.#}h ({reason})");
             new SevereAnkleSprainAffliction(bodyArea, duration).Start();
+            AfflictionSaveHelper.QueueSurvivalSave();
         }
 
         private static void CureRiskAffliction(SevereSprainJoint joint)

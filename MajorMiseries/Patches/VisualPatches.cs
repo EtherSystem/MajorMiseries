@@ -43,7 +43,7 @@ namespace MajorMiseries.Patches
             public UISprite LockedArc = null!;
         }
 
-        private static readonly Dictionary<int, LockHudVisual> s_LockHud = new();
+        private static readonly Dictionary<int, LockHudVisual> s_LockHud = [];
 
         internal static void ResetRuntime()
         {
