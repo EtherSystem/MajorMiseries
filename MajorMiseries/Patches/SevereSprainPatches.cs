@@ -1,4 +1,6 @@
-﻿namespace MajorMiseries.Patches
+﻿using MajorMiseries.Managers;
+
+namespace MajorMiseries.Patches
 {
     [HarmonyPatch(typeof(SprainedAnkle), nameof(SprainedAnkle.SprainedAnkleStart))]
     internal static class SprainedAnkle_SprainedAnkleStart
@@ -20,7 +22,7 @@
             for (int i = newCount - 1; i >= __state; i--)
             {
                 AfflictionBodyArea location = __instance.GetLocation(i);
-                bool replaceVanilla = SevereSprainLogic.OnVanillaSprainStarted(SevereSprainKind.Ankle, location);
+                bool replaceVanilla = SevereSprainManager.OnVanillaSprainStarted(SevereSprainKind.Ankle, location);
 
                 if (replaceVanilla)
                 {
@@ -51,7 +53,7 @@
             for (int i = newCount - 1; i >= __state; i--)
             {
                 AfflictionBodyArea location = __instance.GetLocation(i);
-                bool replaceVanilla = SevereSprainLogic.OnVanillaSprainStarted(SevereSprainKind.Wrist, location);
+                bool replaceVanilla = SevereSprainManager.OnVanillaSprainStarted(SevereSprainKind.Wrist, location);
 
                 if (replaceVanilla)
                 {

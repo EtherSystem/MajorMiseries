@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using ModData;
+using MajorMiseries.Managers;
 
 namespace MajorMiseries.Persistence
 {
@@ -79,10 +80,10 @@ namespace MajorMiseries.Persistence
             Core.Log(
                 $"Region : " +
                 $"Scene:{GetCurrentSceneLogName()} | " +
-                $"Current:{RegionalAfflictionLogic.GetRegionLogName(Core.State.CurrentLogicalRegion)} | " +
-                $"LastKnown:{RegionalAfflictionLogic.GetRegionLogName(Core.State.LastKnownLogicalRegion)} | " +
-                $"Home:{RegionalAfflictionLogic.GetRegionLogName(Core.State.ConfiguredHomeRegion)} | " +
-                $"Distress:{RegionalAfflictionLogic.GetRegionLogName(Core.State.ConfiguredRegionalDistressRegion)} | " +
+                $"Current:{RegionalAfflictionManager.GetRegionLogName(Core.State.CurrentLogicalRegion)} | " +
+                $"LastKnown:{RegionalAfflictionManager.GetRegionLogName(Core.State.LastKnownLogicalRegion)} | " +
+                $"Home:{RegionalAfflictionManager.GetRegionLogName(Core.State.ConfiguredHomeRegion)} | " +
+                $"Distress:{RegionalAfflictionManager.GetRegionLogName(Core.State.ConfiguredRegionalDistressRegion)} | " +
                 $"HomeAway:{Core.State.HomeSicknessHoursAway:0.###} | " +
                 $"RegionalDistress:{Core.State.RegionalDistressHoursInRegion:0.###} | " +
                 $"HomeMoveCooldown:{Core.State.HomeRegionRelocationCooldownHoursRemaining:0.###}");
@@ -166,7 +167,7 @@ namespace MajorMiseries.Persistence
         }
     }
 
-    [HarmonyPatch(typeof(SaveGameSlots), nameof(SaveGameSlots.WriteSlotToDisk), new Type[] { typeof(SlotData), typeof(SaveGameSlots.Timestamp) })]
+    [HarmonyPatch(typeof(SaveGameSlots), nameof(SaveGameSlots.WriteSlotToDisk), [typeof(SlotData), typeof(SaveGameSlots.Timestamp)])]
     internal class MajorMiseries_SavePatch
     {
         private static void Prefix()
@@ -175,7 +176,7 @@ namespace MajorMiseries.Persistence
         }
     }
 
-    [HarmonyPatch(typeof(GameManager), nameof(GameManager.LoadSaveGameSlot), new Type[] { typeof(string), typeof(int) })]
+    [HarmonyPatch(typeof(GameManager), nameof(GameManager.LoadSaveGameSlot), [typeof(string), typeof(int)])]
     internal class MajorMiseries_LoadPatch
     {
         private static void Postfix()
@@ -186,7 +187,7 @@ namespace MajorMiseries.Persistence
         }
     }
 
-    [HarmonyPatch(typeof(SaveGameSlots), nameof(SaveGameSlots.CreateSlot), new Type[] { typeof(string), typeof(SaveSlotType), typeof(uint), typeof(Episode) })]
+    [HarmonyPatch(typeof(SaveGameSlots), nameof(SaveGameSlots.CreateSlot), [typeof(string), typeof(SaveSlotType), typeof(uint), typeof(Episode)])]
     internal class MajorMiseries_NewGamePatch
     {
         private static void Postfix()

@@ -5,6 +5,7 @@ using static MajorMiseries.Afflictions.COPoisoning;
 using static MajorMiseries.Afflictions.Sepsis;
 using static MajorMiseries.Afflictions.SepsisRisk;
 using static MajorMiseries.Afflictions.CorpseSickness;
+using MajorMiseries.Managers;
 
 namespace MajorMiseries.Patches
 {
@@ -375,7 +376,7 @@ namespace MajorMiseries.Patches
             private static void Postfix(ref Weather __instance)
             {
                 if (__instance == null) return;
-                if (!RegionalAfflictionLogic.ShouldHomeComfortBeActive()) return;
+                if (!RegionalAfflictionManager.ShouldHomeComfortBeActive()) return;
 
                 __instance.m_CurrentTemperature += 1f;
             }

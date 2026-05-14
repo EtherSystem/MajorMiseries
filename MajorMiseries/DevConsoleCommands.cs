@@ -1,4 +1,5 @@
 ﻿using AfflictionComponent.Components;
+using MajorMiseries.Managers;
 using MajorMiseries.Patches;
 using static MajorMiseries.Afflictions.BlackLung;
 using static MajorMiseries.Afflictions.BlackLungRisk;
@@ -135,22 +136,22 @@ namespace MajorMiseries
 
             uConsole.RegisterCommand("mm_sprain_risk_wrist_left", new Action(() =>
             {
-                SevereSprainLogic.DevApplyRisk(SevereSprainKind.Wrist, AfflictionBodyArea.HandLeft);
+                SevereSprainManager.DevApplyRisk(SevereSprainKind.Wrist, AfflictionBodyArea.HandLeft);
             }));
 
             uConsole.RegisterCommand("mm_sprain_risk_wrist_right", new Action(() =>
             {
-                SevereSprainLogic.DevApplyRisk(SevereSprainKind.Wrist, AfflictionBodyArea.HandRight);
+                SevereSprainManager.DevApplyRisk(SevereSprainKind.Wrist, AfflictionBodyArea.HandRight);
             }));
 
             uConsole.RegisterCommand("mm_sprain_risk_ankle_left", new Action(() =>
             {
-                SevereSprainLogic.DevApplyRisk(SevereSprainKind.Ankle, AfflictionBodyArea.FootLeft);
+                SevereSprainManager.DevApplyRisk(SevereSprainKind.Ankle, AfflictionBodyArea.FootLeft);
             }));
 
             uConsole.RegisterCommand("mm_sprain_risk_ankle_right", new Action(() =>
             {
-                SevereSprainLogic.DevApplyRisk(SevereSprainKind.Ankle, AfflictionBodyArea.FootRight);
+                SevereSprainManager.DevApplyRisk(SevereSprainKind.Ankle, AfflictionBodyArea.FootRight);
             }));
 
 
@@ -158,22 +159,22 @@ namespace MajorMiseries
 
             uConsole.RegisterCommand("mm_severe_sprain_wrist_left", new Action(() =>
             {
-                SevereSprainLogic.DevApplySevereSprain(SevereSprainKind.Wrist, AfflictionBodyArea.HandLeft);
+                SevereSprainManager.DevApplySevereSprain(SevereSprainKind.Wrist, AfflictionBodyArea.HandLeft);
             }));
 
             uConsole.RegisterCommand("mm_severe_sprain_wrist_right", new Action(() =>
             {
-                SevereSprainLogic.DevApplySevereSprain(SevereSprainKind.Wrist, AfflictionBodyArea.HandRight);
+                SevereSprainManager.DevApplySevereSprain(SevereSprainKind.Wrist, AfflictionBodyArea.HandRight);
             }));
 
             uConsole.RegisterCommand("mm_severe_sprain_ankle_left", new Action(() =>
             {
-                SevereSprainLogic.DevApplySevereSprain(SevereSprainKind.Ankle, AfflictionBodyArea.FootLeft);
+                SevereSprainManager.DevApplySevereSprain(SevereSprainKind.Ankle, AfflictionBodyArea.FootLeft);
             }));
 
             uConsole.RegisterCommand("mm_severe_sprain_ankle_right", new Action(() =>
             {
-                SevereSprainLogic.DevApplySevereSprain(SevereSprainKind.Ankle, AfflictionBodyArea.FootRight);
+                SevereSprainManager.DevApplySevereSprain(SevereSprainKind.Ankle, AfflictionBodyArea.FootRight);
             }));
 
 
@@ -213,7 +214,7 @@ namespace MajorMiseries
 
             uConsole.RegisterCommand("reset_HR_timer", new Action(() =>
             {
-                RegionalAfflictionLogic.DevResetHomeRegionRelocationCooldown();
+                RegionalAfflictionManager.DevResetHomeRegionRelocationCooldown();
             }));
 
 
@@ -290,12 +291,12 @@ namespace MajorMiseries
 
                 new SevereWristSprainAffliction(
                     AfflictionBodyArea.HandLeft,
-                    SevereSprainLogic.SevereSprainDurationHours
+                    SevereSprainManager.SevereSprainDurationHours
                 ).Start();
 
                 new SevereAnkleSprainAffliction(
                     AfflictionBodyArea.FootLeft,
-                    SevereSprainLogic.SevereSprainDurationHours
+                    SevereSprainManager.SevereSprainDurationHours
                 ).Start();
 
                 new HomeSicknessAffliction(AfflictionBodyArea.Head)

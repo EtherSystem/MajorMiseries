@@ -1,4 +1,6 @@
-﻿namespace MajorMiseries
+﻿using MajorMiseries.Managers;
+
+namespace MajorMiseries
 {
     internal class MMSettings : JsonModSettings
     {
@@ -378,7 +380,7 @@
 
             if (regionalRuntimeSettingChanged)
             {
-                RegionalAfflictionLogic.RequestSettingsSync();
+                RegionalAfflictionManager.RequestSettingsSync();
             }
 
             if (field.Name == nameof(RevealShinyAfflictionIconChance1) ||
@@ -430,7 +432,7 @@
 
             Settings.UpdateRegionalAfflictionVisibility();
 
-            RegionalAfflictionLogic.SyncFromSettings(logSettingsChanges: true, allowHomeRegionChange: true);
+            RegionalAfflictionManager.SyncFromSettings(logSettingsChanges: true, allowHomeRegionChange: true);
         }
     }
 

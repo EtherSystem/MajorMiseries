@@ -1,12 +1,11 @@
-﻿using AfflictionComponent.Components;
+using AfflictionComponent.Components;
 using MajorMiseries.Afflictions;
 using MajorMiseries.Persistence;
 using MajorMiseries.Afflictions.Buffs;
-using MajorMiseries.Resources.Localization;
 
-namespace MajorMiseries
+namespace MajorMiseries.Managers
 {
-    internal static class RegionalAfflictionLogic
+    internal static class RegionalAfflictionManager
     {
         private const float RECOVERY_MULTIPLIER = 4f;
 

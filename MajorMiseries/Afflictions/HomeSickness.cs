@@ -1,6 +1,7 @@
 ﻿using AfflictionComponent.Components;
 using AfflictionComponent.Enums;
 using AfflictionComponent.Interfaces;
+using MajorMiseries.Managers;
 using MajorMiseries.Resources.Localization;
 
 namespace MajorMiseries.Afflictions
@@ -56,7 +57,7 @@ namespace MajorMiseries.Afflictions
                 if (DebugForced)
                     return;
 
-                if (!RegionalAfflictionLogic.ShouldHomeSicknessBeActive())
+                if (!RegionalAfflictionManager.ShouldHomeSicknessBeActive())
                 {
                     Cure();
                 }

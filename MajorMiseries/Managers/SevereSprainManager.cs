@@ -1,11 +1,11 @@
-﻿using AfflictionComponent.Components;
+using AfflictionComponent.Components;
 using MajorMiseries.Persistence;
 using static MajorMiseries.Afflictions.SevereAnkleSprain;
 using static MajorMiseries.Afflictions.SevereAnkleSprainRisk;
 using static MajorMiseries.Afflictions.SevereWristSprain;
 using static MajorMiseries.Afflictions.SevereWristSprainRisk;
 
-namespace MajorMiseries
+namespace MajorMiseries.Managers
 {
     internal enum SevereSprainKind
     {
@@ -22,7 +22,7 @@ namespace MajorMiseries
         RightAnkle
     }
 
-    internal static class SevereSprainLogic
+    internal static class SevereSprainManager
     {
         private const float RISK_START_VALUE = 99f;
         private static bool ShouldApplySevereSprainsDirectly => Settings.options.SevereSprainPreset == 4;

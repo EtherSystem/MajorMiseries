@@ -1,4 +1,5 @@
 ﻿using LocalizationUtilities;
+using MajorMiseries.Managers;
 using MajorMiseries.Persistence;
 
 [assembly: MelonInfo(typeof(MajorMiseries.Core), "Major Miseries", "1.0.0", "EtherSystem, FlowerField", null)]
@@ -85,7 +86,7 @@ namespace MajorMiseries
 
             AfflictionLogic.ResetRuntime();
             Patches.WildlifePatches.ResetRuntime();
-            RegionalAfflictionLogic.ResetRuntime();
+            RegionalAfflictionManager.ResetRuntime();
             ImmunityManager.ResetRuntime();
             RequiemStagesEffects.ResetRuntime();
         }
@@ -122,7 +123,7 @@ namespace MajorMiseries
             State.ConfiguredHomeRegion ??= string.Empty;
             State.ConfiguredRegionalDistressRegion ??= string.Empty;
 
-            RegionalAfflictionLogic.RestoreFromState();
+            RegionalAfflictionManager.RestoreFromState();
             ImmunityManager.OnStateLoaded();
 
             if (!Mathf.Approximately(oldInternalBodyTemp, State.InternalBodyTemp)) changed = true;
@@ -160,9 +161,9 @@ namespace MajorMiseries
 
             ImmunityManager.UpdateBodyHeatRealtime(scene);
 
-            if (!RegionalAfflictionLogic.IsGameplayScene(scene)) return;
+            if (!RegionalAfflictionManager.IsGameplayScene(scene)) return;
 
-            RegionalAfflictionLogic.UpdateSceneContext(scene);
+            RegionalAfflictionManager.UpdateSceneContext(scene);
 
             if (_pendingStageSync)
             {
@@ -174,7 +175,7 @@ namespace MajorMiseries
                 AfflictionLogic.RebuildHumanCorpseSceneCache();
                 AfflictionLogic.SeedAnimalCarcassCacheFromScene();
 
-                RegionalAfflictionLogic.SyncFromSettings();
+                RegionalAfflictionManager.SyncFromSettings();
 
                 _pendingStageSync = false;
                 Log("stage/settings sync executed");
@@ -201,9 +202,9 @@ namespace MajorMiseries
             AfflictionLogic.UpdateBlackLungExposure(gameHoursPassed);
             AfflictionLogic.UpdateCOExposure(gameHoursPassed);
             AfflictionLogic.UpdateCorpseExposure(gameHoursPassed);
-            RegionalAfflictionLogic.Update(gameHoursPassed);
+            RegionalAfflictionManager.Update(gameHoursPassed);
             ImmunityManager.Update(gameHoursPassed);
-            SevereSprainLogic.Update(gameHoursPassed);
+            SevereSprainManager.Update(gameHoursPassed);
         }
     }
 }

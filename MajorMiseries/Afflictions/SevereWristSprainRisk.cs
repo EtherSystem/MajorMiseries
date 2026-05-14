@@ -1,6 +1,7 @@
 ﻿using AfflictionComponent.Components;
 using AfflictionComponent.Enums;
 using AfflictionComponent.Interfaces;
+using MajorMiseries.Managers;
 using MajorMiseries.Resources.Localization;
 
 namespace MajorMiseries.Afflictions
@@ -45,7 +46,7 @@ namespace MajorMiseries.Afflictions
 
             public void UpdateRiskValue()
             {
-                m_RiskValue = SevereSprainLogic.GetRiskValue(SevereSprainKind.Wrist, m_Location);
+                m_RiskValue = SevereSprainManager.GetRiskValue(SevereSprainKind.Wrist, m_Location);
             }
 
             public void CureSymptoms()
@@ -71,7 +72,7 @@ namespace MajorMiseries.Afflictions
 
                 UpdateRiskValue();
 
-                if (SevereSprainLogic.HasSevereSprain(SevereSprainKind.Wrist, m_Location))
+                if (SevereSprainManager.HasSevereSprain(SevereSprainKind.Wrist, m_Location))
                 {
                     Cure();
                     return;
