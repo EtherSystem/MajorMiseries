@@ -37,6 +37,7 @@ Major Miseries aims to make each game more demanding and complex, so this mod is
 Major Miseries currently includes:
 
 - [Requiem Stages](#requiem-stages)
+- [Scurvy and Vitamin C Drain](#scurvy-and-vitamin-c-drain)
 - [Predator Hostility](#predator-hostility)
 - [Broken Arms](#broken-arm)
 - [Broken Legs](#broken-leg)
@@ -164,6 +165,30 @@ Effects:
 | Base Predator Threat | 4 |
 
 Note : Requiem is not meant to be fair. That's precisely what I want.
+
+## Scurvy and Vitamin C Drain
+
+Major Miseries can make the vanilla Scurvy system more dangerous by accelerating Vitamin C drain.
+
+Vitamin C Drain can be configured in the Requiem Stages settings.
+
+| Setting | Behavior |
+|---|---|
+| Only with Requiem Stages | Vitamin C drain is accelerated only once at least one Requiem Stage is active. This is the default mode. |
+| Always | Vitamin C drain is accelerated even before Requiem Stages begin or are disabled. |
+| Disabled | Vitamin C drain is not modified by Major Miseries. |
+
+When Vitamin C Drain is active, the selected preset multiplies the vanilla Vitamin C loss.
+
+| Preset | Vitamin C drain multiplier |
+|---|---:|
+| Forgiving | 1.5x |
+| Standard | 2.0x |
+| Harsh | 3.0x |
+| Brutal | 4.0x |
+| Who Wants to Play Like This? | 5.0x |
+
+The default preset is Standard, so by default active Vitamin C drain is doubled.
 
 ## Scarred Flesh and Maximum Condition
 
