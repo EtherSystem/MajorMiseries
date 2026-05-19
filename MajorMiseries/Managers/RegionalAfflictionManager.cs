@@ -136,6 +136,41 @@ namespace MajorMiseries.Managers
             return s_RegionalDistressRegionIds[choiceIndex];
         }
 
+        internal static int GetHomeRegionChoiceIndex(string? regionId)
+        {
+            if (string.IsNullOrEmpty(regionId)) return 0;
+
+            for (int i = 0; i < s_HomeRegionIds.Length; i++)
+            {
+                if (string.Equals(s_HomeRegionIds[i], regionId, StringComparison.OrdinalIgnoreCase)) return i;
+            }
+
+            return 0;
+        }
+
+        internal static int GetRegionalDistressRegionChoiceIndex(string? regionId)
+        {
+            if (string.IsNullOrEmpty(regionId)) return 0;
+
+            for (int i = 0; i < s_RegionalDistressRegionIds.Length; i++)
+            {
+                if (string.Equals(s_RegionalDistressRegionIds[i], regionId, StringComparison.OrdinalIgnoreCase)) return i;
+            }
+
+            return 0;
+        }
+
+        internal static void SyncSettingsDisplayFromState()
+        {
+            EnsureState();
+
+            Settings.options.HomeRegion = GetHomeRegionChoiceIndex(Core.State.ConfiguredHomeRegion);
+            Settings.options.RegionalDistressRegion = GetRegionalDistressRegionChoiceIndex(Core.State.ConfiguredRegionalDistressRegion);
+
+            Settings.UpdateRegionalAfflictionVisibility();
+            Settings.options.RefreshGUI();
+        }
+
         internal static string GetRegionLogName(string? regionId)
         {
             return string.IsNullOrEmpty(regionId) ? "Unknown" : regionId;

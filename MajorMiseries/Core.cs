@@ -11,6 +11,7 @@ namespace MajorMiseries
     {
         public static Core? Instance { get; private set; }
         internal static MMState State = new();
+        internal static bool IsGameplayEnabled => Settings.options != null && Settings.options.EnableMajorMiseries && SaveDataManager.IsMajorMEnabledForCurrentSlot;
         private bool _dirty = false;
 
         public static string? LoadEmbeddedJSON(string localization)
@@ -53,6 +54,8 @@ namespace MajorMiseries
 
         internal void MarkDirty()
         {
+            if (!IsGameplayEnabled) return;
+
             _dirty = true;
         }
 
@@ -72,6 +75,12 @@ namespace MajorMiseries
 
         public void SaveIfDirty()
         {
+            if (!IsGameplayEnabled)
+            {
+                _dirty = false;
+                return;
+            }
+
             if (!_dirty) return;
 
             SaveDataManager.OnSave();
@@ -93,6 +102,8 @@ namespace MajorMiseries
 
         public void OnStateLoaded()
         {
+            if (!IsGameplayEnabled) return;
+
             State ??= new MMState();
 
             bool changed = false;
@@ -124,6 +135,7 @@ namespace MajorMiseries
             State.ConfiguredRegionalDistressRegion ??= string.Empty;
 
             RegionalAfflictionManager.RestoreFromState();
+            RegionalAfflictionManager.SyncSettingsDisplayFromState();
             ImmunityManager.OnStateLoaded();
 
             if (!Mathf.Approximately(oldInternalBodyTemp, State.InternalBodyTemp)) changed = true;
@@ -156,6 +168,7 @@ namespace MajorMiseries
         public override void OnUpdate()
         {
             if (GameManager.m_Instance == null || GameManager.m_IsPaused) return;
+            if (!IsGameplayEnabled) return;
 
             string scene = GameManager.m_ActiveScene;
 

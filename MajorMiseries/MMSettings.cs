@@ -1,9 +1,17 @@
 ﻿using MajorMiseries.Managers;
+using MajorMiseries.Persistence;
 
 namespace MajorMiseries
 {
     internal class MMSettings : JsonModSettings
     {
+        [Section("Major Miseries")]
+
+        [Name("Enable Major Miseries for this save")]
+        [Description("Enable Major Miseries systems for the current save slot. When disabled, all other settings are hidden and no Major Miseries gameplay data is loaded, updated, or saved for this slot.")]
+        public bool EnableMajorMiseries = false;
+
+
         [Section("Requiem Stages")]
 
         [Name("Enable Requiem Stages")]
@@ -327,6 +335,17 @@ namespace MajorMiseries
 
         protected override void OnChange(FieldInfo field, object? oldValue, object? newValue)
         {
+            if (field.Name == nameof(EnableMajorMiseries))
+            {
+                Settings.RefreshVisibility();
+            }
+
+            if (!EnableMajorMiseries)
+            {
+                base.OnChange(field, oldValue, newValue);
+                return;
+            }
+
             if (field.Name == nameof(CustomizeStageThresholds))
             {
                 Settings.UpdateStageThresholdVisibility();
@@ -430,9 +449,21 @@ namespace MajorMiseries
         {
             base.OnConfirm();
 
+            Settings.RefreshVisibility();
+            SaveDataManager.ApplySettingsConfirmedState();
+
+            if (!Core.IsGameplayEnabled)
+            {
+                RefreshGUI();
+                return;
+            }
+
             Settings.UpdateRegionalAfflictionVisibility();
 
             RegionalAfflictionManager.SyncFromSettings(logSettingsChanges: true, allowHomeRegionChange: true);
+            RegionalAfflictionManager.SyncSettingsDisplayFromState();
+
+            SaveDataManager.SaveSettingsForCurrentSlot(force: true);
         }
     }
 
@@ -445,6 +476,19 @@ namespace MajorMiseries
             options = new MMSettings();
             options.AddToModSettings("Major Miseries");
 
+            RefreshVisibility();
+        }
+
+        internal static void RefreshVisibility()
+        {
+            UpdateMasterVisibility();
+
+            if (!options.EnableMajorMiseries)
+            {
+                options.RefreshGUI();
+                return;
+            }
+
             UpdateStageThresholdVisibility();
             UpdateVitaminCDrainVisibility();
             UpdateBlackLungVisibility();
@@ -454,6 +498,18 @@ namespace MajorMiseries
             UpdateImmunityShieldVisibility();
             UpdateBodyHeatVisibility();
             UpdateShinyAfflictionIconChanceVisibility();
+        }
+
+        private static void UpdateMasterVisibility()
+        {
+            bool enabled = options.EnableMajorMiseries;
+
+            foreach (FieldInfo field in typeof(MMSettings).GetFields(BindingFlags.Instance | BindingFlags.Public))
+            {
+                if (field.Name == nameof(options.EnableMajorMiseries)) continue;
+
+                options.SetFieldVisible(field.Name, enabled);
+            }
         }
 
         internal static void UpdateStageThresholdVisibility()

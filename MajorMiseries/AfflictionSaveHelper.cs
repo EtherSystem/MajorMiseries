@@ -6,6 +6,7 @@
 
         internal static void QueueSurvivalSave()
         {
+            if (!Core.IsGameplayEnabled) return;
             if (_saveQueued) return;
             _saveQueued = true;
 
@@ -19,7 +20,7 @@
 
             _saveQueued = false;
 
-            if (GameManager.m_Instance != null)
+            if (GameManager.m_Instance != null && Core.IsGameplayEnabled)
             {
                 GameManager.TriggerSurvivalSaveAndDisplayHUDMessage();
             }
