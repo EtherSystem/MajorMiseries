@@ -24,6 +24,7 @@ Instead of only punishing one bad moment, many systems track what the survivor h
 - Repeated sprains on the same joint can escalate into severe injuries.
 - Neglecting fatigue, hunger, thirst, warmth, or condition can weaken the Immunity Shield.
 - Internal body temperature can drift into fever, sweating, overheating, or severe cold pressure.
+- Spending too much time under the aurora can slowly damage the survivor's mind.
 - Killing predators can make the world more hostile.
 - Remaining away from home, or trapped in a hated region, can wear you down.
 - Repeated severe lacerations will permanently scar your body.
@@ -45,6 +46,7 @@ Major Miseries currently includes:
 - [Immunity Shield](#immunity-shield)
 - [Body Temperature](#body-temperature-and-fever)
 - [Fever Response](#fever-response)
+- [Aurora Influence](#aurora-influence)
 - [Black Lung](#black-lung)
 - [Carbon Monoxide Exposure and Poisoning](#carbon-monoxide)
 - [Corpse Sickness](#corpse-sickness)
@@ -598,6 +600,117 @@ Active fever slightly helps resist infection-style risk progression. With a very
 
 Cold can suppress fever temperature. In other words, fever does not make the survivor immune to freezing.
 
+## Aurora Influence
+
+Aurora Influence is a long-term mental exposure system tied to repeated aurora exposure extremely inspired by the Wintermute Lore.
+
+It is not meant to replace the vanilla aurora. It represents what happens when the survivor spends too much time under it, sleeps through it too often, or keeps pushing through the night while something in the sky is quietly eating away at their mind.
+
+The system tracks hidden Aurora Influence Exposure from 0 to 100.
+At low values, it may only be a warning. At higher values, it begins to interfere with manual work, sleep, movement fatigue, fire-starting, and memory. At extreme values, it becomes the Void Sickness.
+
+### Aurora Influence Exposure
+
+Aurora Influence Exposure increases during active auroras when the player is not fully sheltered.
+
+Default exposure behavior:
+
+| Situation | Default value |
+|---|---:|
+| Indoor exposure during aurora, medium-exposure region | +1 exposure per hour |
+| Outdoor exposure during aurora, medium-exposure region | +4 exposure per hour |
+| Sleeping while exposed to the aurora | 1.5x exposure gain |
+| Low-exposure region multiplier | 0.75x |
+| Medium-exposure region multiplier | 1.0x |
+| High-exposure region multiplier | 1.5x |
+| Low/Medium transition region multiplier | 0.875x |
+| Medium/High transition region multiplier | 1.25x |
+| Vitamin C at 500 | 1.0x exposure gain |
+| Vitamin C at 0 | Up to 2.0x exposure gain |
+| Vehicle or The Riken partial shielding | 0.25x exposure gain |
+| Exposure decay when not exposed | -1 exposure per day |
+
+Yes, the exposure decay is intentionally slow.
+
+The point is not to make one aurora instantly lethal. The point is that repeated exposure can follow the save for a very long time.
+
+### Aurora Exposure Risk
+
+When Aurora Influence Exposure is above 0, Aurora Exposure appear in the First Aid panel.
+
+The display is mostly a warning at first, but the real effects begin once exposure reaches 50.
+
+Default effect scaling:
+
+| Exposure | Effect |
+|---:|---|
+| < 50 | Nothing happen |
+| 50 to 99 | Action time can increase up to 1.35x |
+| 50 to 99 | Movement fatigue can increase up to 1.45x |
+| 50 to 99 | Fire-starting chance can lose up to 20% |
+| >= 50 | Sleep events can happen after at least 4 planned sleep hours |
+| >= 75 | Lost time after sleep can join the sleep event pool |
+| >= 75 | Sleepwalking can happen after at least 5 planned sleep hours |
+| >= 99 | Void Sickness replaces Aurora Exposure Risk |
+
+Affected action times include crafting, repairing, breaking down objects, and research. For research, the book does not become longer to read, your progress becomes worse. Imagine reading a 5-hour book in one sitting, you will forget about half the time spent reading it and will need to read it again to gain the xp.
+
+### Aurora Sleep Events
+
+When Aurora Influence Exposure is at least 50 and the player sleeps for long enough, sleep may become unreliable.
+
+Possible sleep events:
+
+| Event | Behavior |
+|---|---|
+| Restless Sleep | You sleep, but sleep recovery can be reduced. Long sleep can become much less efficient. |
+| Night Terror | You may wake after 1 to 3 hours, sleep recovery is reduced, and sleep is blocked for 30 minutes afterward. |
+| Lost Time | After waking you'll lose 0.5 to 2 hours. |
+| Sleepwalking | You can wake somewhere else and lose 0.5 to 3 hours. |
+
+By default, regular sleep event chance scales from 5% at 50 exposure to 30% near Void Sickness.
+
+Sleepwalking is separate. It starts at 75 exposure and uses the configured Sleepwalking Minimum Chance and Sleepwalking Maximum Chance settings. By default, that means 1% to 5%.
+
+Sleepwalking uses configured wake points when available. It is designed to move the survivor to a plausible outdoor wake point in the current or logical region rather than simply throwing them into completely random death.
+
+That does not mean it is safe. Waking up somewhere else in Great Bear is rarely good news.
+
+### Waking Blackouts
+
+At 99 Aurora Influence Exposure or more, Void Sickness can cause waking blackouts.
+
+Default waking blackout behavior:
+
+| Behavior | Default value |
+|---|---:|
+| Roll interval | Every 10 in-game minutes |
+| Roll chance at 99 exposure | Half of the configured chance |
+| Roll chance at 100 exposure | Full configured chance |
+| Time lost if no movement occurs | 0.15 to 0.35 hours |
+| Time lost if movement occurs | Based on path distance, clamped from 0.2 to 3 hours |
+| Fatigue loss | 10 fatigue per hour lost |
+
+During a waking blackout, the screen fades to black similar to the sleepwalking event. If the player is outdoors and a safe nearby position can be found, the survivor may be moved there. If no safe position is found, the blackout can still steal time without moving the player.
+
+Waking blackout rolls are blocked in several unsafe or inappropriate situations, such as sleeping, passing time, climbing, predator stalking you, low condition, or an already running blackout.
+
+This system is not designed as a clean teleport tool. It is designed as a punishment for letting Aurora Influence reach the point where the survivor can no longer trust their own memory and can be really brutal.
+
+### Void Sickness
+
+Void Sickness begins when Aurora Influence Exposure reaches 99 or higher.
+
+At this stage, Aurora Exposure is replaced by Void Sickness. The survivor can suffer waking blackouts, sleepwalking becomes more dangerous, and the affliction uses water related audio (according to Wintermute lore) and description behavior while active.
+
+If exposure falls below the Void Sickness threshold, Void Sickness disappears and Aurora Exposure Risk will return instead.
+
+Avoiding further exposure to the Aurora is the only way to recover from this. There are no meds or cures. The only way to get rid of the Void Sickness is to wait for it to disappear and pray you survive until then.
+
+However, you can protect yourself from the Aurora by taking refuge in a cave, a mine, or any other *deep* underground location.
+
+I want to extend a special thank you to Lithar and Zaknafein for their invaluable help in understanding the lore of Wintermute, which has been incredibly helpful in creating the most lore-accurate Aurora influence system possible. I love you guys!
+
 ## Black Lung
 
 Black Lung is caused by long-term exposure to coal-heavy locations such as coal caves, mines, and similar scenes.
@@ -955,6 +1068,8 @@ There may be overlap and strange behavior with other mods that modify:
 - Respirator or canister behavior.
 - Wildlife AI behavior.
 - Fire behavior.
+- Aurora, weather, rest, sleep, pass-time, or time-skip behavior.
+- Crafting, repair, research, breakdown, or other action duration behavior.
 
 This doesn't mean these mods are doomed to malfunction.  
 It simply means these are the areas most likely to overlap and cause strange, unexpected behavior. However, in all the tests performed on this mod, no real incompatibilities with other mods were found.
@@ -1018,6 +1133,34 @@ Applies Broken Leg to a random leg. Uses 2016h in Realistic mode or 201.6h in Un
 
 **brokenarm**  
 Applies Broken Arm to a random arm. Uses 1344h in Realistic mode or 134.4h in Unrealistic mode.
+
+---
+
+### Aurora Influence Commands
+
+**auroraexposure**  
+Applies Aurora Exposure Risk in debug mode at 50% risk.
+
+**voidsickness**  
+Applies Void Sickness.
+
+**set_AE [value]**  
+Sets hidden Aurora Influence Exposure to the provided value, clamped from 0 to 100.
+
+**trigger_AE_blackout**  
+Attempts to manually trigger a waking blackout. The command can still be blocked if the current situation is not valid.
+
+**trigger_AE_sleepwalking**  
+Attempts to manually trigger sleepwalking. The command can still fail if no valid wake point or target scene can be resolved.
+
+**force_AE_sleep_event [restless|nightterror|losttime|sleepwalking|clear]**  
+Forces the next valid sleep event, or clears the forced event. Useful for testing real sleep behavior.
+
+**trigger_AE_sleep_event [restless|nightterror|losttime|sleepwalking]**  
+Immediately triggers a specific Aurora sleep event for testing.
+
+**debug_AE_context**  
+Logs the current Aurora Influence context, including scene, logical region, exposure tier, aurora state, shelter state, Vitamin C multiplier, and current exposure.
 
 ---
 
