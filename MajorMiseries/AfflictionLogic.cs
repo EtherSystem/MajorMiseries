@@ -493,6 +493,7 @@ namespace MajorMiseries
             SyncCarbonMonoxideSystem();
             SyncBlackLungSystem();
             SyncCorpseSicknessSystem();
+            SyncAuroraInfluenceSystem();
             SevereSprainManager.SyncFromState();
             ForceRefreshEffects();
         }
@@ -550,6 +551,11 @@ namespace MajorMiseries
 
             CureAllAfflictionsOfType<CorpseSicknessRiskAffliction>();
             CureAllAfflictionsOfType<CorpseSicknessAffliction>();
+        }
+
+        private static void SyncAuroraInfluenceSystem()
+        {
+            AuroraInfluenceManager.SyncAfflictionDisplayFromState();
         }
     }
 }

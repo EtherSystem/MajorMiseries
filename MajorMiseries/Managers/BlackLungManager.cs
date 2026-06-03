@@ -20,7 +20,7 @@ namespace MajorMiseries
             "RiverValleyTransitionCave", // MT <-> HRV transition cave
             "AshCaveA", // AC <-> TWM transition cave
             "AshCaveB", // AC cave between Long Falls and Miner's Folly
-            "AshMine",     // AC Gold Mine
+            "AshMine",  // AC Gold Mine
             "IceCaveA", // HRV South ice cave system
             "IceCaveB", // HRV North ice cave system
             "MountainCaveA", // TWM cave close to the engine down a ravine

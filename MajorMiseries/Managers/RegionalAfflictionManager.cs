@@ -384,6 +384,21 @@ namespace MajorMiseries.Managers
             }
         }
 
+        internal static string ResolveLogicalRegionForScene(string sceneName, string? fallbackLogicalRegion = null)
+        {
+            if (!IsGameplayScene(sceneName)) return string.Empty;
+
+            string outdoorRegion = GetOutdoorLogicalRegion(sceneName);
+            if (!string.IsNullOrEmpty(outdoorRegion)) return outdoorRegion;
+
+            return fallbackLogicalRegion ?? string.Empty;
+        }
+
+        internal static string ResolveOutdoorLogicalRegionForScene(string sceneName)
+        {
+            return GetOutdoorLogicalRegion(sceneName);
+        }
+
         internal static void UpdateSceneContext(string sceneName)
         {
             if (!IsGameplayScene(sceneName)) return;
@@ -393,20 +408,16 @@ namespace MajorMiseries.Managers
             string oldCurrentRegion = Core.State.CurrentLogicalRegion ?? string.Empty;
             string oldLastKnownRegion = Core.State.LastKnownLogicalRegion ?? string.Empty;
 
-            string outdoorRegion = GetOutdoorLogicalRegion(sceneName);
+            string outdoorRegion = ResolveOutdoorLogicalRegionForScene(sceneName);
 
             if (!string.IsNullOrEmpty(outdoorRegion))
             {
                 Core.State.LastKnownLogicalRegion = outdoorRegion;
                 Core.State.CurrentLogicalRegion = outdoorRegion;
             }
-            else if (!string.IsNullOrEmpty(Core.State.LastKnownLogicalRegion))
-            {
-                Core.State.CurrentLogicalRegion = Core.State.LastKnownLogicalRegion;
-            }
             else
             {
-                Core.State.CurrentLogicalRegion = string.Empty;
+                Core.State.CurrentLogicalRegion = ResolveLogicalRegionForScene(sceneName, Core.State.LastKnownLogicalRegion);
             }
 
             bool regionChanged = !string.Equals(oldCurrentRegion, Core.State.CurrentLogicalRegion, StringComparison.OrdinalIgnoreCase) || !string.Equals(oldLastKnownRegion, Core.State.LastKnownLogicalRegion, StringComparison.OrdinalIgnoreCase);
@@ -570,7 +581,6 @@ namespace MajorMiseries.Managers
             if (AfflictionLogic.HasAffliction<HomeComfort.HomeComfortBuff>()) return;
 
             new HomeComfort.HomeComfortBuff(AfflictionBodyArea.Head).Start();
-            AfflictionSaveHelper.QueueSurvivalSave();
 
             AfflictionLogic.ForceRefreshEffects();
 
@@ -582,7 +592,6 @@ namespace MajorMiseries.Managers
             if (AfflictionLogic.HasAffliction<HomeSickness.HomeSicknessAffliction>()) return;
 
             new HomeSickness.HomeSicknessAffliction(AfflictionBodyArea.Head).Start();
-            AfflictionSaveHelper.QueueSurvivalSave();
 
             AfflictionLogic.ForceRefreshEffects();
 
@@ -594,7 +603,6 @@ namespace MajorMiseries.Managers
             if (AfflictionLogic.HasAffliction<RegionalDistress.RegionalDistressAffliction>()) return;
 
             new RegionalDistress.RegionalDistressAffliction(AfflictionBodyArea.Head).Start();
-            AfflictionSaveHelper.QueueSurvivalSave();
 
             AfflictionLogic.ForceRefreshEffects();
 

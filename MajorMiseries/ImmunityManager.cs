@@ -33,7 +33,6 @@ namespace MajorMiseries
         private static float s_FeverTargetBodyTempC;
         private static float s_LingeringFeverTargetBodyTempC;
 
-        private static float s_BodyHeatRealAccum;
         private static double s_BodyHeatGameSecondsAccum;
 
         private static float s_HeatStaggerPhase;
@@ -61,7 +60,6 @@ namespace MajorMiseries
             s_FeverTargetBodyTempC = 0f;
             s_LingeringFeverTargetBodyTempC = 0f;
 
-            s_BodyHeatRealAccum = 0f;
             s_BodyHeatGameSecondsAccum = 0.0;
 
             s_HeatHeadachePulseRealTimer = 0f;
@@ -226,7 +224,27 @@ namespace MajorMiseries
             return $"{Core.State.InternalBodyTemp:0.0}°C";
         }
 
-        internal static void UpdateBodyHeatRealtime(string scene)
+        internal static void UpdateBodyHeatRealtimeEffects(string scene)
+        {
+            if (GameManager.m_Instance == null || GameManager.m_IsPaused)
+            {
+                ResetHeatNeurologicalEffects();
+                ResetHeatHeadacheEffect();
+                return;
+            }
+
+            if (Settings.options == null || !IsBodyHeatEnabled() || scene == "MainMenu" || scene == "Boot" || scene == "Empty")
+            {
+                ResetHeatNeurologicalEffects();
+                ResetHeatHeadacheEffect();
+                return;
+            }
+
+            UpdateHeatNeurologicalEffects();
+            UpdateHeatHeadacheEffect();
+        }
+
+        internal static void UpdateBodyHeat(string scene, float gameHoursPassed)
         {
             if (GameManager.m_Instance == null || GameManager.m_IsPaused)
             {
@@ -244,7 +262,6 @@ namespace MajorMiseries
 
             if (!IsBodyHeatEnabled())
             {
-                s_BodyHeatRealAccum = 0f;
                 s_BodyHeatGameSecondsAccum = 0.0;
                 ResetHeatNeurologicalEffects();
                 ResetHeatHeadacheEffect();
@@ -253,33 +270,12 @@ namespace MajorMiseries
 
             if (scene == "MainMenu" || scene == "Boot" || scene == "Empty")
             {
+                s_BodyHeatGameSecondsAccum = 0.0;
                 ResetHeatNeurologicalEffects();
                 ResetHeatHeadacheEffect();
                 return;
             }
 
-            PlayerManager pm = GameManager.GetPlayerManagerComponent();
-            Weather wc = GameManager.GetWeatherComponent();
-            TimeOfDay tod = GameManager.GetTimeOfDayComponent();
-            Freezing freezing = GameManager.GetFreezingComponent();
-
-            if (pm == null || wc == null || tod == null || freezing == null)
-            {
-                ResetHeatNeurologicalEffects();
-                ResetHeatHeadacheEffect();
-                return;
-            }
-
-            UpdateHeatNeurologicalEffects();
-            UpdateHeatHeadacheEffect();
-
-            s_BodyHeatRealAccum += Time.unscaledDeltaTime;
-            if (s_BodyHeatRealAccum < 0.25f) return;
-
-            float realElapsed = s_BodyHeatRealAccum;
-            s_BodyHeatRealAccum = 0f;
-
-            float gameHoursPassed = tod.GetTODHours(realElapsed);
             if (gameHoursPassed <= 0f) return;
 
             if (gameHoursPassed > 12f)
@@ -288,6 +284,17 @@ namespace MajorMiseries
 
                 Core.Warn("Body Heat time jump detected (>12 game hours). Reset accumulator.");
 
+                return;
+            }
+
+            PlayerManager pm = GameManager.GetPlayerManagerComponent();
+            Weather wc = GameManager.GetWeatherComponent();
+            Freezing freezing = GameManager.GetFreezingComponent();
+
+            if (pm == null || wc == null || freezing == null)
+            {
+                ResetHeatNeurologicalEffects();
+                ResetHeatHeadacheEffect();
                 return;
             }
 

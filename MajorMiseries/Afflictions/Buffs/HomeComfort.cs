@@ -52,7 +52,6 @@ namespace MajorMiseries.Afflictions.Buffs
             public void OnCure()
             {
                 IsActive = false;
-                AfflictionSaveHelper.QueueSurvivalSave();
             }
 
             public override void OnUpdate()

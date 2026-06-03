@@ -662,5 +662,133 @@
         "German": "Deine Heimatregion kann jetzt verlegt werden.",
         "Turkish": "Ev Bölgeniz artık taşınabilir.",
         "Russian": "Теперь вы можете изменить домашний регион."
+    },
+    "GAMEPLAY_AuroraExposureName": {
+        "English": "Aurora Exposure",
+        "French (France)": "Exposition aux aurores",
+        "Spanish (Spain)": "Exposición a la aurora",
+        "German": "Aurora-Exposition",
+        "Turkish": "Aurora Maruziyeti",
+        "Russian": "Воздействие авроры"
+    },
+    "GAMEPLAY_AuroraExposureCause": {
+        "English": "The Aurora",
+        "French (France)": "Les aurores",
+        "Spanish (Spain)": "Influencia de la aurora",
+        "German": "Aurora-Einfluss",
+        "Turkish": "Aurora Etkisi",
+        "Russian": "Влияние авроры"
+    },
+    "GAMEPLAY_AuroraExposureDescription": {
+        "English": "The aurora is altering your mind in subtle ways. Your dreams darken, your thoughts fragment, and your sense of self begins to warp. Your memories seem to slowly fade away, sleep becomes more and more intrusive, and something in the silence seems to be calling you.",
+        "French (France)": "Les aurores altèrent votre esprit de manière insidieuse. Vos rêves s'assombrissent, vos pensées se fragmentent et votre perception de vous-même commence à s'altérer. Vos souvenirs semblent lentement s'effacer, le sommeil devient de plus en plus envahissant et quelque chose dans le silence semble vous appeler.",
+        "Spanish (Spain)": "La aurora afecta tu cuerpo y tu mente. Una vitamina C baja hace que la exposición aumente más rápido, mientras que estar dentro de un vehículo la reduce.",
+        "German": "Die Aurora beeinflusst deinen Körper und Geist. Wenig Vitamin C lässt die Exposition schneller steigen, während ein Fahrzeug sie verringert.",
+        "Turkish": "Aurora bedenini ve zihnini etkiliyor. Düşük C vitamini maruziyeti daha hızlı artırır; aracın içinde olmak bunu azaltır.",
+        "Russian": "Аврора воздействует на тело и разум. Низкий уровень витамина C ускоряет накопление воздействия, а нахождение в машине снижает его."
+    },
+    "GAMEPLAY_VoidSicknessName": {
+        "English": "Void Sickness",
+        "French (France)": "Mal du vide",
+        "Spanish (Spain)": "Mal del vacío",
+        "German": "Leerekrankheit",
+        "Turkish": "Boşluk Hastalığı",
+        "Russian": "Пустотная болезнь"
+    },
+    "GAMEPLAY_VoidSicknessCause": {
+        "English": "The Aurora",
+        "French (France)": "Les aurores",
+        "Spanish (Spain)": "Exposición extrema a la aurora",
+        "German": "Extreme Aurora-Exposition",
+        "Turkish": "Aşırı Aurora Maruziyeti",
+        "Russian": "Крайнее воздействие авроры"
+    },
+    "GAMEPLAY_VoidSicknessDescription": {
+        "English": "The decay has consumed too much of your mind. Blackouts may steal fragments of time from you, and sleep may carry your body where your will would never go. What remains of you is unstable, as if irresistibly drawn toward silence and the void.",
+        "French (France)": "Le déclin a consumé une trop grande part de votre esprit. Des pertes de conscience peuvent vous voler des fragments de temps, et le sommeil peut porter votre corps là où votre volonté n'irait jamais. Ce qu'il reste de vous est instable, comme irrésistiblement attiré par le silence et le néant.",
+        "Spanish (Spain)": "La aurora ha superado el límite de un simple malestar. El riesgo volverá cuando la exposición caiga por debajo del umbral crítico.",
+        "German": "Die Aurora hat die Grenze gewöhnlicher Krankheit überschritten. Das Risiko kehrt zurück, sobald die Exposition unter die kritische Schwelle fällt.",
+        "Turkish": "Aurora sıradan bir hastalığın sınırını aştı. Maruziyet kritik eşiğin altına düşünce risk yeniden belirecek.",
+        "Russian": "Аврора вышла за пределы обычного недомогания. Риск вернётся, когда воздействие опустится ниже критического порога."
+    },
+    "GAMEPLAY_AuroraInfluenceNightTerror": {
+        "English": "You wake suddenly, shaken by a dream you cannot remember.",
+        "French (France)": "Vous vous réveillez en sursaut, secoué par un rêve impossible à retenir.",
+        "Spanish (Spain)": "Te despiertas de golpe, sacudido por un sueño que no puedes recordar.",
+        "German": "Du schreckst aus dem Schlaf hoch, erschüttert von einem Traum, an den du dich nicht erinnern kannst.",
+        "Turkish": "Hatırlayamadığın bir rüyanın sarsıntısıyla aniden uyanıyorsun.",
+        "Russian": "Вы резко просыпаетесь, потрясённые сном, который не можете вспомнить."
+    },
+    "GAMEPLAY_AuroraInfluenceRestlessSleep": {
+        "English": "You slept, but your mind did not rest.",
+        "French (France)": "Vous avez dormi, mais votre esprit ne s'est pas reposé.",
+        "Spanish (Spain)": "Has dormido, pero tu mente no ha descansado.",
+        "German": "Du hast geschlafen, aber dein Geist kam nicht zur Ruhe.",
+        "Turkish": "Uyudun, ama zihnin dinlenmedi.",
+        "Russian": "Вы спали, но ваш разум так и не отдохнул."
+    },
+    "GAMEPLAY_AuroraInfluenceLostTime": {
+        "English": "A piece of the night is missing from your memory.",
+        "French (France)": "Un morceau de la nuit manque à votre mémoire.",
+        "Spanish (Spain)": "Un fragmento de la noche ha desaparecido de tu memoria.",
+        "German": "Ein Stück der Nacht fehlt in deiner Erinnerung.",
+        "Turkish": "Gecenin bir parçası hafızandan silinmiş.",
+        "Russian": "Часть этой ночи исчезла из вашей памяти."
+    },
+    "GAMEPLAY_AuroraInfluenceWakingBlackout": {
+        "English": "For a moment, everything goes dark. You are somewhere else.",
+        "French (France)": "Pendant un instant, tout devient noir. Vous êtes ailleurs.",
+        "Spanish (Spain)": "Por un momento, todo se vuelve negro. Estás en otro lugar.",
+        "German": "Für einen Moment wird alles schwarz. Du bist woanders.",
+        "Turkish": "Bir anlığına her şey kararır. Başka bir yerdesin.",
+        "Russian": "На мгновение всё темнеет. Вы оказываетесь в другом месте."
+    },
+    "GAMEPLAY_AuroraInfluenceWakingBlackoutTimeOnly": {
+        "English": "For a moment, everything goes dark. Time has slipped away.",
+        "French (France)": "Pendant un instant, tout devient noir. Le temps vous a échappé.",
+        "Spanish (Spain)": "Por un momento, todo se vuelve negro. El tiempo se te ha escapado.",
+        "German": "Für einen Moment wird alles schwarz. Zeit ist dir entglitten.",
+        "Turkish": "Bir anlığına her şey kararır. Zaman elinden kayıp gitmiş.",
+        "Russian": "На мгновение всё темнеет. Время ускользнуло от вас."
+    },
+    "GAMEPLAY_AuroraInfluenceSleepwalking": {
+        "English": "You wake somewhere else, with no memory of what happened.",
+        "French (France)": "Vous vous réveillez ailleurs, sans aucun souvenir de ce qu'il s'est passé.",
+        "Spanish (Spain)": "Te despiertas en otro lugar, sin ningún recuerdo de lo ocurrido.",
+        "German": "Du wachst an einem anderen Ort auf, ohne jede Erinnerung daran, was geschehen ist.",
+        "Turkish": "Ne olduğunu hiç hatırlamadan başka bir yerde uyanıyorsun.",
+        "Russian": "Вы просыпаетесь в другом месте, совершенно не помня, что произошло."
+    },
+    "GAMEPLAY_AuroraExposureDescriptionAurora": {
+        "English": "Do not resist. Let what remains of you be lost. Give up. You cannot resist. Listen to the silence. Let the void fill you. Join it.",
+        "French (France)": "Ne résistez pas. Laissez ce qu'il reste de vous se perdre. Abandonnez. Vous ne pouvez résister. Écoutez le silence. Laissez le vide vous envahir. Rejoignez-le.",
+        "Spanish (Spain)": "No te resistas. Deja que lo que queda de ti se pierda. Ríndete. No puedes resistir. Escucha el silencio. Deja que el vacío te invada. Únete a él.",
+        "German": "Widerstehe nicht. Lass verloren gehen, was von dir übrig ist. Gib auf. Du kannst nicht widerstehen. Lausche der Stille. Lass die Leere dich erfüllen. Schließ dich ihr an.",
+        "Turkish": "Direnme. Senden geriye kalanların kaybolmasına izin ver. Vazgeç. Direnemezsin. Sessizliği dinle. Boşluğun seni kaplamasına izin ver. Ona katıl.",
+        "Russian": "Не сопротивляйся. Позволь тому, что от тебя осталось, исчезнуть. Сдайся. Ты не сможешь сопротивляться. Слушай тишину. Позволь пустоте заполнить тебя. Присоединись к ней."
+    },
+    "GAMEPLAY_VoidSicknessDescriptionAurora": {
+        "English": "LET THE VOID CONSUME YOU. JOIN IT. YOU KNOW WHAT TO DO. YOU KNOW WHAT TO DO. YOU KNOW WHAT TO DO. YOU KNOW WHAT TO DO. YOU KNOW WHAT TO DO. YOU KNOW WHAT TO DO. YOU KNOW WHAT TO DO. YOU KNOW WHAT TO DO.",
+        "French (France)": "LAISSE LE VIDE TE CONSUMER. REJOINS-LE. TU SAIS QUOI FAIRE. TU SAIS QUOI FAIRE. TU SAIS QUOI FAIRE. TU SAIS QUOI FAIRE. TU SAIS QUOI FAIRE. TU SAIS QUOI FAIRE. TU SAIS QUOI FAIRE. TU SAIS QUOI FAIRE.",
+        "Spanish (Spain)": "DEJA QUE EL VACÍO TE CONSUMA. ÚNETE A ÉL. SABES QUÉ HACER. SABES QUÉ HACER. SABES QUÉ HACER. SABES QUÉ HACER. SABES QUÉ HACER. SABES QUÉ HACER. SABES QUÉ HACER. SABES QUÉ HACER.",
+        "German": "LASS DIE LEERE DICH VERSCHLINGEN. SCHLIESS DICH IHR AN. DU WEISST, WAS ZU TUN IST. DU WEISST, WAS ZU TUN IST. DU WEISST, WAS ZU TUN IST. DU WEISST, WAS ZU TUN IST. DU WEISST, WAS ZU TUN IST. DU WEISST, WAS ZU TUN IST. DU WEISST, WAS ZU TUN IST. DU WEISST, WAS ZU TUN IST.",
+        "Turkish": "BOŞLUĞUN SENİ TÜKETMESİNE İZİN VER. ONA KATIL. NE YAPMAN GEREKTİĞİNİ BİLİYORSUN. NE YAPMAN GEREKTİĞİNİ BİLİYORSUN. NE YAPMAN GEREKTİĞİNİ BİLİYORSUN. NE YAPMAN GEREKTİĞİNİ BİLİYORSUN. NE YAPMAN GEREKTİĞİNİ BİLİYORSUN. NE YAPMAN GEREKTİĞİNİ BİLİYORSUN. NE YAPMAN GEREKTİĞİNİ BİLİYORSUN. NE YAPMAN GEREKTİĞİNİ BİLİYORSUN.",
+        "Russian": "ПОЗВОЛЬ ПУСТОТЕ ПОГЛОТИТЬ ТЕБЯ. ПРИСОЕДИНИСЬ К НЕЙ. ТЫ ЗНАЕШЬ, ЧТО ДЕЛАТЬ. ТЫ ЗНАЕШЬ, ЧТО ДЕЛАТЬ. ТЫ ЗНАЕШЬ, ЧТО ДЕЛАТЬ. ТЫ ЗНАЕШЬ, ЧТО ДЕЛАТЬ. ТЫ ЗНАЕШЬ, ЧТО ДЕЛАТЬ. ТЫ ЗНАЕШЬ, ЧТО ДЕЛАТЬ. ТЫ ЗНАЕШЬ, ЧТО ДЕЛАТЬ. ТЫ ЗНАЕШЬ, ЧТО ДЕЛАТЬ."
+    },
+    "GAMEPLAY_AuroraInfluenceNightTerrorSleepBlocked": {
+        "English": "You are too shaken to sleep. Try again in about {0} minutes.",
+        "French (France)": "Vous êtes trop secoué pour dormir. Réessayez dans environ {0} minutes.",
+        "Spanish (Spain)": "Estás demasiado alterado para dormir. Inténtalo de nuevo en unos {0} minutos.",
+        "German": "Du bist zu erschüttert, um zu schlafen. Versuch es in etwa {0} Minuten erneut.",
+        "Turkish": "Uyumak için fazla sarsılmış durumdasın. Yaklaşık {0} dakika sonra tekrar dene.",
+        "Russian": "Вы слишком потрясены, чтобы спать. Попробуйте снова примерно через {0} мин."
+    },
+    "GAMEPLAY_AuroraInfluenceNightTerrorSleepReady": {
+        "English": "Your nerves settle. You can sleep again.",
+        "French (France)": "Vos nerfs se calment. Vous pouvez de nouveau dormir.",
+        "Spanish (Spain)": "Tus nervios se calman. Ya puedes volver a dormir.",
+        "German": "Deine Nerven beruhigen sich. Du kannst wieder schlafen.",
+        "Turkish": "Sinirlerin yatışıyor. Yeniden uyuyabilirsin.",
+        "Russian": "Нервы успокоились. Вы снова можете спать."
     }
 }

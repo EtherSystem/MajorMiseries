@@ -344,6 +344,12 @@ namespace MajorMiseries.Patches
         {
             private static void Postfix(ref float __result)
             {
+                if (AuroraInfluenceManager.ShouldBlockBlackoutMovement())
+                {
+                    __result = 0f;
+                    return;
+                }
+
                 __result *= AfflictionLogic.GetMovementSpeedMultiplier();
 
                 bool isSprinting = GameManager.GetPlayerManagerComponent()?.PlayerIsSprinting() ?? false;
@@ -356,7 +362,22 @@ namespace MajorMiseries.Patches
         {
             private static void Postfix(ref int __result)
             {
-                __result = (int)(__result * AfflictionLogic.GetCraftingTimeMultiplier());
+                int before = __result;
+                float afflictionMultiplier = AfflictionLogic.GetCraftingTimeMultiplier();
+                float auroraMultiplier = AuroraInfluenceManager.GetActionTimeMultiplier();
+                float totalMultiplier = afflictionMultiplier * auroraMultiplier;
+
+                if (Mathf.Approximately(totalMultiplier, 1f)) return;
+
+                __result = Mathf.CeilToInt(__result * totalMultiplier);
+
+                if (auroraMultiplier > 1f && before != __result)
+                {
+                    AuroraInfluenceManager.LogEffectDebug(
+                        "CraftingDuration",
+                        $"Duration modified -> {before} * affliction x{afflictionMultiplier:0.###} * aurora x{auroraMultiplier:0.###} = {__result}"
+                    );
+                }
             }
         }
 
@@ -367,6 +388,7 @@ namespace MajorMiseries.Patches
             {
                 __result *= AfflictionLogic.GetMovementFatigueMultiplier();
                 __result *= GetAfflictionFatigueIncreaseMultiplier();
+                __result *= AuroraInfluenceManager.GetFatigueDrainMultiplier();
             }
         }
 
@@ -413,7 +435,7 @@ namespace MajorMiseries.Patches
         {
             private static void Postfix(ref bool __result)
             {
-                if (AfflictionLogic.ShouldBlockSprint())
+                if (AuroraInfluenceManager.ShouldBlockBlackoutMovement() || AfflictionLogic.ShouldBlockSprint())
                 {
                     __result = true;
                 }
@@ -685,7 +707,7 @@ namespace MajorMiseries.Patches
                 if (__instance == null) return;
 
                 __state = __instance.m_ReduceFatiguePerHourRest;
-                __instance.m_ReduceFatiguePerHourRest *= AfflictionLogic.GetSleepFatigueRecoveryMultiplier();
+                __instance.m_ReduceFatiguePerHourRest *= AfflictionLogic.GetSleepFatigueRecoveryMultiplier() * AuroraInfluenceManager.GetSleepRecoveryMultiplier();
             }
 
             private static void Postfix(Rest __instance, float __state)

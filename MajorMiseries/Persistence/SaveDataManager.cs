@@ -270,6 +270,8 @@ namespace MajorMiseries.Persistence
 
             Core.Log($"================== {title} ==================");
 
+            AuroraRegionExposureInfo auroraRegionInfo = AuroraRegionExposureSolver.Resolve(Core.State.CurrentLogicalRegion);
+
             if (!string.IsNullOrEmpty(note))
             {
                 Core.Log($"Data : {note}");
@@ -320,6 +322,10 @@ namespace MajorMiseries.Persistence
 
             Core.Log(
                 $"Others : " +
+                $"AuroraInfluence:{Core.State.AuroraInfluenceExposure:0.###} | " +
+                $"AuroraBlackoutRoll:{Core.State.AuroraWakingBlackoutRollHours:0.###} | " +
+                $"AuroraRegionTier:{auroraRegionInfo.Tier} | " +
+                $"AuroraRegionMultiplier:{auroraRegionInfo.Multiplier:0.###} | " +
                 $"PredatorHostility:{Core.State.PredatorHostility:0.###} | " +
                 $"HrsSinceLastPredatorKill:{Core.State.HoursSinceLastPredatorKill:0.###} | " +
                 $"BlackLungExposure:{Core.State.BlackLungExposure:0.###} | " +
@@ -343,6 +349,8 @@ namespace MajorMiseries.Persistence
             Core.State.BlackLungExposure = Mathf.Clamp(Core.State.BlackLungExposure, 0f, AfflictionLogic.GetBlackLungExposureMax());
             Core.State.ScarredFleshHistoryCount = Mathf.Max(0, Core.State.ScarredFleshHistoryCount);
             Core.State.CorpseExposure = Mathf.Clamp(Core.State.CorpseExposure, 0f, AfflictionLogic.GetCorpseExposureMax());
+            Core.State.AuroraInfluenceExposure = Mathf.Clamp(Core.State.AuroraInfluenceExposure, 0f, AuroraInfluenceManager.GetExposureMax());
+            Core.State.AuroraWakingBlackoutRollHours = Mathf.Max(0f, Core.State.AuroraWakingBlackoutRollHours);
 
             Core.State.LeftWristSprainCount = Mathf.Max(0, Core.State.LeftWristSprainCount);
             Core.State.RightWristSprainCount = Mathf.Max(0, Core.State.RightWristSprainCount);
@@ -421,6 +429,12 @@ namespace MajorMiseries.Persistence
         public float ClimbHeatGain = 10f;
         public float CoolingLoss = 0.5f;
 
+        public bool EnableAuroraInfluence = true;
+        public float AuroraInfluenceIndoorExposurePerHour = 1f;
+        public float AuroraInfluenceOutdoorExposurePerHour = 4f;
+        public float AuroraInfluenceVitaminCMaxMultiplier = 2f;
+        public float AuroraInfluenceVehicleMultiplier = 0.25f;
+
         internal static MMSaveSlotSettings FromCurrent()
         {
             MMSettings s = Settings.options;
@@ -477,7 +491,13 @@ namespace MajorMiseries.Persistence
                 EncumberedHeatGain = s.EncumberedHeatGain,
                 SprintHeatGain = s.SprintHeatGain,
                 ClimbHeatGain = s.ClimbHeatGain,
-                CoolingLoss = s.CoolingLoss
+                CoolingLoss = s.CoolingLoss,
+
+                EnableAuroraInfluence = s.EnableAuroraInfluence,
+                AuroraInfluenceIndoorExposurePerHour = s.AuroraInfluenceIndoorExposurePerHour,
+                AuroraInfluenceOutdoorExposurePerHour = s.AuroraInfluenceOutdoorExposurePerHour,
+                AuroraInfluenceVitaminCMaxMultiplier = s.AuroraInfluenceVitaminCMaxMultiplier,
+                AuroraInfluenceVehicleMultiplier = s.AuroraInfluenceVehicleMultiplier
             };
         }
 
@@ -536,6 +556,12 @@ namespace MajorMiseries.Persistence
             s.SprintHeatGain = SprintHeatGain;
             s.ClimbHeatGain = ClimbHeatGain;
             s.CoolingLoss = CoolingLoss;
+
+            s.EnableAuroraInfluence = EnableAuroraInfluence;
+            s.AuroraInfluenceIndoorExposurePerHour = AuroraInfluenceIndoorExposurePerHour;
+            s.AuroraInfluenceOutdoorExposurePerHour = AuroraInfluenceOutdoorExposurePerHour;
+            s.AuroraInfluenceVitaminCMaxMultiplier = AuroraInfluenceVitaminCMaxMultiplier;
+            s.AuroraInfluenceVehicleMultiplier = AuroraInfluenceVehicleMultiplier;
         }
     }
 

@@ -285,6 +285,51 @@ namespace MajorMiseries
         public float CoolingLoss = 0.5f;
 
 
+        [Section("Aurora Influence")]
+
+        [Name("Enable Aurora Influence")]
+        [Description("Enable or disable the Aurora Influence system.")]
+        public bool EnableAuroraInfluence = true;
+
+        [Name("Indoor Exposure Rate")]
+        [Description("Default: 1/h - Base Aurora Influence exposure gained per in-game hour during an aurora while awake indoors in a medium-exposure region. Low regions use x0.75, high regions use x1.5, and sleeping adds +50%.")]
+        [Slider(0f, 5f, 101, NumberFormat = "{0:0.00}/h")]
+        public float AuroraInfluenceIndoorExposurePerHour = 1f;
+
+        [Name("Outdoor Exposure Rate")]
+        [Description("Default: 4/h - Base Aurora Influence exposure gained per in-game hour during an aurora while awake outdoors in a medium-exposure region. Low regions use x0.75, high regions use x1.5, and sleeping adds +50%.")]
+        [Slider(0f, 10f, 101, NumberFormat = "{0:0.00}/h")]
+        public float AuroraInfluenceOutdoorExposurePerHour = 4f;
+
+        [Name("Low Vitamin C Exposure Multiplier")]
+        [Description("Default: x2.00 - Aurora exposure multiplier when Vitamin C reaches 0. The multiplier scales smoothly back to x1.00 at 500 Vitamin C.")]
+        [Slider(1f, 5f, 81, NumberFormat = "x{0:0.00}")]
+        public float AuroraInfluenceVitaminCMaxMultiplier = 2f;
+
+        [Name("Partial Shelter Exposure Multiplier")]
+        [Description("Default: x0.25 - Aurora exposure multiplier while the player is inside a vehicle or inside The Riken, treating these as partial Faraday shielding.")]
+        [Slider(0f, 1f, 101, NumberFormat = "x{0:0.00}")]
+        public float AuroraInfluenceVehicleMultiplier = 0.25f;
+
+        [Name("Sleepwalking Minimum Chance")]
+        [Description("Default: 1% - Minimum chance for a sleepwalking event after a long Aurora exposure.")]
+        [Slider(0f, 100f, 101, NumberFormat = "{0:0}%")]
+        public float AuroraSleepwalkingChanceMin = 1f;
+
+        [Name("Sleepwalking Maximum Chance")]
+        [Description("Default: 5% - Maximum chance for a sleepwalking event after a long Aurora exposure.")]
+        [Slider(0f, 100f, 101, NumberFormat = "{0:0}%")]
+        public float AuroraSleepwalkingChanceMax = 5f;
+
+        [Name("Waking Blackout Chance")]
+        [Description("Default: 4% - Maximum roll chance every 10min for a waking blackout at 100 Aurora Influence exposure. At 99 exposure, the roll uses half this value.")]
+        [Slider(0f, 100f, 101, NumberFormat = "{0:0}%")]
+        public float AuroraWakingBlackoutChance = 4f;
+
+        [Name("Waking Blackout During Long Actions")]
+        [Description("Default: Enabled - If disabled, waking blackout rolls are blocked during a long action such as crafting, reading, fishing, etc.")]
+        public bool AuroraWakingBlackoutDuringLongActions = true;
+
         [Section("Advanced")]
 
         //[Name("Hunger lock arc rotation")]
@@ -315,6 +360,15 @@ namespace MajorMiseries
         [Name("ML Logging")]
         [Description("Add logs for debugging in the ML console.")]
         public bool IsLogging = false;
+
+        [Name("Aurora A* Path Debug")]
+        [Description("Show the validated waking blackout A* path in-game. Intended for testing only.")]
+        public bool AuroraAStarDebugPathEnabled = false;
+
+        [Name("Aurora A* Path Debug Display Time")]
+        [Description("How long the waking blackout debug path remains visible after a valid path is found.")]
+        [Slider(2f, 120f, 119, NumberFormat = "{0:0}s")]
+        public float AuroraAStarDebugPathDisplaySeconds = 20f;
 
         [Name("Do you want to mess with affliction ?")]
         [Description("This will ruin everything...")]
@@ -381,6 +435,17 @@ namespace MajorMiseries
                 Settings.UpdateBodyHeatVisibility();
             }
 
+            if (field.Name == nameof(EnableAuroraInfluence))
+            {
+                Settings.UpdateAuroraInfluenceVisibility();
+            }
+
+            if (field.Name == nameof(AuroraAStarDebugPathEnabled))
+            {
+                Settings.UpdateAuroraAStarDebugPathVisibility();
+                if (!AuroraAStarDebugPathEnabled) AuroraInfluenceManager.ClearDebugAStarPath();
+            }
+
             bool regionalVisibilityChanged =
                 field.Name == nameof(EnableRegionalAfflictions) ||
                 field.Name == nameof(HomeRegion) ||
@@ -436,6 +501,7 @@ namespace MajorMiseries
                 field.Name == nameof(EnableCarbonMonoxide) ||
                 field.Name == nameof(EnableBlackLung) ||
                 field.Name == nameof(EnableCorpseSickness) ||
+                field.Name == nameof(EnableAuroraInfluence) ||
                 field.Name == nameof(EnableSevereSprains) ||
                 field.Name == nameof(SevereSprainPreset);
 
@@ -497,6 +563,8 @@ namespace MajorMiseries
             UpdateRegionalAfflictionVisibility();
             UpdateImmunityShieldVisibility();
             UpdateBodyHeatVisibility();
+            UpdateAuroraInfluenceVisibility();
+            UpdateAuroraAStarDebugPathVisibility();
             UpdateShinyAfflictionIconChanceVisibility();
         }
 
@@ -582,6 +650,25 @@ namespace MajorMiseries
             options.SetFieldVisible(nameof(options.SprintHeatGain), showBodyHeatSettings);
             options.SetFieldVisible(nameof(options.ClimbHeatGain), showBodyHeatSettings);
             options.SetFieldVisible(nameof(options.CoolingLoss), showBodyHeatSettings);
+        }
+
+        internal static void UpdateAuroraInfluenceVisibility()
+        {
+            bool showAuroraSettings = options.EnableAuroraInfluence;
+
+            options.SetFieldVisible(nameof(options.AuroraInfluenceIndoorExposurePerHour), showAuroraSettings);
+            options.SetFieldVisible(nameof(options.AuroraInfluenceOutdoorExposurePerHour), showAuroraSettings);
+            options.SetFieldVisible(nameof(options.AuroraInfluenceVitaminCMaxMultiplier), showAuroraSettings);
+            options.SetFieldVisible(nameof(options.AuroraInfluenceVehicleMultiplier), showAuroraSettings);
+            options.SetFieldVisible(nameof(options.AuroraSleepwalkingChanceMin), showAuroraSettings);
+            options.SetFieldVisible(nameof(options.AuroraSleepwalkingChanceMax), showAuroraSettings);
+            options.SetFieldVisible(nameof(options.AuroraWakingBlackoutChance), showAuroraSettings);
+            options.SetFieldVisible(nameof(options.AuroraWakingBlackoutDuringLongActions), showAuroraSettings);
+        }
+
+        internal static void UpdateAuroraAStarDebugPathVisibility()
+        {
+            options.SetFieldVisible(nameof(options.AuroraAStarDebugPathDisplaySeconds), options.AuroraAStarDebugPathEnabled);
         }
 
         internal static void UpdateShinyAfflictionIconChanceVisibility()

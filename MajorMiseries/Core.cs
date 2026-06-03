@@ -2,7 +2,7 @@
 using MajorMiseries.Managers;
 using MajorMiseries.Persistence;
 
-[assembly: MelonInfo(typeof(MajorMiseries.Core), "Major Miseries", "1.0.1", "EtherSystem, FlowerField", null)]
+[assembly: MelonInfo(typeof(MajorMiseries.Core), "Major Miseries", "1.1.0", "EtherSystem, FlowerField", null)]
 [assembly: MelonGame("Hinterland", "TheLongDark")]
 
 namespace MajorMiseries
@@ -70,6 +70,11 @@ namespace MajorMiseries
             DevConsoleCommands.Register();
         }
 
+        public override void OnSceneWasInitialized(int buildIndex, string sceneName)
+        {
+            AuroraInfluenceManager.OnSceneWasInitialized(buildIndex, sceneName);
+        }
+
         private float _gameplayUpdateTimer = 0f;
         private bool _pendingStageSync = false;
 
@@ -97,6 +102,7 @@ namespace MajorMiseries
             Patches.WildlifePatches.ResetRuntime();
             RegionalAfflictionManager.ResetRuntime();
             ImmunityManager.ResetRuntime();
+            AuroraInfluenceManager.ResetRuntime();
             RequiemStagesEffects.ResetRuntime();
         }
 
@@ -121,6 +127,7 @@ namespace MajorMiseries
             string oldConfiguredRegionalDistressRegion = State.ConfiguredRegionalDistressRegion ?? string.Empty;
             float oldImmunityShield = State.ImmunityShield;
             float oldInternalBodyTemp = State.InternalBodyTemp;
+            float oldAuroraInfluenceExposure = State.AuroraInfluenceExposure;
 
             State.PredatorHostility = Mathf.Max(0f, State.PredatorHostility);
             State.HoursSinceLastPredatorKill = Mathf.Max(0f, State.HoursSinceLastPredatorKill);
@@ -138,6 +145,10 @@ namespace MajorMiseries
             RegionalAfflictionManager.SyncSettingsDisplayFromState();
             ImmunityManager.OnStateLoaded();
 
+            State.AuroraInfluenceExposure = Mathf.Clamp(State.AuroraInfluenceExposure, 0f, AuroraInfluenceManager.GetExposureMax());
+            State.AuroraWakingBlackoutRollHours = Mathf.Max(0f, State.AuroraWakingBlackoutRollHours);
+
+            if (!Mathf.Approximately(oldAuroraInfluenceExposure, State.AuroraInfluenceExposure)) changed = true;
             if (!Mathf.Approximately(oldInternalBodyTemp, State.InternalBodyTemp)) changed = true;
             if (!Mathf.Approximately(oldImmunityShield, State.ImmunityShield)) changed = true;
             if (!Mathf.Approximately(oldHostility, State.PredatorHostility)) changed = true;
@@ -167,12 +178,16 @@ namespace MajorMiseries
 
         public override void OnUpdate()
         {
-            if (GameManager.m_Instance == null || GameManager.m_IsPaused) return;
+            if (GameManager.m_Instance == null) return;
+
+            AuroraInfluenceManager.UpdateRealtime();
+
+            if (GameManager.m_IsPaused) return;
             if (!IsGameplayEnabled) return;
 
             string scene = GameManager.m_ActiveScene;
 
-            ImmunityManager.UpdateBodyHeatRealtime(scene);
+            ImmunityManager.UpdateBodyHeatRealtimeEffects(scene);
 
             if (!RegionalAfflictionManager.IsGameplayScene(scene)) return;
 
@@ -216,7 +231,9 @@ namespace MajorMiseries
             AfflictionLogic.UpdateCOExposure(gameHoursPassed);
             AfflictionLogic.UpdateCorpseExposure(gameHoursPassed);
             RegionalAfflictionManager.Update(gameHoursPassed);
+            ImmunityManager.UpdateBodyHeat(scene, gameHoursPassed);
             ImmunityManager.Update(gameHoursPassed);
+            AuroraInfluenceManager.Update(gameHoursPassed);
             SevereSprainManager.Update(gameHoursPassed);
         }
     }

@@ -47,7 +47,6 @@ namespace MajorMiseries.Afflictions
             public void OnCure()
             {
                 IsActive = false;
-                AfflictionSaveHelper.QueueSurvivalSave();
             }
 
             public override void OnUpdate()

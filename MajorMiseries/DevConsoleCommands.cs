@@ -1,6 +1,8 @@
 ﻿using AfflictionComponent.Components;
 using MajorMiseries.Managers;
 using MajorMiseries.Patches;
+using static MajorMiseries.Afflictions.AuroraExposureRisk;
+using static MajorMiseries.Afflictions.VoidSickness;
 using static MajorMiseries.Afflictions.BlackLung;
 using static MajorMiseries.Afflictions.BlackLungRisk;
 using static MajorMiseries.Afflictions.BrokenArm;
@@ -91,6 +93,23 @@ namespace MajorMiseries
             uConsole.RegisterCommand("brokenarm", new Action(() =>
             {
                 new BrokenArmAffliction(Random.Range(0, 2) == 0 ? AfflictionBodyArea.ArmLeft : AfflictionBodyArea.ArmRight, Settings.options.BrokenLimbDurationMode == 1 ? 134.4f : 1344f).Start();
+            }));
+
+
+            // -------------------- Aurora Influence --------------------
+
+            uConsole.RegisterCommand("auroraexposure", new Action(() =>
+            {
+                new AuroraExposureRiskAffliction(AfflictionBodyArea.Head)
+                {
+                    DebugForced = true,
+                    DebugRiskValue = 50f
+                }.Start();
+            }));
+
+            uConsole.RegisterCommand("voidsickness", new Action(() =>
+            {
+                new VoidSicknessAffliction(AfflictionBodyArea.Head).Start();
             }));
 
 
@@ -246,6 +265,12 @@ namespace MajorMiseries
                     DebugRiskValue = 50f
                 }.Start();
 
+                new AuroraExposureRiskAffliction(AfflictionBodyArea.Head)
+                {
+                    DebugForced = true,
+                    DebugRiskValue = 50f
+                }.Start();
+
                 new SevereWristSprainRiskAffliction(AfflictionBodyArea.HandLeft)
                 {
                     DebugForced = true,
@@ -288,6 +313,8 @@ namespace MajorMiseries
                 new COPoisoningAffliction(AfflictionBodyArea.Chest, 12f).Start();
 
                 new CorpseSicknessAffliction(AfflictionBodyArea.Head, 72f).Start();
+
+                new VoidSicknessAffliction(AfflictionBodyArea.Head).Start();
 
                 new SevereWristSprainAffliction(
                     AfflictionBodyArea.HandLeft,
@@ -337,6 +364,8 @@ namespace MajorMiseries
                         || a is COPoisoningAffliction
                         || a is CorpseSicknessRiskAffliction
                         || a is CorpseSicknessAffliction
+                        || a is AuroraExposureRiskAffliction
+                        || a is VoidSicknessAffliction
                         || a is SevereWristSprainRiskAffliction
                         || a is SevereAnkleSprainRiskAffliction
                         || a is SevereWristSprainAffliction
@@ -491,6 +520,92 @@ namespace MajorMiseries
                 uConsole.Log($"CorpseExposure set to {Core.State.CorpseExposure:0.##}");
 
                 Core.Log($"CorpseExposure set to {Core.State.CorpseExposure:0.##}", false);
+            }));
+
+
+            // -------------------- Aurora Influence State --------------------
+
+            uConsole.RegisterCommand("set_AE", new Action(() =>
+            {
+                var @params = uConsole.GetAllParameters();
+                if (@params == null || @params.Count < 1)
+                {
+                    uConsole.Log("[value 0-100]");
+                    return;
+                }
+
+                if (!float.TryParse(@params[0], out float v))
+                {
+                    uConsole.Log("value must be a number");
+                    return;
+                }
+
+                Core.State ??= new Persistence.MMState();
+
+                AuroraInfluenceManager.DevSetExposure(v);
+
+                uConsole.Log($"AuroraInfluenceExposure set to {Core.State.AuroraInfluenceExposure:0.##}/100");
+            }));
+
+            uConsole.RegisterCommand("trigger_AE_blackout", new Action(() =>
+            {
+                Core.State ??= new Persistence.MMState();
+
+                bool triggered = AuroraInfluenceManager.DevTriggerWakingBlackout(out string result);
+                uConsole.Log(triggered
+                    ? "Aurora waking blackout manually triggered."
+                    : $"Aurora waking blackout not triggered ({result}).");
+            }));
+
+            uConsole.RegisterCommand("trigger_AE_sleepwalking", new Action(() =>
+            {
+                Core.State ??= new Persistence.MMState();
+
+                bool triggered = AuroraInfluenceManager.DevTriggerSleepwalking(out string result);
+                uConsole.Log(triggered
+                    ? $"Aurora sleepwalking manually triggered ({result})."
+                    : $"Aurora sleepwalking not triggered ({result}).");
+            }));
+
+            uConsole.RegisterCommand("force_AE_sleep_event", new Action(() =>
+            {
+                var @params = uConsole.GetAllParameters();
+                if (@params == null || @params.Count < 1)
+                {
+                    uConsole.Log("[restless|nightterror|losttime|sleepwalking|clear]");
+                    return;
+                }
+
+                Core.State ??= new Persistence.MMState();
+
+                bool success = AuroraInfluenceManager.DevForceNextSleepEvent(@params[0], out string result);
+                uConsole.Log(success
+                    ? $"Aurora sleep event force set ({result})."
+                    : $"Aurora sleep event force failed ({result}).");
+            }));
+
+            uConsole.RegisterCommand("trigger_AE_sleep_event", new Action(() =>
+            {
+                var @params = uConsole.GetAllParameters();
+                if (@params == null || @params.Count < 1)
+                {
+                    uConsole.Log("[restless|nightterror|losttime|sleepwalking]");
+                    return;
+                }
+
+                Core.State ??= new Persistence.MMState();
+
+                bool triggered = AuroraInfluenceManager.DevTriggerSleepEvent(@params[0], out string result);
+                uConsole.Log(triggered
+                    ? $"Aurora sleep event manually triggered ({result})."
+                    : $"Aurora sleep event not triggered ({result}).");
+            }));
+
+            uConsole.RegisterCommand("debug_AE_context", new Action(() =>
+            {
+                Core.State ??= new Persistence.MMState();
+
+                uConsole.Log(AuroraInfluenceManager.DevLogCurrentContext());
             }));
 
 

@@ -58,6 +58,18 @@ namespace MajorMiseries
             return IsVitaminCDrainAccelerationActive(stage) ? GetVitaminCDrainPresetMultiplier() : 1f;
         }
 
+        internal static bool TryGetCurrentVitaminCAmount(out float amount)
+        {
+            amount = 500f;
+
+            Nutrition nutrition = Nutrition.Instance;
+            if (nutrition == null) return false;
+            if (!Nutrition_Update_VitaminCDrainPatch.TryGetVitaminCIndex(nutrition, out int vitaminCIndex)) return false;
+
+            amount = Mathf.Max(0f, nutrition.m_Amounts[vitaminCIndex]);
+            return true;
+        }
+
         private static void LogVitaminCDrainStateIfChanged(RequiemStage stage, bool active, float multiplier, int vitaminCIndex, int lossPerDay, float amount)
         {
             if (s_HasLastVitaminCDrainState &&
@@ -417,7 +429,7 @@ namespace MajorMiseries
                 __instance.m_Amounts[vitaminCIndex] = modifiedVitaminC;
             }
 
-            private static bool TryGetVitaminCIndex(Nutrition nutrition, out int vitaminCIndex)
+            internal static bool TryGetVitaminCIndex(Nutrition nutrition, out int vitaminCIndex)
             {
                 vitaminCIndex = -1;
 

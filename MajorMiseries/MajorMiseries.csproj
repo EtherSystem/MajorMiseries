@@ -19,6 +19,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Resources\Icons\Afflictions\Classic\AuroraExposure.png" />
 	  <None Remove="Resources\Icons\Afflictions\Classic\BlackLung.png" />
 	  <None Remove="Resources\Icons\Afflictions\Classic\BrokenArm.png" />
 	  <None Remove="Resources\Icons\Afflictions\Classic\BrokenLeg.png" />
@@ -38,12 +39,14 @@
 	  <None Remove="Resources\Icons\Afflictions\Classic\SevereAnkleSprain_Right.png" />
 	  <None Remove="Resources\Icons\Afflictions\Classic\SevereWristSprain_Left.png" />
 	  <None Remove="Resources\Icons\Afflictions\Classic\SevereWristSprain_Right.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\VoidSickness.png" />
 	  <None Remove="Resources\Icons\Aperture.png" />
 	  <None Remove="Resources\Icons\Buffs\Classic\HomeComfort.png" />
 	  <None Remove="Resources\Localization\Localization.json" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\AuroraExposure.png" />
 	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\BlackLung.png" />
 	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\BrokenArm.png" />
 	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\BrokenLeg.png" />
@@ -63,6 +66,7 @@
 	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\SevereAnkleSprain_Right.png" />
 	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\SevereWristSprain_Left.png" />
 	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\SevereWristSprain_Right.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\VoidSickness.png" />
 	  <EmbeddedResource Include="Resources\Icons\Buffs\Classic\HomeComfort.png" />
 	  <EmbeddedResource Include="Resources\Localization\Localization.json" />
 	</ItemGroup>

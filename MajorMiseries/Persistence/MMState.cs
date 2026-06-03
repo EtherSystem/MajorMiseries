@@ -14,6 +14,9 @@
         public int ScarredFleshHistoryCount = 0;
         public float CorpseExposure = 0f;
 
+        public float AuroraInfluenceExposure = 0f;
+        public float AuroraWakingBlackoutRollHours = 0f;
+
         public string LastKnownLogicalRegion = "";
         public string CurrentLogicalRegion = "";
         public string ConfiguredHomeRegion = "";
