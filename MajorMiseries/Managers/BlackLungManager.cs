@@ -77,11 +77,48 @@ namespace MajorMiseries
         private static float s_BlackLungWorseningLogHoursAdded = 0f;
         private static float s_BlackLungWorseningLogGameHours = 0f;
 
-        internal static float GetBlackLungExposureGainPerHour() => BLACK_LUNG_EXPOSURE_GAIN_PER_HOUR;
-        internal static float GetBlackLungExposureDecayPerHour() => BLACK_LUNG_EXPOSURE_DECAY_PER_HOUR;
+        private static float GetBlackLungBuildUpMultiplier()
+        {
+            return Settings.options.BlackLungPreset switch
+            {
+                0 => 0.5f,
+                2 => 2f,
+                3 => 3f,
+                4 => 5f,
+                _ => 1f
+            };
+        }
+
+        private static float GetBlackLungDecayMultiplier()
+        {
+            return Settings.options.BlackLungPreset switch
+            {
+                0 => 2f,
+                2 => 0.75f,
+                3 => 0.5f,
+                4 => 0f,
+                _ => 1f
+            };
+        }
+
+        private static float GetBlackLungWorseningMultiplier()
+        {
+            return Settings.options.BlackLungPreset switch
+            {
+                0 => 0.5f,
+                2 => 1.5f,
+                3 => 2f,
+                4 => 3f,
+                _ => 1f
+            };
+        }
+
+        internal static float GetBlackLungExposureGainPerHour() => BLACK_LUNG_EXPOSURE_GAIN_PER_HOUR * GetBlackLungBuildUpMultiplier();
+        internal static float GetBlackLungExposureDecayPerHour() => BLACK_LUNG_EXPOSURE_DECAY_PER_HOUR * GetBlackLungDecayMultiplier();
         internal static float GetBlackLungExposureMax() => BLACK_LUNG_EXPOSURE_MAX;
-        internal static float GetBlackLungRiskGainPerHour() => BLACK_LUNG_RISK_GAIN_PER_HOUR;
-        internal static float GetBlackLungRiskDecayPerHour() => BLACK_LUNG_RISK_DECAY_PER_HOUR;
+        internal static float GetBlackLungRiskGainPerHour() => BLACK_LUNG_RISK_GAIN_PER_HOUR * GetBlackLungBuildUpMultiplier();
+        internal static float GetBlackLungRiskDecayPerHour() => BLACK_LUNG_RISK_DECAY_PER_HOUR * GetBlackLungDecayMultiplier();
+        internal static float GetBlackLungCoalSceneWorseningMultiplier() => BLACK_LUNG_COAL_SCENE_WORSENING_MULTIPLIER * GetBlackLungWorseningMultiplier();
 
         private static void ResetBlackLungWorseningLog()
         {
@@ -345,13 +382,13 @@ namespace MajorMiseries
             BlackLungAffliction? activeBlackLung = GetAffliction<BlackLungAffliction>();
             bool hasBlackLungRisk = HasAffliction<BlackLungRiskAffliction>();
 
-            UpdateBlackLungExposureSceneTracking(sceneName, inCoalScene, inCoalScene && unprotectedGameHoursPassed > 0f && activeBlackLung == null && !hasBlackLungRisk, activeBlackLung == null && !hasBlackLungRisk);
+            UpdateBlackLungExposureSceneTracking(sceneName, inCoalScene, inCoalScene && unprotectedGameHoursPassed > 0f && activeBlackLung == null && !hasBlackLungRisk, activeBlackLung == null && !hasBlackLungRisk && GetBlackLungExposureDecayPerHour() > 0f);
 
             if (activeBlackLung != null)
             {
                 if (inCoalScene && unprotectedGameHoursPassed > 0f)
                 {
-                    float addedHours = unprotectedGameHoursPassed * BLACK_LUNG_COAL_SCENE_WORSENING_MULTIPLIER;
+                    float addedHours = unprotectedGameHoursPassed * GetBlackLungCoalSceneWorseningMultiplier();
                     activeBlackLung.EndTime += addedHours;
                     AccumulateBlackLungWorseningLog(sceneName, unprotectedGameHoursPassed, addedHours);
                 }
@@ -382,11 +419,11 @@ namespace MajorMiseries
 
             if (inCoalScene && unprotectedGameHoursPassed > 0f)
             {
-                Core.State.BlackLungExposure = Mathf.Clamp(Core.State.BlackLungExposure + (unprotectedGameHoursPassed * BLACK_LUNG_EXPOSURE_GAIN_PER_HOUR), 0f, BLACK_LUNG_EXPOSURE_MAX);
+                Core.State.BlackLungExposure = Mathf.Clamp(Core.State.BlackLungExposure + (unprotectedGameHoursPassed * GetBlackLungExposureGainPerHour()), 0f, BLACK_LUNG_EXPOSURE_MAX);
             }
             else if (!inCoalScene)
             {
-                Core.State.BlackLungExposure = Mathf.Clamp(Core.State.BlackLungExposure - (gameHoursPassed * BLACK_LUNG_EXPOSURE_DECAY_PER_HOUR), 0f, BLACK_LUNG_EXPOSURE_MAX);
+                Core.State.BlackLungExposure = Mathf.Clamp(Core.State.BlackLungExposure - (gameHoursPassed * GetBlackLungExposureDecayPerHour()), 0f, BLACK_LUNG_EXPOSURE_MAX);
             }
 
             if (!Mathf.Approximately(oldExposure, Core.State.BlackLungExposure))

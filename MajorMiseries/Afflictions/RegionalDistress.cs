@@ -8,11 +8,12 @@ namespace MajorMiseries.Afflictions
 {
     internal class RegionalDistress
     {
-        public class RegionalDistressAffliction : CustomAffliction, IRemedies, IInstance, ILocalizableAffliction
+        public class RegionalDistressAffliction : CustomAffliction, IRemedies, IInstance, ISpecialTreatment, ILocalizableAffliction
         {
             private const string NAME_KEY = "GAMEPLAY_RegionalDistressName";
             private const string CAUSE_KEY = "GAMEPLAY_RegionalDistressCause";
             private const string DESC_KEY = "GAMEPLAY_RegionalDistressDescription";
+            private const string SPECIAL_TREATMENT_KEY = "GAMEPLAY_RegionalDistressSpecialTreatment";
 
             private const string ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.RegionalDistress.png";
             private const string ALT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Alt.RegionalDistress_ALT.png";
@@ -26,9 +27,11 @@ namespace MajorMiseries.Afflictions
 
             public bool InstantHeal { get; set; } = true;
             public bool DebugForced { get; set; } = false;
+            public string SpecialTreatmentText { get; set; } = string.Empty;
 
             public RegionalDistressAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
             {
+                SpecialTreatmentText = Localization.Get(SPECIAL_TREATMENT_KEY);
             }
 
             public void OnFoundExistingInstance(CustomAffliction existingAffliction)
@@ -70,6 +73,7 @@ namespace MajorMiseries.Afflictions
                 m_CauseText = Localization.Get(CAUSE_KEY);
                 m_Description = Localization.Get(DESC_KEY);
                 m_DescriptionNoHeal = null;
+                SpecialTreatmentText = Localization.Get(SPECIAL_TREATMENT_KEY);
 
                 Core.Log($"RegionalDistress refresh -> '{oldName}' => '{m_Name}'");
             }

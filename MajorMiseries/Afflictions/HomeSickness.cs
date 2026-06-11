@@ -8,11 +8,12 @@ namespace MajorMiseries.Afflictions
 {
     internal class HomeSickness
     {
-        public class HomeSicknessAffliction : CustomAffliction, IRemedies, IInstance, ILocalizableAffliction
+        public class HomeSicknessAffliction : CustomAffliction, IRemedies, IInstance, ISpecialTreatment, ILocalizableAffliction
         {
             private const string NAME_KEY = "GAMEPLAY_HomeSicknessName";
             private const string CAUSE_KEY = "GAMEPLAY_HomeSicknessCause";
             private const string DESC_KEY = "GAMEPLAY_HomeSicknessDescription";
+            private const string SPECIAL_TREATMENT_KEY = "GAMEPLAY_HomeSicknessSpecialTreatment";
 
             private const string ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.HomeSickness.png";
             private const string ALT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Alt.HomeSickness_ALT.png";
@@ -26,9 +27,11 @@ namespace MajorMiseries.Afflictions
 
             public bool InstantHeal { get; set; } = true;
             public bool DebugForced { get; set; } = false;
+            public string SpecialTreatmentText { get; set; } = string.Empty;
 
             public HomeSicknessAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
             {
+                SpecialTreatmentText = Localization.Get(SPECIAL_TREATMENT_KEY);
             }
 
             public void OnFoundExistingInstance(CustomAffliction existingAffliction)
@@ -70,6 +73,7 @@ namespace MajorMiseries.Afflictions
                 m_CauseText = Localization.Get(CAUSE_KEY);
                 m_Description = Localization.Get(DESC_KEY);
                 m_DescriptionNoHeal = null;
+                SpecialTreatmentText = Localization.Get(SPECIAL_TREATMENT_KEY);
 
                 Core.Log($"HomeSickness refresh -> '{oldName}' => '{m_Name}'");
             }

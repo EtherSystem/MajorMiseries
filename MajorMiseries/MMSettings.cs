@@ -91,6 +91,11 @@ namespace MajorMiseries
         [Description("Enable or disable the Black Lung affliction system.")]
         public bool EnableBlackLung = true;
 
+        [Name("Black Lung Preset")]
+        [Description("Controls Black Lung exposure buildup, risk buildup, natural decay, and worsening while already sick in coal scenes.")]
+        [Choice("Forgiving", "Standard", "Harsh", "Brutal", "Who Wants to Play Like This?")]
+        public int BlackLungPreset = 1;
+
         [Name("Black Lung Duration")]
         [Description("Choose whether Black Lung uses realistic or shortened recovery durations.")]
         [Choice("Realistic", "Unrealistic")]
@@ -100,6 +105,10 @@ namespace MajorMiseries
         [Description("Enable or disable the carbon monoxide affliction system.")]
         public bool EnableCarbonMonoxide = true;
 
+        [Name("Carbon Monoxide Preset")]
+        [Description("Controls how quickly indoor fires become dangerous, how often CO risk rolls happen, roll strength, and how quickly CO Exposure becomes CO Poisoning.")]
+        [Choice("Forgiving", "Standard", "Harsh", "Brutal", "Who Wants to Play Like This?")]
+        public int CarbonMonoxidePreset = 1;
 
         [Section("Severe Sprains")]
 
@@ -123,6 +132,10 @@ namespace MajorMiseries
         [Description("Enable or disable the Infection to Sepsis affliction chain.")]
         public bool EnableSepsis = true;
 
+        [Name("Sepsis Preset")]
+        [Description("Controls Sepsis Risk progression, Infection Risk sepsis rolls, and how often Sepsis treatment windows must be completed.")]
+        [Choice("Forgiving", "Standard", "Harsh", "Brutal", "Who Wants to Play Like This?")]
+        public int SepsisPreset = 1;
 
         [Section("Corpse Sickness")]
 
@@ -415,6 +428,16 @@ namespace MajorMiseries
                 Settings.UpdateBlackLungVisibility();
             }
 
+            if (field.Name == nameof(EnableCarbonMonoxide))
+            {
+                Settings.UpdateCarbonMonoxideVisibility();
+            }
+
+            if (field.Name == nameof(EnableSepsis))
+            {
+                Settings.UpdateSepsisVisibility();
+            }
+
             if (field.Name == nameof(EnableSevereSprains))
             {
                 Settings.UpdateSevereSprainVisibility();
@@ -498,8 +521,11 @@ namespace MajorMiseries
             bool requiresRuntimeSync =
                 field.Name == nameof(EnableScarredFlesh) ||
                 field.Name == nameof(EnableSepsis) ||
+                field.Name == nameof(SepsisPreset) ||
                 field.Name == nameof(EnableCarbonMonoxide) ||
+                field.Name == nameof(CarbonMonoxidePreset) ||
                 field.Name == nameof(EnableBlackLung) ||
+                field.Name == nameof(BlackLungPreset) ||
                 field.Name == nameof(EnableCorpseSickness) ||
                 field.Name == nameof(EnableAuroraInfluence) ||
                 field.Name == nameof(EnableSevereSprains) ||
@@ -558,6 +584,8 @@ namespace MajorMiseries
             UpdateStageThresholdVisibility();
             UpdateVitaminCDrainVisibility();
             UpdateBlackLungVisibility();
+            UpdateCarbonMonoxideVisibility();
+            UpdateSepsisVisibility();
             UpdateCorpseSicknessVisibility();
             UpdateSevereSprainVisibility();
             UpdateRegionalAfflictionVisibility();
@@ -599,9 +627,24 @@ namespace MajorMiseries
 
         internal static void UpdateBlackLungVisibility()
         {
-            bool showBlackLungDuration = options.EnableBlackLung;
+            bool showBlackLungSettings = options.EnableBlackLung;
 
-            options.SetFieldVisible(nameof(options.BlackLungDurationMode), showBlackLungDuration);
+            options.SetFieldVisible(nameof(options.BlackLungPreset), showBlackLungSettings);
+            options.SetFieldVisible(nameof(options.BlackLungDurationMode), showBlackLungSettings);
+        }
+
+        internal static void UpdateCarbonMonoxideVisibility()
+        {
+            bool showCarbonMonoxideSettings = options.EnableCarbonMonoxide;
+
+            options.SetFieldVisible(nameof(options.CarbonMonoxidePreset), showCarbonMonoxideSettings);
+        }
+
+        internal static void UpdateSepsisVisibility()
+        {
+            bool showSepsisSettings = options.EnableSepsis;
+
+            options.SetFieldVisible(nameof(options.SepsisPreset), showSepsisSettings);
         }
 
         internal static void UpdateSevereSprainVisibility()

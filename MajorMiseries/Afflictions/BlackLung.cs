@@ -7,11 +7,12 @@ namespace MajorMiseries.Afflictions
 {
     internal class BlackLung
     {
-        public class BlackLungAffliction : CustomAffliction, IDuration, IRemedies, IInstance, ILocalizableAffliction
+        public class BlackLungAffliction : CustomAffliction, IDuration, IRemedies, IInstance, ISpecialTreatment, ILocalizableAffliction
         {
             private const string NAME_KEY = "GAMEPLAY_BlackLungName";
             private const string CAUSE_KEY = "GAMEPLAY_BlackLungCause";
             private const string DESC_KEY = "GAMEPLAY_BlackLungDescription";
+            private const string SPECIAL_TREATMENT_KEY = "GAMEPLAY_BlackLungSpecialTreatment";
 
             private const string ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.BlackLung.png";
             private const string ALT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Alt.BlackLung_ALT.png";
@@ -28,6 +29,8 @@ namespace MajorMiseries.Afflictions
 
             public bool InstantHeal { get; set; } = true;
 
+            public string SpecialTreatmentText { get; set; } = string.Empty;
+
             public BlackLungAffliction(AfflictionBodyArea bodyArea, float durationHours) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
             {
                 Duration = durationHours;
@@ -37,6 +40,8 @@ namespace MajorMiseries.Afflictions
                 {
                     EndTime = tod.GetHoursPlayedNotPaused() + Duration;
                 }
+
+                SpecialTreatmentText = Localization.Get(SPECIAL_TREATMENT_KEY);
 
                 Core.Log($"BlackLung prepared for {Duration:0.##} hours.");
             }
@@ -99,6 +104,7 @@ namespace MajorMiseries.Afflictions
                 m_CauseText = Localization.Get(CAUSE_KEY);
                 m_Description = Localization.Get(DESC_KEY);
                 m_DescriptionNoHeal = null;
+                SpecialTreatmentText = Localization.Get(SPECIAL_TREATMENT_KEY);
 
                 Core.Log($"BlackLung refresh -> '{oldName}' => '{m_Name}'");
             }

@@ -117,7 +117,8 @@ namespace MajorMiseries.Afflictions
 
                 if (unprotectedElapsed <= 0f) return;
 
-                float riskIncrease = (unprotectedElapsed / TIME_TO_CO_POISONING_HOURS) * 100f;
+                float timeToPoisoningHours = Mathf.Max(0.01f, AfflictionLogic.GetCOExposureTimeToPoisoningHours());
+                float riskIncrease = (unprotectedElapsed / timeToPoisoningHours) * 100f;
                 m_RiskValue = Mathf.Min(m_RiskValue + riskIncrease, 100f);
             }
 

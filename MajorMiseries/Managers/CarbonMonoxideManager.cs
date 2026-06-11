@@ -12,7 +12,7 @@ namespace MajorMiseries
         // ============================================================================
 
         private const float CO_MIN_FIRE_BURN_HOURS = 2f;
-        private const float CO_ROLL_INTERVAL_HOURS = 10f / 60f;      // 10 in-game minutes
+        private const float CO_ROLL_INTERVAL_HOURS = 1f;             // Standard preset: first roll after 1 in-game hour
         private const float CO_EXPOSURE_ROLL_CHANCE = 10f;           // percent per roll, per valid fire
         private const float CO_LINGER_AFTER_FIRE_OUT_HOURS = 2f;     // contaminated scene lingers for 2h after last valid fire
 
@@ -27,6 +27,55 @@ namespace MajorMiseries
         }
 
         private static readonly Dictionary<string, CORiskSceneState> _coSceneStates = [];
+
+
+        internal static float GetCOMinFireBurnHours()
+        {
+            return Settings.options.CarbonMonoxidePreset switch
+            {
+                0 => 3f,
+                2 => 1f,
+                3 => 0.5f,
+                4 => 0f,
+                _ => 2f
+            };
+        }
+
+        internal static float GetCORollIntervalHours()
+        {
+            return Settings.options.CarbonMonoxidePreset switch
+            {
+                0 => 1.5f,
+                2 => 0.75f,
+                3 => 0.5f,
+                4 => 0.5f,
+                _ => CO_ROLL_INTERVAL_HOURS
+            };
+        }
+
+        internal static float GetCORollChanceMultiplier()
+        {
+            return Settings.options.CarbonMonoxidePreset switch
+            {
+                0 => 0.5f,
+                2 => 1.5f,
+                3 => 2f,
+                4 => 3f,
+                _ => 1f
+            };
+        }
+
+        internal static float GetCOExposureTimeToPoisoningHours()
+        {
+            return Settings.options.CarbonMonoxidePreset switch
+            {
+                0 => 1f,
+                2 => 20f / 60f,
+                3 => 15f / 60f,
+                4 => 10f / 60f,
+                _ => 30f / 60f
+            };
+        }
 
         private enum CORespiratorState
         {
@@ -245,10 +294,11 @@ namespace MajorMiseries
 
             if (!hasValidFire) return;
 
+            float rollIntervalHours = Mathf.Max(0.01f, GetCORollIntervalHours());
             float elapsed = nowHours - state.LastRollTimeHours;
-            if (elapsed < CO_ROLL_INTERVAL_HOURS) return;
+            if (elapsed < rollIntervalHours) return;
 
-            int rollCount = Mathf.FloorToInt(elapsed / CO_ROLL_INTERVAL_HOURS);
+            int rollCount = Mathf.FloorToInt(elapsed / rollIntervalHours);
             if (rollCount <= 0) return;
 
             float rollChance = GetCORollChanceForFireCount(eligibleFireCount);
@@ -262,7 +312,7 @@ namespace MajorMiseries
                 {
                     state.SceneContaminated = true;
                     state.LastValidFireSeenTimeHours = nowHours;
-                    state.LastRollTimeHours += (i + 1) * CO_ROLL_INTERVAL_HOURS;
+                    state.LastRollTimeHours += (i + 1) * rollIntervalHours;
 
                     Core.Log($"CO roll succeeded -> scene '{sceneName}' is now contaminated, applying COExposure. fires={eligibleFireCount}, chance={rollChance:0.##}%");
                     new COExposureAffliction(AfflictionBodyArea.Head).Start();
@@ -271,7 +321,7 @@ namespace MajorMiseries
                 }
             }
 
-            state.LastRollTimeHours += rollCount * CO_ROLL_INTERVAL_HOURS;
+            state.LastRollTimeHours += rollCount * rollIntervalHours;
         }
 
         internal static bool IsPlayerStillInActiveCOScene()
@@ -313,6 +363,7 @@ namespace MajorMiseries
 
             int count = FireManager.m_Fires.Count;
             float longestBurnHours = -1f;
+            float minFireBurnHours = GetCOMinFireBurnHours();
 
             for (int i = 0; i < count; i++)
             {
@@ -324,7 +375,7 @@ namespace MajorMiseries
                 if (!IsCOEligibleFire(fire)) continue;
 
                 float burnHours = fire.GetBurningTimeTODHours();
-                if (burnHours < CO_MIN_FIRE_BURN_HOURS) continue;
+                if (burnHours < minFireBurnHours) continue;
 
                 eligibleFireCount++;
 
@@ -332,9 +383,9 @@ namespace MajorMiseries
                     longestBurnHours = burnHours;
             }
 
-            if (eligibleFireCount <= 0 || longestBurnHours < CO_MIN_FIRE_BURN_HOURS) return false;
+            if (eligibleFireCount <= 0 || longestBurnHours < minFireBurnHours) return false;
 
-            qualifyingSinceHours = nowHours - (longestBurnHours - CO_MIN_FIRE_BURN_HOURS);
+            qualifyingSinceHours = nowHours - (longestBurnHours - minFireBurnHours);
             return true;
         }
 
@@ -342,7 +393,7 @@ namespace MajorMiseries
         {
             if (eligibleFireCount <= 0) return 0f;
 
-            return Mathf.Clamp(CO_EXPOSURE_ROLL_CHANCE * eligibleFireCount, 0f, 100f);
+            return Mathf.Clamp(CO_EXPOSURE_ROLL_CHANCE * GetCORollChanceMultiplier() * eligibleFireCount, 0f, 100f);
         }
 
         private static bool IsCOEligibleFire(Fire fire)

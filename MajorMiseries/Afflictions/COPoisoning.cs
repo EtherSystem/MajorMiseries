@@ -7,7 +7,7 @@ namespace MajorMiseries.Afflictions
 {
     internal class COPoisoning
     {
-        public class COPoisoningAffliction : CustomAffliction, IDuration, IRemedies, IInstance, ILocalizableAffliction
+        public class COPoisoningAffliction : CustomAffliction, IDuration, IRemedies, IInstance, IAfflictionProgressBar, ILocalizableAffliction
         {
             private const string NAME_KEY = "GAMEPLAY_COPoisoningName";
             private const string CAUSE_KEY = "GAMEPLAY_COPoisoningCause";
@@ -36,6 +36,9 @@ namespace MajorMiseries.Afflictions
 
             public bool InstantHeal { get; set; } = true;
 
+            public float ProgressBar { get; set; } = 0f;
+            public bool InvertProgressBar { get; set; } = true;
+
             public COPoisoningAffliction(AfflictionBodyArea bodyArea, float durationHours) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
             {
                 Duration = durationHours;
@@ -45,6 +48,8 @@ namespace MajorMiseries.Afflictions
                 {
                     EndTime = tod.GetHoursPlayedNotPaused() + Duration;
                 }
+
+                RefreshProgressBar();
 
                 Core.Log($"COPoisoning prepared for {Duration:0.##} hours.");
             }
@@ -61,6 +66,8 @@ namespace MajorMiseries.Afflictions
                     {
                         coPoisoning.EndTime = tod.GetHoursPlayedNotPaused() + coPoisoning.Duration;
                     }
+
+                    coPoisoning.RefreshProgressBar();
 
                     Core.Log($"COPoisoning refreshed for {coPoisoning.Duration:0.##} hours.");
                 }
@@ -81,6 +88,8 @@ namespace MajorMiseries.Afflictions
 
             public override void OnUpdate()
             {
+                RefreshProgressBar();
+
                 Panel_FirstAid firstAid = InterfaceManager.GetPanel<Panel_FirstAid>();
                 if (firstAid != null && firstAid.isActiveAndEnabled)
                     return;
@@ -101,6 +110,19 @@ namespace MajorMiseries.Afflictions
                 }
 
                 ApplyTimedEffects();
+            }
+
+            private void RefreshProgressBar()
+            {
+                TimeOfDay? tod = GameManager.GetTimeOfDayComponent();
+                if (tod == null || Duration <= 0f)
+                {
+                    ProgressBar = 0f;
+                    return;
+                }
+
+                float elapsedHours = Mathf.Clamp(Duration - (EndTime - tod.GetHoursPlayedNotPaused()), 0f, Duration);
+                ProgressBar = Mathf.Clamp01(elapsedHours / Duration);
             }
 
             private static float GetCurrentWholeMinute()

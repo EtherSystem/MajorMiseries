@@ -2,7 +2,7 @@
 using MajorMiseries.Managers;
 using MajorMiseries.Persistence;
 
-[assembly: MelonInfo(typeof(MajorMiseries.Core), "MajorMiseries", "1.1.1", "EtherSystem, FlowerField", null)]
+[assembly: MelonInfo(typeof(MajorMiseries.Core), "MajorMiseries", "1.2.0", "EtherSystem, FlowerField", null)]
 [assembly: MelonGame("Hinterland", "TheLongDark")]
 
 namespace MajorMiseries
@@ -229,6 +229,7 @@ namespace MajorMiseries
             AfflictionLogic.UpdatePredatorHostilityDecay(gameHoursPassed);
             AfflictionLogic.UpdateBlackLungExposure(gameHoursPassed);
             AfflictionLogic.UpdateCOExposure(gameHoursPassed);
+            AfflictionLogic.UpdateSepsisInfectionRiskRolls(gameHoursPassed);
             AfflictionLogic.UpdateCorpseExposure(gameHoursPassed);
             RegionalAfflictionManager.Update(gameHoursPassed);
             ImmunityManager.UpdateBodyHeat(scene, gameHoursPassed);

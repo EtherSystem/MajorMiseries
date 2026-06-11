@@ -321,6 +321,14 @@
         "Turkish": "Akciğerlerin kömür tozundan ciddi şekilde etkilendi. Durum artık daha ileri bir aşamada, ancak kalıcı değil; maruziyet durursa zamanla düzelebilir.",
         "Russian": "Ваши лёгкие серьёзно пострадали от угольной пыли. Состояние уже более тяжёлое, но не является постоянным и со временем может пройти, если воздействие прекратится."
     },
+    "GAMEPLAY_BlackLungSpecialTreatment": {
+        "English": "Avoid coal-heavy areas and rest. Sleep reduces the remaining duration, but coal exposure can make it worse.",
+        "French (France)": "Évitez les zones riches en charbon et reposez-vous. Le sommeil réduit la durée restante, mais l'exposition au charbon peut l'aggraver.",
+        "Spanish (Spain)": "Evita las zonas ricas en carbón y descansa. Dormir reduce la duración restante, pero la exposición al carbón puede empeorarla.",
+        "German": "Meide kohlenreiche Gebiete und ruh dich aus. Schlaf verringert die verbleibende Dauer, aber Kohlenexposition kann sie verschlimmern.",
+        "Turkish": "Kömür açısından yoğun bölgelerden uzak dur ve dinlen. Uyku kalan süreyi azaltır, ancak kömüre maruz kalmak bunu kötüleştirebilir.",
+        "Russian": "Избегайте мест с большим количеством угля и отдыхайте. Сон сокращает оставшееся время, но воздействие угля может ухудшить состояние."
+    },
     "GAMEPLAY_COExposureName": {
         "English": "Carbon Monoxide Exposure",
         "French (France)": "Exposition au monoxyde de carbone",
@@ -580,6 +588,14 @@
         "Turkish": "Evinizden çok uzun süredir uzakta olmak üzerinizde ağırlık yapmaya başladı. Daha çabuk yoruluyorsunuz.",
         "Russian": "Слишком долгое отсутствие дома начинает тяготить вас. Вы устаете быстрее."
     },
+    "GAMEPLAY_HomeSicknessSpecialTreatment": {
+        "English": "Go home. You will be comforted and recharge in your home region.",
+        "French (France)": "Rentrez chez vous. Vous trouverez du réconfort et pourrez vous ressourcer dans votre région d'origine.",
+        "Spanish (Spain)": "Vuelve a casa. Encontrarás consuelo y podrás recuperarte en tu región de origen.",
+        "German": "Geh nach Hause. In deiner Heimatregion wirst du Trost finden und neue Kraft schöpfen.",
+        "Turkish": "Eve dön. Kendi bölgene döndüğünde huzur bulacak ve yeniden güç toplayacaksın.",
+        "Russian": "Вернитесь домой. В родном регионе вы найдете утешение и сможете восстановить силы."
+    },
     "GAMEPLAY_RegionalDistressName": {
         "English": "Regional Distress",
         "French (France)": "Détresse régionale",
@@ -605,6 +621,14 @@
         "Russian": "Что-то в этом регионе вызывает у вас тревогу. Вам здесь не нравится. Чем дольше вы останетесь, тем сильнее будет становиться это чувство."
     },
 
+    "GAMEPLAY_RegionalDistressSpecialTreatment": {
+        "English": "Leave this region. You will never feel right here.",
+        "French (France)": "Quittez cette région. Vous ne vous sentirez jamais bien ici.",
+        "Spanish (Spain)": "Sal de esta región. Nunca te sentirás bien aquí.",
+        "German": "Verlasse diese Region. Du wirst dich hier nie wohlfühlen.",
+        "Turkish": "Bu bölgeden ayrıl. Burada asla iyi hissetmeyeceksin.",
+        "Russian": "Покиньте этот регион. Вам здесь никогда не будет хорошо."
+    },
     "GAMEPLAY_FeverName": {
         "English": "Fever",
         "French (France)": "Fièvre",

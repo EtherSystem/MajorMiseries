@@ -41,6 +41,7 @@ namespace MajorMiseries
             _lastProcessedHour = -1;
             _lastRefreshUnscaledTime = -999f;
             _coSceneStates.Clear();
+            ResetSepsisInfectionRiskRollTracking();
 
             s_BlackLungExposureSceneActive = false;
             s_BlackLungExposureSceneName = string.Empty;
@@ -507,6 +508,7 @@ namespace MajorMiseries
         {
             if (Settings.options.EnableSepsis) return;
 
+            ResetSepsisInfectionRiskRollTracking();
             CureAllAfflictionsOfType<Afflictions.SepsisRisk.SepsisRiskAffliction>();
             CureAllAfflictionsOfType<Afflictions.Sepsis.SepsisAffliction>();
         }

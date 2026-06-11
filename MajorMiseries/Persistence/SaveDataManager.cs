@@ -395,14 +395,17 @@ namespace MajorMiseries.Persistence
         public int PredatorBloodLossToSevereLacerationsMode = 0;
 
         public bool EnableBlackLung = true;
+        public int BlackLungPreset = 1;
         public int BlackLungDurationMode = 0;
         public bool EnableCarbonMonoxide = true;
+        public int CarbonMonoxidePreset = 1;
 
         public bool EnableSevereSprains = true;
         public int SevereSprainPreset = 1;
 
         public bool EnableScarredFlesh = true;
         public bool EnableSepsis = true;
+        public int SepsisPreset = 1;
 
         public bool EnableCorpseSickness = true;
         public bool EnableHumanCorpseExposure = true;
@@ -459,14 +462,17 @@ namespace MajorMiseries.Persistence
                 PredatorBloodLossToSevereLacerationsMode = s.PredatorBloodLossToSevereLacerationsMode,
 
                 EnableBlackLung = s.EnableBlackLung,
+                BlackLungPreset = s.BlackLungPreset,
                 BlackLungDurationMode = s.BlackLungDurationMode,
                 EnableCarbonMonoxide = s.EnableCarbonMonoxide,
+                CarbonMonoxidePreset = s.CarbonMonoxidePreset,
 
                 EnableSevereSprains = s.EnableSevereSprains,
                 SevereSprainPreset = s.SevereSprainPreset,
 
                 EnableScarredFlesh = s.EnableScarredFlesh,
                 EnableSepsis = s.EnableSepsis,
+                SepsisPreset = s.SepsisPreset,
 
                 EnableCorpseSickness = s.EnableCorpseSickness,
                 EnableHumanCorpseExposure = s.EnableHumanCorpseExposure,
@@ -523,14 +529,17 @@ namespace MajorMiseries.Persistence
             s.PredatorBloodLossToSevereLacerationsMode = PredatorBloodLossToSevereLacerationsMode;
 
             s.EnableBlackLung = EnableBlackLung;
+            s.BlackLungPreset = BlackLungPreset;
             s.BlackLungDurationMode = BlackLungDurationMode;
             s.EnableCarbonMonoxide = EnableCarbonMonoxide;
+            s.CarbonMonoxidePreset = CarbonMonoxidePreset;
 
             s.EnableSevereSprains = EnableSevereSprains;
             s.SevereSprainPreset = SevereSprainPreset;
 
             s.EnableScarredFlesh = EnableScarredFlesh;
             s.EnableSepsis = EnableSepsis;
+            s.SepsisPreset = SepsisPreset;
 
             s.EnableCorpseSickness = EnableCorpseSickness;
             s.EnableHumanCorpseExposure = EnableHumanCorpseExposure;

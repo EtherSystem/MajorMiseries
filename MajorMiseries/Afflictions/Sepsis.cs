@@ -17,10 +17,7 @@ namespace MajorMiseries.Afflictions
             private const string ALT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Alt.Sepsis_ALT.png";
 
             public const float TOTAL_DURATION_HOURS = 480f;
-            public const float DOSE_DURATION_HOURS = 120f;
-            public const int ANTIBIOTIC_BOTTLES_PER_DOSE = 2;
-            public const int ANTIBIOTIC_DOSES_PER_TREATMENT = 2;
-            public const int ANTIBIOTIC_BOTTLES_DISPLAY_COUNT = ANTIBIOTIC_BOTTLES_PER_DOSE * ANTIBIOTIC_DOSES_PER_TREATMENT;
+            public const int ANTIBIOTIC_BOTTLES_PER_INTAKE = 2;
 
             public const float UNTREATED_CONDITION_LOSS_PER_HOUR = 10f;
             public const float TREATED_CONDITION_LOSS_PER_HOUR = 0.2f;
@@ -40,10 +37,7 @@ namespace MajorMiseries.Afflictions
             public float Duration { get; set; } = TOTAL_DURATION_HOURS;
             public float EndTime { get; set; }
 
-            public Tuple<string, int, int>[] RemedyItems { get; set; } =
-            [
-                Tuple.Create("GEAR_BottleAntibiotics", ANTIBIOTIC_BOTTLES_DISPLAY_COUNT, ANTIBIOTIC_BOTTLES_DISPLAY_COUNT),
-            ];
+            public Tuple<string, int, int>[] RemedyItems { get; set; } = [];
 
             public Tuple<string, int, int>[] AltRemedyItems { get; set; } = [];
 
@@ -53,6 +47,8 @@ namespace MajorMiseries.Afflictions
             {
                 float now = GameManager.GetTimeOfDayComponent().GetHoursPlayedNotPaused();
                 EndTime = now + Duration;
+
+                ResetRemedyItemsForCurrentPreset();
             }
 
             public void OnFoundExistingInstance(CustomAffliction existingAffliction)
@@ -67,27 +63,31 @@ namespace MajorMiseries.Afflictions
 
             public void CureSymptoms()
             {
+                EnsureRemedyItemsMatchPreset();
                 ConsumeExtraAntibioticBottleForDisplay();
 
                 if (NeedsRemedy())
                 {
                     int remainingTablets = GetRemainingAntibioticBottles();
-                    int takenTablets = ANTIBIOTIC_BOTTLES_DISPLAY_COUNT - remainingTablets;
-                    int takenDoses = takenTablets / ANTIBIOTIC_BOTTLES_PER_DOSE;
+                    int requiredTablets = GetRequiredAntibioticBottleDisplayCount();
+                    int takenTablets = requiredTablets - remainingTablets;
+                    int takenIntakes = takenTablets / ANTIBIOTIC_BOTTLES_PER_INTAKE;
+                    int requiredIntakes = AfflictionLogic.GetSepsisRequiredDoseIntakesPerWindow();
 
-                    HUDMessage.AddMessage($"Sepsis treatment progress: {takenTablets}/{ANTIBIOTIC_BOTTLES_DISPLAY_COUNT} antibiotics.");
-                    Core.Log($"Sepsis treatment progress: {takenTablets}/{ANTIBIOTIC_BOTTLES_DISPLAY_COUNT} tablets ({takenDoses}/{ANTIBIOTIC_DOSES_PER_TREATMENT} doses).");
+                    HUDMessage.AddMessage($"Sepsis treatment progress: {takenTablets}/{requiredTablets} antibiotics.");
+                    Core.Log($"Sepsis treatment progress: {takenTablets}/{requiredTablets} tablets ({takenIntakes}/{requiredIntakes} dose intakes). Instance:{GetHashCode()}");
                     return;
                 }
 
                 FlushDrainLog();
 
                 float now = GameManager.GetTimeOfDayComponent().GetHoursPlayedNotPaused();
-                m_SuppressedUntilTime = now + DOSE_DURATION_HOURS;
+                float treatmentDurationHours = AfflictionLogic.GetSepsisTreatmentWindowIntervalHours();
+                m_SuppressedUntilTime = now + treatmentDurationHours;
                 m_HasShownDoseExpiredMessage = false;
 
-                HUDMessage.AddMessage("Sepsis treatment applied for 5 days.");
-                Core.Log($"Sepsis treatment applied until hour {m_SuppressedUntilTime:0.##}.");
+                HUDMessage.AddMessage($"Sepsis treatment applied for {treatmentDurationHours / 24f:0.#} days.");
+                Core.Log($"Sepsis treatment applied until hour {m_SuppressedUntilTime:0.##}. Required intakes:{AfflictionLogic.GetSepsisRequiredDoseIntakesPerWindow()}, interval:{treatmentDurationHours:0.##}h.");
             }
 
             public void OnCure()
@@ -95,7 +95,7 @@ namespace MajorMiseries.Afflictions
                 FlushDrainLog();
 
                 IsActive = false;
-                CustomAffliction.ResetRemedyItems(this);
+                ResetRemedyItemsForCurrentPreset();
                 AfflictionSaveHelper.QueueSurvivalSave();
             }
 
@@ -116,6 +116,7 @@ namespace MajorMiseries.Afflictions
                     return;
                 }
 
+                EnsureRemedyItemsMatchPreset();
                 ApplyHealthDrain();
 
                 if (!IsTreatmentActive(now) && m_SuppressedUntilTime > 0f && !m_HasShownDoseExpiredMessage)
@@ -125,11 +126,35 @@ namespace MajorMiseries.Afflictions
                     m_HasShownDoseExpiredMessage = true;
                     m_SuppressedUntilTime = -1f;
 
-                    CustomAffliction.ResetRemedyItems(this);
+                    ResetRemedyItemsForCurrentPreset();
 
                     HUDMessage.AddMessage("Sepsis treatment expired. Symptoms are back at full strength.");
                     Core.Log("Sepsis treatment window expired, remedy progress reset.");
                 }
+            }
+
+            private void EnsureRemedyItemsMatchPreset()
+            {
+                if (IsTreatmentActive()) return;
+
+                int required = GetRequiredAntibioticBottleDisplayCount();
+                if (RemedyItems != null && RemedyItems.Length > 0 && RemedyItems[0].Item2 == required) return;
+
+                ResetRemedyItemsForCurrentPreset();
+            }
+
+            private void ResetRemedyItemsForCurrentPreset()
+            {
+                int required = GetRequiredAntibioticBottleDisplayCount();
+                RemedyItems =
+                [
+                    Tuple.Create("GEAR_BottleAntibiotics", required, required),
+                ];
+            }
+
+            private static int GetRequiredAntibioticBottleDisplayCount()
+            {
+                return AfflictionLogic.GetSepsisRequiredDoseIntakesPerWindow() * ANTIBIOTIC_BOTTLES_PER_INTAKE;
             }
 
             private int GetRemainingAntibioticBottles()
@@ -147,7 +172,7 @@ namespace MajorMiseries.Afflictions
 
                 var current = RemedyItems[0];
 
-                int remaining = Mathf.Max(0, current.Item3 - (ANTIBIOTIC_BOTTLES_PER_DOSE - 1));
+                int remaining = Mathf.Max(0, current.Item3 - (ANTIBIOTIC_BOTTLES_PER_INTAKE - 1));
 
                 RemedyItems[0] = Tuple.Create(
                     current.Item1,

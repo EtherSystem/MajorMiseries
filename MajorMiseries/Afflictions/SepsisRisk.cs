@@ -34,9 +34,17 @@ namespace MajorMiseries.Afflictions
 
             public bool InstantHeal { get; set; } = true;
 
-            public SepsisRiskAffliction(AfflictionBodyArea bodyArea) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
+            public AfflictionBodyArea BodyArea => m_BodyArea;
+            public bool GeneratedFromInfectionRisk { get; set; } = false;
+
+            public SepsisRiskAffliction(AfflictionBodyArea bodyArea) : this(bodyArea, generatedFromInfectionRisk: false)
+            {
+            }
+
+            public SepsisRiskAffliction(AfflictionBodyArea bodyArea, bool generatedFromInfectionRisk) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
             {
                 m_BodyArea = bodyArea;
+                GeneratedFromInfectionRisk = generatedFromInfectionRisk;
                 m_LastUpdateTime = GameManager.GetTimeOfDayComponent().GetHoursPlayedNotPaused();
             }
 
@@ -45,6 +53,7 @@ namespace MajorMiseries.Afflictions
                 if (existingAffliction is SepsisRiskAffliction sepsisRisk && sepsisRisk.m_BodyArea == m_BodyArea)
                 {
                     sepsisRisk.ResetProgressTimer();
+                    if (GeneratedFromInfectionRisk) sepsisRisk.GeneratedFromInfectionRisk = true;
                 }
             }
 
@@ -99,6 +108,12 @@ namespace MajorMiseries.Afflictions
                 Infection infection = GameManager.GetInfectionComponent();
                 if (infection == null)
                 {
+                    if (GeneratedFromInfectionRisk && AfflictionLogic.IsVanillaInfectionRiskActiveFor(m_BodyArea) && !AfflictionLogic.IsVanillaInfectionRiskTreatedFor(m_BodyArea))
+                    {
+                        UpdateRiskValue();
+                        return;
+                    }
+
                     Cure();
                     return;
                 }
@@ -106,8 +121,14 @@ namespace MajorMiseries.Afflictions
                 int infectionIndex = GetMatchingInfectionIndex(infection);
                 if (infectionIndex < 0)
                 {
+                    if (GeneratedFromInfectionRisk && AfflictionLogic.IsVanillaInfectionRiskActiveFor(m_BodyArea) && !AfflictionLogic.IsVanillaInfectionRiskTreatedFor(m_BodyArea))
+                    {
+                        UpdateRiskValue();
+                        return;
+                    }
+
                     int count = infection.GetAfflictionsCount();
-                    Core.Log($"SepsisRisk [{m_BodyArea}] -> no matching vanilla infection, count={count}");
+                    Core.Log($"SepsisRisk [{m_BodyArea}] -> no matching vanilla infection or infection risk, count={count}");
 
                     for (int i = 0; i < count; i++)
                     {
@@ -117,6 +138,8 @@ namespace MajorMiseries.Afflictions
                     Cure();
                     return;
                 }
+
+                GeneratedFromInfectionRisk = false;
 
                 if (infection.HasTakenAntibiotics(infectionIndex))
                 {
@@ -148,10 +171,18 @@ namespace MajorMiseries.Afflictions
 
                 if (elapsedTime <= 0f) return;
 
-                float riskIncrease = elapsedTime * RISK_PER_HOUR * ImmunityManager.GetRiskProgressMultiplier();
+                float riskIncrease = elapsedTime * RISK_PER_HOUR * ImmunityManager.GetRiskProgressMultiplier() * AfflictionLogic.GetSepsisRiskProgressMultiplier();
 
                 m_RiskValue = Mathf.Min(m_RiskValue + riskIncrease, 100f);
                 m_LastUpdateTime = currentTime;
+            }
+
+            public void AddRiskProgress(float amount)
+            {
+                if (amount <= 0f) return;
+
+                m_RiskValue = Mathf.Clamp(m_RiskValue + amount, 0f, 100f);
+                ResetProgressTimer();
             }
 
             private void ResetProgressTimer()
