@@ -96,7 +96,6 @@ Effects:
 | Base Predator Threat | 1 |
 | Predator Hostility | Can start contributing if Predator Hostility mode allows it |
 
-
 ### Dirge
 
 Advent is the second stage. Dirge is the affliction.  
@@ -114,7 +113,6 @@ Effects:
 | Maximum sleep duration | Vanilla maximum sleep hours -4 hours |
 | Body temperature | -5°C |
 | Base Predator Threat | 2 |
-
 
 ### Knell
 
@@ -134,9 +132,8 @@ Effects:
 | Maximum sleep duration | Vanilla maximum sleep hours -4 hours |
 | Body temperature | -5°C |
 | Movement speed | -10% |
-| sprint speed | -25% speed while sprinting, unless vanilla Weak Joints is already active |
+| Sprint speed | -25% speed while sprinting, unless vanilla Weak Joints is already active |
 | Base Predator Threat | 3 |
-
 
 ### Requiem
 
@@ -157,7 +154,7 @@ Effects:
 | Maximum sleep duration | Vanilla maximum sleep hours -4 hours |
 | Body temperature | -5°C |
 | Movement speed | -10% |
-| sprint speed | -25% speed while sprinting, unless vanilla Weak Joints is already active |
+| Sprint speed | -25% speed while sprinting, unless vanilla Weak Joints is already active |
 | Natural condition recovery | Disabled |
 | Willpower condition recovery | Disabled |
 | Incoming condition damage | 2x |
@@ -269,9 +266,8 @@ Examples:
 | 10 | 3.0x |
 | 12 | 3.4x |
 
-Predator Threat alters the overall behavior of predators: they will smells you, stalk you, and attack you up to the multiplier's range.  
+Predator Threat alters the overall behavior of predators: they will smell you, stalk you, and attack you up to the multiplier's range.  
 For example, a bear can sense you from over 500 meters away and attack you from 85 meters away at the maximum Predator Threat level.
-
 
 Predator Hostility decay:
 
@@ -388,7 +384,7 @@ This can be configured to:
 | Always | Predator Blood Loss can become Severe Lacerations at any time. |
 | Disabled | This conversion is disabled. |
 
-Keep in mind that if you're playing with the "Only With Requiem" preset, your maximum condition will already be reduced by 50%, and Severe Lacerations also reduces your maximum condition by 50%, resulting in instant death. This is intentional and the only way to survive that is with the well fed buff.
+Keep in mind that if you're playing with the "Only With Requiem" preset, your maximum condition will already be reduced by 50%, and Severe Lacerations also reduces your maximum condition by 50%, resulting in instant death. This is intentional and the only way to survive that is with the Well Fed buff.
 
 ## Scarred Flesh
 
@@ -396,7 +392,7 @@ Scarred Flesh represents permanent damage left behind after Severe Lacerations h
 
 When Severe Lacerations are healed, Major Miseries records that trauma and increases Scarred Flesh history by 1.
 
-One Scarred Flesh reduce max condition by 2%.
+One Scarred Flesh reduces max condition by 2%.
 
 Scarred Flesh isn't designed to kill the player instantly. Its purpose is to have a long-term impact on the catastrophic injuries that Severe Lacerations are.  
 A survivor who survives terrible injuries is still alive, but it leaves its mark.
@@ -409,17 +405,55 @@ Sepsis expands the danger of untreated infection.
 
 If a vanilla Infection remains untreated, it can begin progressing toward Sepsis Risk.
 
+Sepsis Risk can also appear earlier while a vanilla Infection Risk is active and still untreated. This early Sepsis Risk roll is controlled by the Sepsis Preset and is affected by Immunity Shield.
+
 Default behavior:
 
 | Effect | Value |
 |---|---:|
-| Trigger | Vanilla Infection starts |
+| Normal trigger | Vanilla Infection starts |
+| Early trigger | Untreated vanilla Infection Risk can roll once every in-game hour |
 | Base risk gain while matching infection remains untreated | +25 risk per hour before Immunity Shield modifiers |
 | Time from 0 to 100 risk at normal immunity | 4 hours |
-| Immunity Shield interaction | Strong shield slows Sepsis Risk, weak shield accelerates it |
+| Immunity Shield interaction | Strong shield slows Sepsis Risk and early Sepsis Risk rolls, weak shield accelerates them |
 | Antibiotics taken for the matching vanilla infection | Cures Sepsis Risk |
+| Infection Risk treated before becoming Infection | Cures Sepsis Risk caused by that Infection Risk |
 | If the matching vanilla infection disappears | Cures Sepsis Risk |
 
+### Sepsis Preset
+
+The Sepsis Preset affects two things:
+
+- the chance for Sepsis Risk to appear early during untreated Infection Risk.
+- how often antibiotics must be taken once Sepsis is active.
+
+While a vanilla Infection Risk is active, MajorMiseries can roll once every in-game hour to apply Sepsis Risk early.
+
+| Preset | Base hourly Sepsis Risk roll during Infection Risk |
+|---|---:|
+| Forgiving | 0% |
+| Standard | 5% |
+| Harsh | 10% |
+| Brutal | 17% |
+| Who Wants to Play Like This? | 25% |
+
+This chance is modified by the Immunity Shield.
+
+| Immunity Shield | Sepsis Risk roll modifier |
+|---|---:|
+| 90 to 100 | 0.25x |
+| 70 to 89 | 0.5x |
+| 50 to 69 | 1.0x |
+| 25 to 49 | 1.5x |
+| 0 to 24 | 2.0x |
+
+A strong Immunity Shield can make early Sepsis Risk much less likely. A collapsed Immunity Shield can make Infection Risk much more dangerous.
+
+If Sepsis Risk appears during Infection Risk and that Infection Risk is later treated, the Sepsis Risk caused by it is removed.
+
+If the Infection Risk becomes a full vanilla Infection while Sepsis Risk is already present from an early roll, it adds +10% to the current Sepsis Risk progress.
+
+If the Infection Risk becomes a full vanilla Infection and no Sepsis Risk is already present for it, Sepsis Risk will be applied.
 
 ### Sepsis
 
@@ -432,12 +466,27 @@ Default effects:
 | Total duration | 480 hours / 20 days |
 | Condition loss while untreated | -10 condition per hour |
 | Condition loss while treated | -0.2 condition per hour |
-| Antibiotics required for treatment display | 4 antibiotics total |
-| Treatment structure | 2 doses of 2 antibiotics |
-| Treatment suppression duration | 120 hours / 5 days |
 | Natural condition recovery | Disabled while Sepsis is active |
 
 Antibiotics can suppress the worst symptoms, but the affliction still has to be managed carefully over time.
+
+### Sepsis Treatment Preset
+
+Once Sepsis is active, antibiotics suppress the worst symptoms for a limited time. The preset changes how often treatment is required.
+
+| Preset | Treatment interval | Required antibiotics per treatment window |
+|---|---:|---:|
+| Forgiving | 120 hours / 5 days | 2 |
+| Standard | 120 hours / 5 days | 4 |
+| Harsh | 96 hours / 4 days | 4 |
+| Brutal | 72 hours / 3 days | 4 |
+| Who Wants to Play Like This? | 48 hours / 2 days | 4 |
+
+Forgiving keeps the same treatment interval as Standard, but only requires 2 antibiotics per window instead of 4.
+
+Standard keeps the original rhythm: 4 antibiotics every 5 days.
+
+Higher presets do not make Sepsis directly deal more damage. They make it harder to keep suppressed over time.
 
 ## Immunity Shield
 
@@ -754,6 +803,24 @@ If Black Lung Risk reaches 100, it becomes Black Lung.
 
 Black Lung exposure and Black Lung Risk can be avoided by wearing a respirator with active protection. Blocking coal exposure consumes canister condition slowly.
 
+### Black Lung Preset
+
+Black Lung has a separate difficulty preset.
+
+This preset affects exposure buildup, risk buildup, natural recovery, and worsening while already sick in coal-heavy scenes.
+
+| Preset | Exposure gain | Risk gain | Exposure/Risk decay outside coal scenes | Worsening while Black Lung is active |
+|---|---:|---:|---:|---:|
+| Forgiving | 0.5x | 0.5x | 2.0x | 0.5x |
+| Standard | 1.0x | 1.0x | 1.0x | 1.0x |
+| Harsh | 2.0x | 2.0x | 0.75x | 1.5x |
+| Brutal | 3.0x | 3.0x | 0.5x | 2.0x |
+| Who Wants to Play Like This? | 5.0x | 5.0x | 0x | 3.0x |
+
+On Who Wants to Play Like This?, Black Lung exposure and risk do not naturally decay at all.
+
+Leaving coal-heavy scenes can stop the exposure from getting worse, but it will not clean your lungs anymore. The only way for that accumulated exposure to fully disappear is for it to finally become Black Lung.
+
 ### Black Lung
 
 Black Lung is a severe respiratory illness.
@@ -772,7 +839,7 @@ Other effects:
 | Sprint stamina recovery | -50% |
 | Delay before sprint stamina recovery | 1.5x |
 | Sleep recovery against Black Lung duration | Each hour slept removes 10 hours from remaining duration |
-| Coal-scene worsening while Black Lung is active | Each hour in coal exposure adds 10 hours to remaining duration |
+| Coal-scene worsening while Black Lung is active | Each hour in coal exposure adds 10 hours to remaining duration, modified by Black Lung Preset |
 | Sleep cough interval | Randomly every 2 to 4 hours of sleep |
 
 BlackLung is a severe affliction, but in a more vicious way than others, it is not violent through a strong condition drain or any effect of that style, but is severe because it continually disrupts the sleep cycle.
@@ -791,15 +858,34 @@ It is not meant to make every indoor fire dangerous. It is meant to punish carel
 
 Carbon Monoxide danger can begin in indoor scenes when an unsafe fire has been burning for long enough.
 
-Once a qualifying unsafe fire has burned for more than two in-game hours, Major Miseries begins checking for Carbon Monoxide danger every 10 in-game minutes. Each eligible unsafe fire adds 10% roll chance, capped at 100%. If the roll succeeds, the indoor scene will be considered contaminated as long as the fire is burning + 2 hours.
-
-If exposure starts, the player has 30 in-game minutes before it becomes Carbon Monoxide Poisoning.
+In Standard, once a qualifying unsafe fire has burned for more than two in-game hours, Major Miseries begins checking for Carbon Monoxide danger. Each eligible unsafe fire adds roll chance, capped at 100%. If the roll succeeds, the indoor scene will be considered contaminated as long as the fire is burning + 2 hours.
 
 Leaving the contaminated indoor scene stops the active exposure before it becomes poisoning.
 
 Carbon Monoxide Exposure can be avoided by wearing a respirator with active protection. Blocking Carbon Monoxide consumes canister condition faster than Black Lung protection.
 
 Safe stoves and proper chimney-style fireplaces are designed to avoid false positives as much as possible (it is entirely possible that there are exceptions not taken into account, any feedback is appreciated !).
+
+### Carbon Monoxide Preset
+
+Carbon Monoxide has a difficulty preset that changes how easily unsafe indoor fires become dangerous.
+
+The preset affects:
+
+- how long an unsafe indoor fire must burn before CO danger can begin.
+- the roll chance multiplier.
+- how long before the first CO Exposure tick can happen.
+- how quickly CO Exposure becomes CO Poisoning.
+
+| Preset | Unsafe fire burn time required | Roll chance | First risk tick | Time from CO Exposure to CO Poisoning |
+|---|---:|---:|---:|---:|
+| Forgiving | 3 hours | 0.5x | 90 minutes | 60 minutes |
+| Standard | 2 hours | 1.0x | 60 minutes | 30 minutes |
+| Harsh | 1 hour | 1.5x | 45 minutes | 20 minutes |
+| Brutal | 30 minutes | 2.0x | 30 minutes | 15 minutes |
+| Who Wants to Play Like This? | 0 hours | 3.0x | 30 minutes | 10 minutes |
+
+On Who Wants to Play Like This?, an unsafe indoor fire can become dangerous immediately. However, the first risk tick still waits 30 in-game minutes, so the player has a short reaction window.
 
 ### Carbon Monoxide Poisoning
 
@@ -875,7 +961,7 @@ Default risk behavior:
 
 | Value | Default |
 |---|---:|
-| O to 100 risk time | 12 hours |
+| 0 to 100 risk time | 12 hours |
 | 100 to 0 risk time | 24 hours |
 
 The risk continues increasing while the player remains near corpses or carcasses.
@@ -930,7 +1016,7 @@ Default preset values:
 | Standard | 2 | 72 hours / 3 days | 24 hours | 72 hours |
 | Harsh | 2 | 96 hours / 4 days | 36 hours | 96 hours |
 | Brutal | 1 | 120 hours / 5 days | 48 hours | 120 hours |
-| Who Wants to Play Like This? | Every sprain converts directly | - - - - - - - - - - - - | - - - - - - - - - | 240 hours |
+| Who Wants to Play Like This? | Every sprain converts directly | - | - | 240 hours |
 
 The "Who Wants to Play Like This?" preset skips the risk step entirely. Any vanilla sprain becomes a Severe Sprain directly.
 
