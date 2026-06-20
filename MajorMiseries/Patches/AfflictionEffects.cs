@@ -357,6 +357,21 @@ namespace MajorMiseries.Patches
             }
         }
 
+        private static float GetCraftingDurationMultiplier()
+        {
+            return AfflictionLogic.GetCraftingTimeMultiplier() * AuroraInfluenceManager.GetActionTimeMultiplier();
+        }
+
+        private static void ScaleCraftingProgressHours(ref float hoursSpentCrafting)
+        {
+            if (hoursSpentCrafting <= 0f) return;
+
+            float multiplier = GetCraftingDurationMultiplier();
+            if (multiplier <= 0f || Mathf.Approximately(multiplier, 1f)) return;
+
+            hoursSpentCrafting /= multiplier;
+        }
+
         [HarmonyPatch(typeof(Panel_Crafting), nameof(Panel_Crafting.GetModifiedCraftingDuration))]
         internal static class CraftingDurationPatch
         {
@@ -378,6 +393,24 @@ namespace MajorMiseries.Patches
                         $"Duration modified -> {before} * affliction x{afflictionMultiplier:0.###} * aurora x{auroraMultiplier:0.###} = {__result}"
                     );
                 }
+            }
+        }
+
+        [HarmonyPatch(typeof(Il2CppTLD.Gear.CraftingOperation), nameof(Il2CppTLD.Gear.CraftingOperation.ApplyCraftingProgress))]
+        internal static class CraftingOperationApplyProgressPatch
+        {
+            private static void Prefix(ref float hoursSpentCrafting)
+            {
+                ScaleCraftingProgressHours(ref hoursSpentCrafting);
+            }
+        }
+
+        [HarmonyPatch(typeof(Il2CppTLD.Gear.CraftingOperation), nameof(Il2CppTLD.Gear.CraftingOperation.ConsumeMaterialsUsedForCrafting))]
+        internal static class CraftingOperationConsumeMaterialsPatch
+        {
+            private static void Prefix(ref float hoursSpentCrafting)
+            {
+                ScaleCraftingProgressHours(ref hoursSpentCrafting);
             }
         }
 
