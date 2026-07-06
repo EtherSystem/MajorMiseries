@@ -2,7 +2,7 @@
 using MajorMiseries.Managers;
 using MajorMiseries.Persistence;
 
-[assembly: MelonInfo(typeof(MajorMiseries.Core), "MajorMiseries", "1.2.1", "EtherSystem, FlowerField", null)]
+[assembly: MelonInfo(typeof(MajorMiseries.Core), "MajorMiseries", "1.2.2", "EtherSystem, FlowerField", null)]
 [assembly: MelonGame("Hinterland", "TheLongDark")]
 
 namespace MajorMiseries

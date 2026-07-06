@@ -279,6 +279,7 @@ namespace MajorMiseries.Managers
             "BlackrockSteamTunnelsASurvival",
             "AshCaveA",
             "AshCaveB",
+            "AshMine",
             "PrepperCacheA",
             "PrepperCacheAEmpty",
             "PrepperCacheB",
