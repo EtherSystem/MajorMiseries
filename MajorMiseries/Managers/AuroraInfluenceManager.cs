@@ -1473,6 +1473,9 @@ namespace MajorMiseries.Managers
                 yield break;
             }
 
+            TrySaveCurrentSceneBeforeSleepwalkingSceneLoad(currentScene, target.TargetScene);
+            yield return WaitUnscaledSeconds(0.5f);
+
             s_SleepwalkingPendingTeleport = true;
             s_PendingSleepwalkingWakePosition = finalWakePosition;
             s_PendingSleepwalkingCameraPitch = cameraPitch;
@@ -1491,7 +1494,7 @@ namespace MajorMiseries.Managers
             {
                 CameraFade.FadeOut(
                     time: GameManager.m_SceneTransitionFadeOutTime,
-                    onFadeFinished: (Action)(() => BeginSleepwalkingSceneLoad(finalWakePosition, target.TargetScene, currentScene))
+                    onFadeFinished: (Action)(() => BeginSleepwalkingSceneLoad(finalWakePosition, target.TargetScene, currentScene, target.LogicalRegion))
                 );
             }
             catch (Exception e)
@@ -1510,11 +1513,11 @@ namespace MajorMiseries.Managers
             s_BlackoutRoutine = null;
         }
 
-        private static void BeginSleepwalkingSceneLoad(Vector3 wakePosition, string targetScene, string currentScene)
+        private static void BeginSleepwalkingSceneLoad(Vector3 wakePosition, string targetScene, string currentScene, string logicalRegion)
         {
             try
             {
-                PrepareSleepwalkingSceneTransitionData(wakePosition, targetScene, currentScene);
+                PrepareSleepwalkingSceneTransitionData(currentScene, targetScene, logicalRegion, wakePosition);
                 GameManager.LoadScene(targetScene, GetCurrentSaveName());
             }
             catch (Exception e)
@@ -1570,6 +1573,7 @@ namespace MajorMiseries.Managers
                     HUDMessage.AddMessage(Localization.Get("GAMEPLAY_AuroraInfluenceSleepwalking"), AURORA_INFLUENCE_HUD_DISPLAY_SECONDS, false);
                     Core.Log($"Aurora sleepwalking -> Source:{triggerSource} | Scene:{targetScene} | LogicalRegion:{RegionalAfflictionManager.GetRegionLogName(logicalRegion)} | WakePoint:{wakePosition} | WakeSource:{wakePointSource} | CameraPitch:{cameraPitch:0.##} | CameraYaw:{cameraYaw:0.##} | TimeLost:{lostHours:0.##}h | Exposure:{Core.State.AuroraInfluenceExposure:0.#}", false);
                     Core.Instance?.MarkDirty();
+                    NormalizeSceneTransitionDataAfterSleepwalkingArrival(targetScene, wakePosition);
                 }
             }
             catch (Exception e)
@@ -1652,6 +1656,17 @@ namespace MajorMiseries.Managers
             return fallbackTransform != null ? fallbackTransform.eulerAngles.y : 0f;
         }
 
+        private static string GetBaseSceneName(string sceneName)
+        {
+            if (string.IsNullOrEmpty(sceneName)) return string.Empty;
+
+            int instanceSeparatorIndex = sceneName.IndexOf('_');
+            if (instanceSeparatorIndex <= 0) return sceneName;
+
+            string instanceSuffix = sceneName.Substring(instanceSeparatorIndex + 1);
+            return Guid.TryParse(instanceSuffix, out _) ? sceneName.Substring(0, instanceSeparatorIndex) : sceneName;
+        }
+
         private static string GetCurrentSceneName()
         {
             try
@@ -1691,30 +1706,126 @@ namespace MajorMiseries.Managers
             return "autosave";
         }
 
-        private static void PrepareSleepwalkingSceneTransitionData(Vector3 wakePosition, string targetScene, string currentScene)
+        private static void TrySaveCurrentSceneBeforeSleepwalkingSceneLoad(string currentScene, string targetScene)
         {
             try
             {
-                SceneTransitionData? original = null;
-                try { original = GameManager.m_SceneTransitionData; }
-                catch { }
-
-                GameManager.m_SceneTransitionData = new SceneTransitionData
-                {
-                    m_SceneSaveFilenameCurrent = currentScene,
-                    m_SceneSaveFilenameNextLoad = targetScene,
-                    m_ForceNextSceneLoadTriggerScene = original?.m_ForceNextSceneLoadTriggerScene,
-                    m_SceneLocationLocIDOverride = original?.m_SceneLocationLocIDOverride,
-                    m_GameRandomSeed = original != null ? original.m_GameRandomSeed : 0,
-                    m_Location = original?.m_Location,
-                    m_LastOutdoorScene = targetScene,
-                    m_PosBeforeInteriorLoad = wakePosition,
-                    m_TeleportPlayerSaveGamePosition = true
-                };
+                Core.Instance?.MarkDirty();
+                SaveGameSystem.SaveGame("autosave", currentScene);
+                LogSleepwalkingDebug($"pre-load scene save requested -> From:{currentScene} To:{targetScene}");
             }
             catch (Exception e)
             {
-                LogSleepwalkingDebug($"scene transition data setup failed -> {e.Message}");
+                LogSleepwalkingDebug($"pre-load scene save request failed -> {e.Message}");
+            }
+        }
+
+        private static void PrepareSleepwalkingSceneTransitionData(string currentScene, string targetScene, string logicalRegion, Vector3 wakePosition)
+        {
+            try
+            {
+                SceneTransitionData previous = GameManager.m_SceneTransitionData;
+                string lastOutdoorScene = targetScene;
+
+                if (previous != null && !string.IsNullOrEmpty(previous.m_LastOutdoorScene))
+                {
+                    lastOutdoorScene = previous.m_LastOutdoorScene;
+                }
+                else if (!string.IsNullOrEmpty(logicalRegion) && AuroraSleepwalkingWakePoints.TryGetDefaultOutdoorScene(logicalRegion, out string defaultOutdoorScene))
+                {
+                    lastOutdoorScene = defaultOutdoorScene;
+                }
+
+                string normalizedCurrentScene = GetBaseSceneName(currentScene);
+
+                GameManager.m_SceneTransitionData = new SceneTransitionData
+                {
+                    m_SceneSaveFilenameCurrent = !string.IsNullOrEmpty(normalizedCurrentScene) ? normalizedCurrentScene : currentScene,
+                    m_SceneSaveFilenameNextLoad = targetScene,
+                    m_ForceNextSceneLoadTriggerScene = null,
+                    m_SceneLocationLocIDOverride = null,
+                    m_GameRandomSeed = previous != null ? previous.m_GameRandomSeed : 0,
+                    m_Location = null,
+                    m_LastOutdoorScene = lastOutdoorScene,
+                    m_PosBeforeInteriorLoad = wakePosition,
+                    m_TeleportPlayerSaveGamePosition = true
+                };
+
+                SceneTransitionData data = GameManager.m_SceneTransitionData;
+                LogSleepwalkingDebug($"scene transition data prepared (before scene load) -> Current:{data.m_SceneSaveFilenameCurrent} Next:{data.m_SceneSaveFilenameNextLoad} LastOutdoor:{data.m_LastOutdoorScene} RestorePosition:{data.m_TeleportPlayerSaveGamePosition} Pos:{data.m_PosBeforeInteriorLoad}");
+            }
+            catch (Exception e)
+            {
+                LogSleepwalkingDebug($"scene transition data prepare failed (before scene load) -> {e.Message}");
+            }
+        }
+
+        private static void NormalizeSceneTransitionDataAfterSleepwalkingArrival(string targetScene, Vector3 wakePosition)
+        {
+            try
+            {
+                SceneTransitionData data = GameManager.m_SceneTransitionData;
+                if (data == null) return;
+
+                string activeScene = GetCurrentSceneName();
+                string cleanTargetScene = GetBaseSceneName(!string.IsNullOrEmpty(targetScene) ? targetScene : activeScene);
+                if (string.IsNullOrEmpty(cleanTargetScene)) return;
+
+                string previousCurrent = data.m_SceneSaveFilenameCurrent ?? string.Empty;
+                string previousNext = data.m_SceneSaveFilenameNextLoad ?? string.Empty;
+                string previousLastOutdoor = data.m_LastOutdoorScene ?? string.Empty;
+                bool previousRestorePosition = data.m_TeleportPlayerSaveGamePosition;
+
+                data.m_SceneSaveFilenameCurrent = cleanTargetScene;
+                data.m_SceneSaveFilenameNextLoad = string.Empty;
+                data.m_ForceNextSceneLoadTriggerScene = null;
+                data.m_SceneLocationLocIDOverride = null;
+                data.m_Location = null;
+                data.m_LastOutdoorScene = cleanTargetScene;
+                data.m_PosBeforeInteriorLoad = wakePosition;
+                data.m_TeleportPlayerSaveGamePosition = false;
+
+                LogSleepwalkingDebug($"scene transition data normalized after arrival -> Active:{activeScene} Current:{previousCurrent}->{data.m_SceneSaveFilenameCurrent} Next:{previousNext}->'' LastOutdoor:{previousLastOutdoor}->{data.m_LastOutdoorScene} RestorePosition:{previousRestorePosition}->False Pos:{wakePosition}");
+            }
+            catch (Exception e)
+            {
+                LogSleepwalkingDebug($"scene transition data normalize after arrival failed -> {e.Message}");
+            }
+        }
+
+        internal static void RepairStaleSleepwalkingSceneTransitionData(string context)
+        {
+            if (s_SleepwalkingPendingTeleport) return;
+
+            try
+            {
+                SceneTransitionData data = GameManager.m_SceneTransitionData;
+                if (data == null) return;
+
+                string activeScene = GetCurrentSceneName();
+                string currentScene = data.m_SceneSaveFilenameCurrent ?? string.Empty;
+                string nextScene = data.m_SceneSaveFilenameNextLoad ?? string.Empty;
+
+                bool activeSceneKnown = !string.IsNullOrEmpty(activeScene);
+                bool currentSceneIsActiveScene = activeSceneKnown && string.Equals(activeScene, currentScene, StringComparison.OrdinalIgnoreCase);
+                bool nextSceneIsActiveScene = activeSceneKnown && string.Equals(activeScene, nextScene, StringComparison.OrdinalIgnoreCase);
+
+                if (!data.m_TeleportPlayerSaveGamePosition && !(currentSceneIsActiveScene && nextSceneIsActiveScene)) return;
+
+                data.m_TeleportPlayerSaveGamePosition = false;
+
+                if (activeSceneKnown)
+                {
+                    data.m_SceneSaveFilenameCurrent = activeScene;
+                    if (nextSceneIsActiveScene) data.m_SceneSaveFilenameNextLoad = string.Empty;
+                    if (AuroraSleepwalkingWakePoints.HasSceneEntry(activeScene)) data.m_LastOutdoorScene = activeScene;
+                }
+
+                LogSleepwalkingDebug($"stale sleepwalking scene transition data repaired ({context}) -> Active:{activeScene} PreviousCurrent:{currentScene} PreviousNext:{nextScene} LastOutdoor:{data.m_LastOutdoorScene}");
+            }
+            catch (Exception e)
+            {
+                LogSleepwalkingDebug($"stale sleepwalking scene transition repair failed ({context}) -> {e.Message}");
             }
         }
 
