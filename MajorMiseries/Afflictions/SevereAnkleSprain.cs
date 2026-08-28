@@ -15,6 +15,8 @@ namespace MajorMiseries.Afflictions
 
             private const string LEFT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.SevereAnkleSprain_Left.png";
             private const string RIGHT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Classic.SevereAnkleSprain_Right.png";
+            private const string LEFT_ALT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Alt.SevereAnkleSprain_Left_ALT.png";
+            private const string RIGHT_ALT_ICON = "MajorMiseries.Resources.Icons.Afflictions.Alt.SevereAnkleSprain_Right_ALT.png";
 
             public InstanceType Type { get; set; } = InstanceType.SingleLocation;
 
@@ -40,10 +42,12 @@ namespace MajorMiseries.Afflictions
 
             internal static string GetIcon(AfflictionBodyArea bodyArea)
             {
+                bool useAlt = UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance;
+
                 return bodyArea switch
                 {
-                    AfflictionBodyArea.FootRight => RIGHT_ICON,
-                    _ => LEFT_ICON,
+                    AfflictionBodyArea.FootRight => useAlt ? RIGHT_ALT_ICON : RIGHT_ICON,
+                    _ => useAlt ? LEFT_ALT_ICON : LEFT_ICON,
                 };
             }
 

@@ -4,6 +4,7 @@ using AfflictionComponent.Enums;
 using AfflictionComponent.Interfaces;
 using MajorMiseries.Resources.Localization;
 using System.Collections;
+using MajorMiseries.Managers;
 
 namespace MajorMiseries.Afflictions
 {

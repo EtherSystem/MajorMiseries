@@ -1,6 +1,7 @@
 ﻿using AfflictionComponent.Components;
 using AfflictionComponent.Enums;
 using AfflictionComponent.Interfaces;
+using MajorMiseries.Managers;
 using MajorMiseries.Resources.Localization;
 
 namespace MajorMiseries.Afflictions

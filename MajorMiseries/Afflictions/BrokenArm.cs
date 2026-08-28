@@ -20,6 +20,7 @@ namespace MajorMiseries.Afflictions
 
             public float Duration { get; set; }
             public float EndTime { get; set; }
+            public bool RecoveryStarted { get; set; }
 
             public Tuple<string, int, int>[] RemedyItems { get; set; } =
             [
@@ -33,14 +34,9 @@ namespace MajorMiseries.Afflictions
             public BrokenArmAffliction(AfflictionBodyArea bodyArea, float durationHours) : base(NAME_KEY, CAUSE_KEY, DESC_KEY, null, UnityEngine.Random.Range(0f, 100f) < Settings.options.AltAfflictionIconChance ? ALT_ICON : ICON, bodyArea, true)
             {
                 Duration = durationHours;
+                ResetRecoveryTimer();
 
-                TimeOfDay? tod = GameManager.GetTimeOfDayComponent();
-                if (tod != null)
-                {
-                    EndTime = tod.GetHoursPlayedNotPaused() + Duration;
-                }
-
-                Core.Log($"BrokenArm prepared on {bodyArea} for {Duration:0} hours");
+                Core.Log($"BrokenArm prepared on {bodyArea} for {Duration:0} hours; recovery awaits full treatment.");
             }
 
             public void OnFoundExistingInstance(CustomAffliction existingAffliction)
@@ -48,30 +44,27 @@ namespace MajorMiseries.Afflictions
                 if (existingAffliction is BrokenArmAffliction brokenArm)
                 {
                     brokenArm.ResetAffliction(resetRemedies: true);
-
                     brokenArm.Duration = Duration;
+                    brokenArm.ResetRecoveryTimer();
 
-                    TimeOfDay? tod = GameManager.GetTimeOfDayComponent();
-                    if (tod != null)
-                    {
-                        brokenArm.EndTime = tod.GetHoursPlayedNotPaused() + brokenArm.Duration;
-                    }
-
-                    Core.Log($"BrokenArm refreshed on {brokenArm.m_Location} for {brokenArm.Duration:0} hours");
+                    Core.Log($"BrokenArm refreshed on {brokenArm.m_Location} for {brokenArm.Duration:0} hours; recovery reset pending full treatment.");
                 }
             }
 
             public bool IsDurationUp()
             {
+                if (!RecoveryStarted) return false;
+
                 TimeOfDay? tod = GameManager.GetTimeOfDayComponent();
-                if (tod == null)
-                    return false;
+                if (tod == null) return false;
 
                 return tod.GetHoursPlayedNotPaused() >= EndTime;
             }
 
             public void CureSymptoms()
             {
+                if (NeedsRemedy()) return;
+                StartRecovery(resetFullDuration: true);
             }
 
             public void OnCure()
@@ -81,6 +74,49 @@ namespace MajorMiseries.Afflictions
 
             public override void OnUpdate()
             {
+                if (RecoveryStarted) return;
+
+                if (!NeedsRemedy())
+                {
+                    StartRecovery(resetFullDuration: false);
+                    return;
+                }
+
+                KeepRecoveryTimerFull();
+            }
+
+            private void ResetRecoveryTimer()
+            {
+                RecoveryStarted = false;
+                KeepRecoveryTimerFull();
+            }
+
+            private void KeepRecoveryTimerFull()
+            {
+                TimeOfDay? tod = GameManager.GetTimeOfDayComponent();
+                if (tod == null) return;
+
+                EndTime = tod.GetHoursPlayedNotPaused() + Duration;
+            }
+
+            private void StartRecovery(bool resetFullDuration)
+            {
+                if (RecoveryStarted) return;
+
+                TimeOfDay? tod = GameManager.GetTimeOfDayComponent();
+                if (tod == null) return;
+
+                float now = tod.GetHoursPlayedNotPaused();
+                RecoveryStarted = true;
+
+                if (resetFullDuration || EndTime <= 0f)
+                {
+                    EndTime = now + Duration;
+                }
+
+                float remainingHours = Math.Max(0f, EndTime - now);
+                Core.Log($"BrokenArm recovery started on {m_Location}; {remainingHours:0.##} hours remaining.");
+                AfflictionSaveHelper.QueueSurvivalSave();
             }
 
             public void RefreshLocalization()

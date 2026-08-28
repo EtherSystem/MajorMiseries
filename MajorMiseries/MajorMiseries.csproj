@@ -7,8 +7,8 @@
 		<AssemblyName>MajorMiseries</AssemblyName>
 		<LangVersion>latest</LangVersion>
 		<IsPackable>false</IsPackable>
-		<AssemblyVersion>1.1.1.0</AssemblyVersion>
-		<FileVersion>1.1.1.0</FileVersion>
+		<AssemblyVersion>1.3.0.0</AssemblyVersion>
+		<FileVersion>1.3.0.0</FileVersion>
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<Platforms>AnyCPU;x64</Platforms>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -19,6 +19,37 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Resources\Icons\Afflictions\Alt\AuroraExposure_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\BlackLung_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\BrokenArm_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\BrokenLeg_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\COExposure_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\COPoisoning_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\CorpseSickness_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\DeepNecrosisArm_Left_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\DeepNecrosisArm_Right_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\DeepNecrosisHead_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\DeepNecrosisLeg_Left_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\DeepNecrosisLeg_Right_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\Dirge_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\Fever_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\HomeSickness_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\Knell_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\NecrosisFoot_Left_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\NecrosisFoot_Right_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\NecrosisHand_Left_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\NecrosisHand_Right_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\NecrosisHead_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\Omen_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\RegionalDistress_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\Requiem_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\ScarredFlesh_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\Sepsis_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\SevereAnkleSprain_Left_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\SevereAnkleSprain_Right_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\SevereWristSprain_Left_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\SevereWristSprain_Right_ALT.png" />
+	  <None Remove="Resources\Icons\Afflictions\Alt\VoidSickness_ALT.png" />
 	  <None Remove="Resources\Icons\Afflictions\Classic\AuroraExposure.png" />
 	  <None Remove="Resources\Icons\Afflictions\Classic\BlackLung.png" />
 	  <None Remove="Resources\Icons\Afflictions\Classic\BrokenArm.png" />
@@ -26,10 +57,20 @@
 	  <None Remove="Resources\Icons\Afflictions\Classic\COExposure.png" />
 	  <None Remove="Resources\Icons\Afflictions\Classic\COPoisoning.png" />
 	  <None Remove="Resources\Icons\Afflictions\Classic\CorpseSickness.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\DeepNecrosisArm_Left.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\DeepNecrosisArm_Right.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\DeepNecrosisHead.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\DeepNecrosisLeg_Left.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\DeepNecrosisLeg_Right.png" />
 	  <None Remove="Resources\Icons\Afflictions\Classic\Dirge.png" />
 	  <None Remove="Resources\Icons\Afflictions\Classic\Fever.png" />
 	  <None Remove="Resources\Icons\Afflictions\Classic\HomeSickness.png" />
 	  <None Remove="Resources\Icons\Afflictions\Classic\Knell.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\NecrosisFoot_Left.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\NecrosisFoot_Right.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\NecrosisHand_Left.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\NecrosisHand_Right.png" />
+	  <None Remove="Resources\Icons\Afflictions\Classic\NecrosisHead.png" />
 	  <None Remove="Resources\Icons\Afflictions\Classic\Omen.png" />
 	  <None Remove="Resources\Icons\Afflictions\Classic\RegionalDistress.png" />
 	  <None Remove="Resources\Icons\Afflictions\Classic\Requiem.png" />
@@ -41,11 +82,43 @@
 	  <None Remove="Resources\Icons\Afflictions\Classic\SevereWristSprain_Right.png" />
 	  <None Remove="Resources\Icons\Afflictions\Classic\VoidSickness.png" />
 	  <None Remove="Resources\Icons\Aperture.png" />
+	  <None Remove="Resources\Icons\Buffs\Alt\HomeComfort_ALT.png" />
 	  <None Remove="Resources\Icons\Buffs\Classic\HomeComfort.png" />
 	  <None Remove="Resources\Localization\Localization.json" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\AuroraExposure_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\BlackLung_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\BrokenArm_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\BrokenLeg_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\COExposure_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\COPoisoning_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\CorpseSickness_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\DeepNecrosisArm_Left_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\DeepNecrosisArm_Right_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\DeepNecrosisHead_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\DeepNecrosisLeg_Left_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\DeepNecrosisLeg_Right_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\Dirge_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\Fever_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\HomeSickness_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\Knell_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\NecrosisFoot_Left_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\NecrosisFoot_Right_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\NecrosisHand_Left_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\NecrosisHand_Right_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\NecrosisHead_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\Omen_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\RegionalDistress_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\Requiem_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\ScarredFlesh_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\Sepsis_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\SevereAnkleSprain_Left_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\SevereAnkleSprain_Right_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\SevereWristSprain_Left_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\SevereWristSprain_Right_ALT.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Alt\VoidSickness_ALT.png" />
 	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\AuroraExposure.png" />
 	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\BlackLung.png" />
 	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\BrokenArm.png" />
@@ -53,10 +126,20 @@
 	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\COExposure.png" />
 	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\COPoisoning.png" />
 	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\CorpseSickness.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\DeepNecrosisArm_Left.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\DeepNecrosisArm_Right.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\DeepNecrosisHead.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\DeepNecrosisLeg_Left.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\DeepNecrosisLeg_Right.png" />
 	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\Dirge.png" />
 	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\Fever.png" />
 	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\HomeSickness.png" />
 	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\Knell.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\NecrosisFoot_Left.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\NecrosisFoot_Right.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\NecrosisHand_Left.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\NecrosisHand_Right.png" />
+	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\NecrosisHead.png" />
 	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\Omen.png" />
 	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\RegionalDistress.png" />
 	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\Requiem.png" />
@@ -67,6 +150,7 @@
 	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\SevereWristSprain_Left.png" />
 	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\SevereWristSprain_Right.png" />
 	  <EmbeddedResource Include="Resources\Icons\Afflictions\Classic\VoidSickness.png" />
+	  <EmbeddedResource Include="Resources\Icons\Buffs\Alt\HomeComfort_ALT.png" />
 	  <EmbeddedResource Include="Resources\Icons\Buffs\Classic\HomeComfort.png" />
 	  <EmbeddedResource Include="Resources\Localization\Localization.json" />
 	</ItemGroup>

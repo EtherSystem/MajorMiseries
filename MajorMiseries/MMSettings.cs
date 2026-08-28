@@ -137,6 +137,17 @@ namespace MajorMiseries
         [Choice("Forgiving", "Standard", "Harsh", "Brutal", "Who Wants to Play Like This?")]
         public int SepsisPreset = 1;
 
+        [Section("Necrosis")]
+
+        [Name("Enable Necrosis")]
+        [Description("Enable or disable the tissue viability system leading from Necrosis Risk to Necrosis and Deep Necrosis.")]
+        public bool EnableNecrosis = true;
+
+        [Name("Necrosis Preset")]
+        [Description("Controls Tissue Threat, Necrosis Risk, propagation speed, infection complications, and antibiotic treatment windows.")]
+        [Choice("Forgiving", "Standard", "Harsh", "Brutal", "Who Wants to Play Like This?")]
+        public int NecrosisPreset = 1;
+
         [Section("Corpse Sickness")]
 
         [Name("Enable Corpse Sickness")]
@@ -209,6 +220,10 @@ namespace MajorMiseries
         [Description("Hours spent away from the home region before Home Sickness appears.")]
         [Slider(1f, 336f, 336, NumberFormat = "{0:0}h")]
         public int HomeSicknessDelayHours = 72;
+
+        [Name("Home Comfort reduces Aurora Exposure")]
+        [Description("When enabled, Home Comfort reduces Aurora Influence exposure gain by 5% and increases its recovery speed by 5%.")]
+        public bool HomeComfortReducesAuroraExposure = true;
 
         [Name("Regional Distress Region")]
         [Description("Region where you feel uncomfortable. This cannot affect your home region.")]
@@ -398,7 +413,7 @@ namespace MajorMiseries
         [Name("Your Destiny")]
         [Description("This slider allows you to choose how much you want to alter your destiny, please don't touch it.")]
         [Slider(0f, 100f, 1001, NumberFormat = "{0:0.0}")]
-        public float AltAfflictionIconChance = 0f;
+        public float AltAfflictionIconChance = 0.1f;
 
         protected override void OnChange(FieldInfo field, object? oldValue, object? newValue)
         {
@@ -436,6 +451,11 @@ namespace MajorMiseries
             if (field.Name == nameof(EnableSepsis))
             {
                 Settings.UpdateSepsisVisibility();
+            }
+
+            if (field.Name == nameof(EnableNecrosis))
+            {
+                Settings.UpdateNecrosisVisibility();
             }
 
             if (field.Name == nameof(EnableSevereSprains))
@@ -521,6 +541,8 @@ namespace MajorMiseries
             bool requiresRuntimeSync =
                 field.Name == nameof(EnableScarredFlesh) ||
                 field.Name == nameof(EnableSepsis) ||
+                field.Name == nameof(EnableNecrosis) ||
+                field.Name == nameof(NecrosisPreset) ||
                 field.Name == nameof(SepsisPreset) ||
                 field.Name == nameof(EnableCarbonMonoxide) ||
                 field.Name == nameof(CarbonMonoxidePreset) ||
@@ -586,6 +608,7 @@ namespace MajorMiseries
             UpdateBlackLungVisibility();
             UpdateCarbonMonoxideVisibility();
             UpdateSepsisVisibility();
+            UpdateNecrosisVisibility();
             UpdateCorpseSicknessVisibility();
             UpdateSevereSprainVisibility();
             UpdateRegionalAfflictionVisibility();
@@ -647,6 +670,11 @@ namespace MajorMiseries
             options.SetFieldVisible(nameof(options.SepsisPreset), showSepsisSettings);
         }
 
+        internal static void UpdateNecrosisVisibility()
+        {
+            options.SetFieldVisible(nameof(options.NecrosisPreset), options.EnableNecrosis);
+        }
+
         internal static void UpdateSevereSprainVisibility()
         {
             bool showSevereSprainSettings = options.EnableSevereSprains;
@@ -672,6 +700,7 @@ namespace MajorMiseries
 
             options.SetFieldVisible(nameof(options.HomeRegion), showRegionalSettings);
             options.SetFieldVisible(nameof(options.HomeSicknessDelayHours), showRegionalSettings && options.HomeRegion > 0);
+            options.SetFieldVisible(nameof(options.HomeComfortReducesAuroraExposure), showRegionalSettings && options.HomeRegion > 0);
             options.SetFieldVisible(nameof(options.RegionalDistressRegion), showRegionalSettings);
             options.SetFieldVisible(nameof(options.RegionalDistressDelayHours), showRegionalSettings && options.RegionalDistressRegion > 0);
         }

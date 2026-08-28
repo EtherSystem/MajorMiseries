@@ -7,6 +7,19 @@
         public float FeverLingerHoursRemaining = 0f;
 
         public float InternalBodyTemp = 37f;
+        public bool BodyHeatHypothermiaSourceActive = false;
+
+        public float NecrosisHeadWoundMemoryHours = 0f;
+        public float NecrosisHandLeftWoundMemoryHours = 0f;
+        public float NecrosisHandRightWoundMemoryHours = 0f;
+        public float NecrosisFootLeftWoundMemoryHours = 0f;
+        public float NecrosisFootRightWoundMemoryHours = 0f;
+
+        public float NecrosisHeadTissueThreat = 0f;
+        public float NecrosisHandLeftTissueThreat = 0f;
+        public float NecrosisHandRightTissueThreat = 0f;
+        public float NecrosisFootLeftTissueThreat = 0f;
+        public float NecrosisFootRightTissueThreat = 0f;
 
         public float PredatorHostility = 0f;
         public float HoursSinceLastPredatorKill = 0f;

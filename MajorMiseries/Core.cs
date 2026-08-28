@@ -2,7 +2,7 @@
 using MajorMiseries.Managers;
 using MajorMiseries.Persistence;
 
-[assembly: MelonInfo(typeof(MajorMiseries.Core), "MajorMiseries", "1.2.3", "EtherSystem, FlowerField", null)]
+[assembly: MelonInfo(typeof(MajorMiseries.Core), "MajorMiseries", "1.3.0", "EtherSystem, FlowerField", null)]
 [assembly: MelonGame("Hinterland", "TheLongDark")]
 
 namespace MajorMiseries
@@ -144,6 +144,7 @@ namespace MajorMiseries
             RegionalAfflictionManager.RestoreFromState();
             RegionalAfflictionManager.SyncSettingsDisplayFromState();
             ImmunityManager.OnStateLoaded();
+            NecrosisManager.ClampState();
 
             State.AuroraInfluenceExposure = Mathf.Clamp(State.AuroraInfluenceExposure, 0f, AuroraInfluenceManager.GetExposureMax());
             State.AuroraWakingBlackoutRollHours = Mathf.Max(0f, State.AuroraWakingBlackoutRollHours);
@@ -230,6 +231,7 @@ namespace MajorMiseries
             AfflictionLogic.UpdateBlackLungExposure(gameHoursPassed);
             AfflictionLogic.UpdateCOExposure(gameHoursPassed);
             AfflictionLogic.UpdateSepsisInfectionRiskRolls(gameHoursPassed);
+            NecrosisManager.Update(gameHoursPassed);
             AfflictionLogic.UpdateCorpseExposure(gameHoursPassed);
             RegionalAfflictionManager.Update(gameHoursPassed);
             ImmunityManager.UpdateBodyHeat(scene, gameHoursPassed);

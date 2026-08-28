@@ -71,6 +71,16 @@ namespace MajorMiseries.Persistence
         {
             Core.State = new MMState();
 
+            try
+            {
+                string json = JsonConvert.SerializeObject(Core.State);
+                _manager.Save(json, SUFFIX);
+            }
+            catch (Exception ex)
+            {
+                Core.Warn($"New game : failed to reset gameplay data ({ex.Message}).", false);
+            }
+
             Core.Log("Clearing data for new game");
         }
 
@@ -293,7 +303,34 @@ namespace MajorMiseries.Persistence
                 $"Shield:{Core.State.ImmunityShield:0.###} | " +
                 $"FeverOnset:{Core.State.FeverOnsetHours:0.###} | " +
                 $"FeverLinger:{Core.State.FeverLingerHoursRemaining:0.###} | " +
-                $"InternalBodyTemp:{Core.State.InternalBodyTemp:0.###}");
+                $"InternalBodyTemp:{Core.State.InternalBodyTemp:0.###} | " +
+                $"BodyHeatHypothermiaSource:{Core.State.BodyHeatHypothermiaSourceActive}");
+
+            Core.Log("Necrosis :");
+            Core.Log(
+                $"  Head      : " +
+                $"WoundMemory:{Core.State.NecrosisHeadWoundMemoryHours:0.###}h | " +
+                $"TissueThreat:{Core.State.NecrosisHeadTissueThreat:0.###}%");
+
+            Core.Log(
+                $"  LeftHand  : " +
+                $"WoundMemory:{Core.State.NecrosisHandLeftWoundMemoryHours:0.###}h | " +
+                $"TissueThreat:{Core.State.NecrosisHandLeftTissueThreat:0.###}%");
+
+            Core.Log(
+                $"  RightHand : " +
+                $"WoundMemory:{Core.State.NecrosisHandRightWoundMemoryHours:0.###}h | " +
+                $"TissueThreat:{Core.State.NecrosisHandRightTissueThreat:0.###}%");
+
+            Core.Log(
+                $"  LeftFoot  : " +
+                $"WoundMemory:{Core.State.NecrosisFootLeftWoundMemoryHours:0.###}h | " +
+                $"TissueThreat:{Core.State.NecrosisFootLeftTissueThreat:0.###}%");
+
+            Core.Log(
+                $"  RightFoot : " +
+                $"WoundMemory:{Core.State.NecrosisFootRightWoundMemoryHours:0.###}h | " +
+                $"TissueThreat:{Core.State.NecrosisFootRightTissueThreat:0.###}%");
 
             Core.Log("Sprains :");
             Core.Log(
@@ -343,6 +380,7 @@ namespace MajorMiseries.Persistence
             Core.State.FeverOnsetHours = Mathf.Clamp(Core.State.FeverOnsetHours, 0f, 1f);
             Core.State.FeverLingerHoursRemaining = Mathf.Clamp(Core.State.FeverLingerHoursRemaining, 0f, 3f);
             Core.State.InternalBodyTemp = NormalizeLoadedBodyTemperature(Core.State.InternalBodyTemp);
+            NecrosisManager.ClampState();
 
             Core.State.PredatorHostility = Mathf.Max(0f, Core.State.PredatorHostility);
             Core.State.HoursSinceLastPredatorKill = Mathf.Max(0f, Core.State.HoursSinceLastPredatorKill);
@@ -375,7 +413,7 @@ namespace MajorMiseries.Persistence
 
     internal sealed class MMSaveSlotSettings
     {
-        public int Version = 2;
+        public int Version = 5;
         public bool EnableMajorMiseries = false;
 
         public bool EnableRequiemStages = false;
@@ -406,6 +444,8 @@ namespace MajorMiseries.Persistence
         public bool EnableScarredFlesh = true;
         public bool EnableSepsis = true;
         public int SepsisPreset = 1;
+        public bool EnableNecrosis = true;
+        public int NecrosisPreset = 1;
 
         public bool EnableCorpseSickness = true;
         public bool EnableHumanCorpseExposure = true;
@@ -418,6 +458,7 @@ namespace MajorMiseries.Persistence
         public bool EnableRegionalAfflictions = true;
         public int HomeRegion = 0;
         public int HomeSicknessDelayHours = 72;
+        public bool HomeComfortReducesAuroraExposure = true;
         public int RegionalDistressRegion = 0;
         public int RegionalDistressDelayHours = 72;
 
@@ -473,6 +514,8 @@ namespace MajorMiseries.Persistence
                 EnableScarredFlesh = s.EnableScarredFlesh,
                 EnableSepsis = s.EnableSepsis,
                 SepsisPreset = s.SepsisPreset,
+                EnableNecrosis = s.EnableNecrosis,
+                NecrosisPreset = s.NecrosisPreset,
 
                 EnableCorpseSickness = s.EnableCorpseSickness,
                 EnableHumanCorpseExposure = s.EnableHumanCorpseExposure,
@@ -485,6 +528,7 @@ namespace MajorMiseries.Persistence
                 EnableRegionalAfflictions = s.EnableRegionalAfflictions,
                 HomeRegion = s.HomeRegion,
                 HomeSicknessDelayHours = s.HomeSicknessDelayHours,
+                HomeComfortReducesAuroraExposure = s.HomeComfortReducesAuroraExposure,
                 RegionalDistressRegion = s.RegionalDistressRegion,
                 RegionalDistressDelayHours = s.RegionalDistressDelayHours,
 
@@ -540,6 +584,8 @@ namespace MajorMiseries.Persistence
             s.EnableScarredFlesh = EnableScarredFlesh;
             s.EnableSepsis = EnableSepsis;
             s.SepsisPreset = SepsisPreset;
+            s.EnableNecrosis = EnableNecrosis;
+            s.NecrosisPreset = NecrosisPreset;
 
             s.EnableCorpseSickness = EnableCorpseSickness;
             s.EnableHumanCorpseExposure = EnableHumanCorpseExposure;
@@ -552,6 +598,7 @@ namespace MajorMiseries.Persistence
             s.EnableRegionalAfflictions = EnableRegionalAfflictions;
             s.HomeRegion = HomeRegion;
             s.HomeSicknessDelayHours = HomeSicknessDelayHours;
+            s.HomeComfortReducesAuroraExposure = HomeComfortReducesAuroraExposure;
             s.RegionalDistressRegion = RegionalDistressRegion;
             s.RegionalDistressDelayHours = RegionalDistressDelayHours;
 
@@ -614,7 +661,7 @@ namespace MajorMiseries.Persistence
         private static void Postfix()
         {
             Core.Instance?.ResetRuntime();
-            Core.State = new MMState();
+            SaveDataManager.OnNewGame();
 
             SaveDataManager.InitializeDisabledSettingsForCurrentSlot();
 

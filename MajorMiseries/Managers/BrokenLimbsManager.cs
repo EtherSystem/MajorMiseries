@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using static MajorMiseries.Afflictions.BrokenArm;
 using static MajorMiseries.Afflictions.BrokenLeg;
 using Random = UnityEngine.Random;
@@ -172,6 +172,18 @@ namespace MajorMiseries
         {
             RefreshEffectsIfNeeded();
             return _cache.BrokenArmLeft && _cache.BrokenArmRight;
+        }
+
+        internal static bool ShouldBlockTravoisUse()
+        {
+            RefreshEffectsIfNeeded();
+            return _cache.BrokenArmCount > 0 || (_cache.BrokenLegLeft && _cache.BrokenLegRight);
+        }
+
+        internal static string GetTravoisUseBlockedMessageKey()
+        {
+            RefreshEffectsIfNeeded();
+            return _cache.BrokenArmCount > 0 ? "GAMEPLAY_BrokenArmNoTravois" : "GAMEPLAY_BrokenLegsNoTravois";
         }
 
         // ===========================================================================

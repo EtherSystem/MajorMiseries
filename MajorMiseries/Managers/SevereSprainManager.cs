@@ -1,4 +1,4 @@
-using AfflictionComponent.Components;
+﻿using AfflictionComponent.Components;
 using MajorMiseries.Persistence;
 using static MajorMiseries.Afflictions.SevereAnkleSprain;
 using static MajorMiseries.Afflictions.SevereAnkleSprainRisk;
@@ -82,7 +82,7 @@ namespace MajorMiseries.Managers
                     1 => 72f,  // Standard
                     2 => 96f,  // Harsh
                     3 => 120f, // Brutal
-                    4 => 120f, // Who Wants to Play Like This?
+                    4 => 240f, // Who Wants to Play Like This?
                     _ => 72f
                 };
             }
@@ -294,6 +294,44 @@ namespace MajorMiseries.Managers
 
             Core.Instance?.MarkDirty();
             Core.Log($"DEV: SevereSprain applied -> {joint}");
+        }
+
+        internal static void DevCureKind(SevereSprainKind kind, bool cureSevereAffliction)
+        {
+            Core.State ??= new MMState();
+
+            if (kind == SevereSprainKind.Wrist)
+            {
+                DevCureJoint(SevereSprainJoint.LeftWrist, SevereSprainKind.Wrist, AfflictionBodyArea.HandLeft, cureSevereAffliction);
+                DevCureJoint(SevereSprainJoint.RightWrist, SevereSprainKind.Wrist, AfflictionBodyArea.HandRight, cureSevereAffliction);
+            }
+            else
+            {
+                DevCureJoint(SevereSprainJoint.LeftAnkle, SevereSprainKind.Ankle, AfflictionBodyArea.FootLeft, cureSevereAffliction);
+                DevCureJoint(SevereSprainJoint.RightAnkle, SevereSprainKind.Ankle, AfflictionBodyArea.FootRight, cureSevereAffliction);
+            }
+
+            Core.Instance?.MarkDirty();
+            AfflictionSaveHelper.QueueSurvivalSave();
+            Core.Log($"DEV: {(cureSevereAffliction ? "SevereSprain" : "SevereSprainRisk")} cured and stored tracking reset -> {kind}.");
+        }
+
+        private static void DevCureJoint(SevereSprainJoint joint, SevereSprainKind kind, AfflictionBodyArea bodyArea, bool cureSevereAffliction)
+        {
+            ClearRisk(joint);
+            ResetTrackingWindow(joint);
+            CureRiskAffliction(kind, bodyArea);
+
+            if (!cureSevereAffliction) return;
+
+            AfflictionManager mgr = AfflictionManager.GetAfflictionManagerInstance();
+            if (mgr?.m_Afflictions == null) return;
+
+            for (int i = mgr.m_Afflictions.Count - 1; i >= 0; i--)
+            {
+                if (kind == SevereSprainKind.Wrist && mgr.m_Afflictions[i] is SevereWristSprainAffliction wrist && wrist.m_Location == bodyArea) wrist.Cure();
+                if (kind == SevereSprainKind.Ankle && mgr.m_Afflictions[i] is SevereAnkleSprainAffliction ankle && ankle.m_Location == bodyArea) ankle.Cure();
+            }
         }
 
         internal static bool HasSevereSprain(SevereSprainKind kind, AfflictionBodyArea bodyArea)

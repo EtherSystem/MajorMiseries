@@ -30,7 +30,7 @@ namespace MajorMiseries.Patches
 
         private static float _respiratoryEffectTickTimer = 0f;
 
-        private static float _lastSevereWristWeaponMessageTime = -999f;
+        private static float _lastWeaponEquipBlockedMessageTime = -999f;
 
         private static bool _blackLungWasSleeping = false;
         private static bool _blackLungWakeQueued = false;
@@ -52,16 +52,14 @@ namespace MajorMiseries.Patches
             return !lower.Contains("menu") && !lower.Contains("boot") && lower != "empty";
         }
 
-        private static void ShowSevereWristWeaponEquipBlockedMessage()
+        private static void ShowWeaponEquipBlockedMessage()
         {
-            if (Time.realtimeSinceStartup - _lastSevereWristWeaponMessageTime < 1.5f) return;
+            if (Time.realtimeSinceStartup - _lastWeaponEquipBlockedMessageTime < 1.5f) return;
 
-            _lastSevereWristWeaponMessageTime = Time.realtimeSinceStartup;
+            _lastWeaponEquipBlockedMessageTime = Time.realtimeSinceStartup;
 
             GameAudioManager.PlayGUIError();
-
-            if (AfflictionLogic.GetSevereWristSprainCount() >= 2) HUDMessage.AddMessage(Localization.Get("GAMEPLAY_SevereWristNoWeaponEquipAny"), 4, false);
-            else HUDMessage.AddMessage(Localization.Get("GAMEPLAY_SevereWristNoWeaponEquipTwoHanded"), 4, false);
+            HUDMessage.AddMessage(Localization.Get(AfflictionLogic.GetWeaponEquipBlockedMessageKey()), 4, false);
         }
 
         private static void CacheRespiratoryMovementBaseline(PlayerMovement movement)
@@ -175,6 +173,8 @@ namespace MajorMiseries.Patches
             if (COPoisoningAffliction.IsActive) multiplier *= COPoisoningAffliction.FATIGUE_INCREASE_MULTIPLIER;
 
             if (CorpseSicknessAffliction.IsActive) multiplier *= CorpseSicknessAffliction.FATIGUE_INCREASE_MULTIPLIER;
+
+            if (AfflictionLogic.HasDeepNecrosis()) multiplier *= Afflictions.DeepNecrosis.DeepNecrosisAffliction.FATIGUE_INCREASE_MULTIPLIER;
 
             return multiplier;
         }
@@ -506,20 +506,20 @@ namespace MajorMiseries.Patches
         }
 
         [HarmonyPatch(typeof(PlayerManager), nameof(PlayerManager.UseWeaponInventoryItem))]
-        internal static class BlockWeaponInventoryEquipBecauseOfSevereWristPatch
+        internal static class BlockWeaponInventoryEquipBecauseOfUpperLimbInjuryPatch
         {
             private static bool Prefix(GearItem gi, ref bool __result)
             {
                 if (!AfflictionLogic.ShouldBlockWeaponEquip(gi)) return true;
 
-                ShowSevereWristWeaponEquipBlockedMessage();
+                ShowWeaponEquipBlockedMessage();
                 __result = false;
                 return false;
             }
         }
 
         [HarmonyPatch(typeof(PlayerManager), nameof(PlayerManager.EquipItem), typeof(GearItem), typeof(bool))]
-        internal static class BlockDirectWeaponEquipBecauseOfSevereWristPatch
+        internal static class BlockDirectWeaponEquipBecauseOfUpperLimbInjuryPatch
         {
             private static bool Prefix(GearItem gi, bool fromDeserialize)
             {
@@ -527,7 +527,7 @@ namespace MajorMiseries.Patches
 
                 if (!AfflictionLogic.ShouldBlockWeaponEquip(gi)) return true;
 
-                ShowSevereWristWeaponEquipBlockedMessage();
+                ShowWeaponEquipBlockedMessage();
                 return false;
             }
         }

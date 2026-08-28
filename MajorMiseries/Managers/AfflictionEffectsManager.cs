@@ -123,6 +123,27 @@ namespace MajorMiseries
             return appliedEffectiveLoss;
         }
 
+        internal static float ApplyCompleteChunkedConditionDrain(Condition condition, float rawHpLoss, DamageSource damageSource = DamageSource.Unspecified)
+        {
+            if (condition == null || rawHpLoss <= 0f || condition.m_CurrentHP <= 0f) return 0f;
+
+            float damageMultiplier = Mathf.Abs(ApplyIncomingDamageMultiplier(-1f));
+            if (damageMultiplier <= 0f) damageMultiplier = 1f;
+
+            float maxRawLossPerBatch = 2f / damageMultiplier;
+            float remainingRawLoss = rawHpLoss;
+            float appliedEffectiveLoss = 0f;
+
+            while (remainingRawLoss > 0.0001f && condition.m_CurrentHP > 0f)
+            {
+                float rawBatch = Mathf.Min(remainingRawLoss, maxRawLossPerBatch);
+                appliedEffectiveLoss += ApplyChunkedConditionDrain(condition, rawBatch, damageSource);
+                remainingRawLoss -= rawBatch;
+            }
+
+            return appliedEffectiveLoss;
+        }
+
         internal static float ApplySprintSpeedPenaltyToFinalMultiplier(float multiplier)
         {
             if (!HasStageEffect(RequiemStage.Knell)) return multiplier;
@@ -200,9 +221,6 @@ namespace MajorMiseries
 
             float multiplier = 1f;
 
-            if (_cache.BrokenArmLeft && _cache.BrokenArmRight) multiplier = Mathf.Max(multiplier, 3f);
-            else if (_cache.BrokenArmCount > 0) multiplier = Mathf.Max(multiplier, 2f);
-
             if (_cache.SevereWristSprainCount > 0) multiplier = Mathf.Max(multiplier, 2.5f);
 
             return multiplier;
@@ -213,9 +231,6 @@ namespace MajorMiseries
             RefreshEffectsIfNeeded();
 
             float multiplier = 1f;
-
-            if (_cache.BrokenArmLeft && _cache.BrokenArmRight) multiplier = Mathf.Min(multiplier, 0.45f);
-            else if (_cache.BrokenArmCount > 0) multiplier = Mathf.Min(multiplier, 0.65f);
 
             if (_cache.SevereWristSprainCount > 0) multiplier = Mathf.Min(multiplier, 0.5f);
 

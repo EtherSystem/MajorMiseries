@@ -2,7 +2,7 @@
 using MajorMiseries.Afflictions.Buffs;
 using static MajorMiseries.Afflictions.Fever;
 
-namespace MajorMiseries
+namespace MajorMiseries.Managers
 {
     internal static class ImmunityManager
     {
@@ -42,6 +42,7 @@ namespace MajorMiseries
         private static FeverMode s_LastLoggedFeverModeState = FeverMode.None;
         private static int s_LastLoggedFeverTargetBucket = int.MinValue;
         private static string s_LastLoggedFeverSources = string.Empty;
+        private static bool s_DevFeverSuppressedUntilThreatClears;
 
         internal static void ResetRuntime()
         {
@@ -68,6 +69,7 @@ namespace MajorMiseries
             s_LastLoggedFeverModeState = FeverMode.None;
             s_LastLoggedFeverTargetBucket = int.MinValue;
             s_LastLoggedFeverSources = string.Empty;
+            s_DevFeverSuppressedUntilThreatClears = false;
 
             ResetHeatNeurologicalEffects();
         }
@@ -82,6 +84,9 @@ namespace MajorMiseries
                 Core.State.InternalBodyTemp = 37f;
 
             Core.State.InternalBodyTemp = Mathf.Clamp(Core.State.InternalBodyTemp, 34f, 43f);
+
+            if (Core.State.InternalBodyTemp <= 34.5f) Core.State.BodyHeatHypothermiaSourceActive = true;
+            else if (Core.State.InternalBodyTemp >= 35f) Core.State.BodyHeatHypothermiaSourceActive = false;
         }
 
         internal static void OnStateLoaded()
@@ -155,6 +160,22 @@ namespace MajorMiseries
             LogStateIfChanged(mode, stats, drainPerHour, bodyDrainPerHour, biologicalDrainPerHour, activeDrainStats, zeroStats, biologicalSources);
         }
 
+        internal static void DevCureFever()
+        {
+            Core.State ??= new Persistence.MMState();
+            Core.State.FeverOnsetHours = 0f;
+            Core.State.FeverLingerHoursRemaining = 0f;
+            s_FeverMode = FeverMode.None;
+            s_FeverInfectionRiskRecoveryHours = 0f;
+            s_FeverTargetBodyTempC = 0f;
+            s_LingeringFeverTargetBodyTempC = 0f;
+            s_DevFeverSuppressedUntilThreatClears = true;
+            SyncFeverAffliction(false);
+            Core.Instance?.MarkDirty();
+            AfflictionSaveHelper.QueueSurvivalSave();
+            Core.Log("DEV: Fever cured and suppressed until all fever-producing threats clear.");
+        }
+
         internal static bool IsEffectiveFeverActive()
         {
             return s_FeverMode == FeverMode.Moderate || s_FeverMode == FeverMode.Severe || s_FeverMode == FeverMode.Critical;
@@ -210,6 +231,34 @@ namespace MajorMiseries
             if (IsEffectiveFeverActive()) multiplier *= 0.90f;
 
             return Mathf.Clamp(multiplier, 0.45f, 4f);
+        }
+
+        internal static float GetNecrosisRiskProgressMultiplier()
+        {
+            if (!IsEnabled()) return 1f;
+
+            float shield = Mathf.Clamp(Core.State.ImmunityShield, 0f, 100f);
+
+            if (shield >= 75f) return 0.85f;
+            if (shield >= 50f) return 1f;
+            if (shield >= 25f) return 1.25f;
+            if (shield > 0f) return 1.5f;
+
+            return 1.75f;
+        }
+
+        internal static float GetNecrosisRiskRecoveryMultiplier()
+        {
+            if (!IsEnabled()) return 1f;
+
+            float shield = Mathf.Clamp(Core.State.ImmunityShield, 0f, 100f);
+
+            if (shield >= 75f) return 1.25f;
+            if (shield >= 50f) return 1f;
+            if (shield >= 25f) return 0.75f;
+            if (shield > 0f) return 0.5f;
+
+            return 0.25f;
         }
 
         internal static string GetFirstAidText()
@@ -373,7 +422,7 @@ namespace MajorMiseries
 
             if (!Mathf.Approximately(oldBodyTemp, Core.State.InternalBodyTemp)) Core.Instance?.MarkDirty();
 
-            float sweat01 = Mathf.Clamp01(Mathf.InverseLerp(37.2f, 39.5f, Core.State.InternalBodyTemp));
+            float sweat01 = Mathf.Clamp01(Mathf.InverseLerp(37.5f, 39.5f, Core.State.InternalBodyTemp));
             bool triggered = sweat01 > 0f;
 
 
@@ -404,6 +453,40 @@ namespace MajorMiseries
         private static bool IsBodyHeatEnabled()
         {
             return Settings.options != null && Settings.options.EnableBodyHeat;
+        }
+
+        internal static bool IsBodyHeatHypothermiaSourceActive()
+        {
+            bool before = Core.State.BodyHeatHypothermiaSourceActive;
+            bool after = before;
+
+            if (!Core.IsGameplayEnabled || !IsBodyHeatEnabled())
+            {
+                after = false;
+            }
+            else
+            {
+                float bodyHeat = Mathf.Clamp(Core.State.InternalBodyTemp, 34f, 43f);
+
+                if (!before && bodyHeat <= 34.5f) after = true;
+                else if (before && bodyHeat >= 35f) after = false;
+            }
+
+            if (before != after)
+            {
+                Core.State.BodyHeatHypothermiaSourceActive = after;
+                Core.Instance?.MarkDirty();
+                Core.Log($"Body Heat hypothermia source -> {(after ? "active" : "inactive")} at {Core.State.InternalBodyTemp:0.0}C.");
+            }
+
+            return after;
+        }
+
+        internal static bool IsBodyHeatHypothermiaRecoveryAllowed()
+        {
+            if (!Core.IsGameplayEnabled || !IsBodyHeatEnabled()) return true;
+
+            return Core.State.InternalBodyTemp >= 35f;
         }
 
         private static float GetAmbientFeelsLikeC(PlayerManager pm, Weather wc)
@@ -808,6 +891,13 @@ namespace MajorMiseries
                 Add(HasCustomAfflictionByTypeName("SepsisAffliction"), 2f, "Sepsis");
                 Add(HasCustomAfflictionByTypeName("CorpseSicknessRiskAffliction"), 0.40f, "CorpseSicknessRisk");
                 Add(HasCustomAfflictionByTypeName("CorpseSicknessAffliction"), 0.80f, "CorpseSickness");
+
+                float necrosisDrain = NecrosisManager.GetBiologicalShieldDrainPerHour(out string necrosisSources);
+                if (necrosisDrain > 0f)
+                {
+                    total += necrosisDrain;
+                    sources.Add(necrosisSources);
+                }
             }
             catch
             {
@@ -850,6 +940,13 @@ namespace MajorMiseries
 
                 Add(HasCustomAfflictionByTypeName("SepsisAffliction"), 43f, "Sepsis");
                 Add(HasCustomAfflictionByTypeName("CorpseSicknessAffliction"), 38f, "CorpseSickness");
+
+                float necrosisCap = NecrosisManager.GetFeverCapC(out string necrosisSources);
+                if (necrosisCap > 37f)
+                {
+                    cap = Mathf.Max(cap, necrosisCap);
+                    sources.Add(necrosisSources);
+                }
             }
             catch
             {
@@ -886,6 +983,10 @@ namespace MajorMiseries
 
             float feverCapC = GetBiologicalFeverCapC(out string feverSources);
             bool biologicalFeverThreat = feverCapC > 37f;
+
+            if (!biologicalFeverThreat) s_DevFeverSuppressedUntilThreatClears = false;
+            if (s_DevFeverSuppressedUntilThreatClears) biologicalFeverThreat = false;
+
             bool canHaveFever = biologicalFeverThreat && Core.State.ImmunityShield >= 50f;
 
             if (canHaveFever)

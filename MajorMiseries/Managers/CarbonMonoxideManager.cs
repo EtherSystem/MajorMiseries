@@ -1,4 +1,4 @@
-using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
+﻿using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
 using static MajorMiseries.Afflictions.COExposure;
 using static MajorMiseries.Afflictions.COPoisoning;
 using Random = UnityEngine.Random;
@@ -63,6 +63,13 @@ namespace MajorMiseries
                 4 => 3f,
                 _ => 1f
             };
+        }
+
+        internal static void DevResetCarbonMonoxideState()
+        {
+            _coSceneStates.Clear();
+            ResetCORespiratorProtectionState();
+            Core.Log("DEV: Carbon Monoxide background state reset.");
         }
 
         internal static float GetCOExposureTimeToPoisoningHours()

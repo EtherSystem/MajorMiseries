@@ -1,4 +1,4 @@
-using AfflictionComponent.Components;
+﻿using AfflictionComponent.Components;
 using MajorMiseries.Afflictions;
 using MajorMiseries.Persistence;
 using MajorMiseries.Afflictions.Buffs;
@@ -22,6 +22,7 @@ namespace MajorMiseries.Managers
 
         private static string s_LastLoggedHomeState = string.Empty;
         private static string s_LastLoggedRegionalDistressState = string.Empty;
+        private static string s_DevSuppressedHomeComfortRegion = string.Empty;
 
         private static readonly string[] s_HomeRegionIds =
         [
@@ -182,6 +183,7 @@ namespace MajorMiseries.Managers
             s_SettingsSyncPending = false;
             s_LastLoggedHomeState = string.Empty;
             s_LastLoggedRegionalDistressState = string.Empty;
+            s_DevSuppressedHomeComfortRegion = string.Empty;
         }
 
         internal static void RestoreFromState()
@@ -471,7 +473,7 @@ namespace MajorMiseries.Managers
 
             bool inDistressRegion = hasDistressRegion && !distressConflict && !inHomeRegion && string.Equals(currentRegion, distressRegion, StringComparison.OrdinalIgnoreCase);
 
-            if (inHomeRegion) ApplyHomeComfort();
+            if (inHomeRegion && ShouldHomeComfortBeActive()) ApplyHomeComfort();
             else CureHomeComfort();
 
             UpdateHomeSicknessTimer(hasHomeRegion && !inHomeRegion, gameHoursPassed);
@@ -489,7 +491,48 @@ namespace MajorMiseries.Managers
             string homeRegion = Core.State.ConfiguredHomeRegion ?? string.Empty;
             string currentRegion = Core.State.CurrentLogicalRegion ?? string.Empty;
 
+            if (!string.IsNullOrEmpty(s_DevSuppressedHomeComfortRegion))
+            {
+                if (string.Equals(currentRegion, s_DevSuppressedHomeComfortRegion, StringComparison.OrdinalIgnoreCase)) return false;
+                s_DevSuppressedHomeComfortRegion = string.Empty;
+            }
+
             return !string.IsNullOrEmpty(homeRegion) && !string.IsNullOrEmpty(currentRegion) && string.Equals(currentRegion, homeRegion, StringComparison.OrdinalIgnoreCase);
+        }
+
+        internal static void DevCureHomeComfort()
+        {
+            EnsureState();
+            string currentRegion = Core.State.CurrentLogicalRegion ?? string.Empty;
+            s_DevSuppressedHomeComfortRegion = !string.IsNullOrEmpty(currentRegion)
+                ? currentRegion
+                : Core.State.ConfiguredHomeRegion ?? string.Empty;
+            AfflictionLogic.CureAllAfflictionsOfType<HomeComfort.HomeComfortBuff>();
+            AfflictionLogic.ForceRefreshEffects();
+            AfflictionSaveHelper.QueueSurvivalSave();
+            Core.Log($"DEV: HomeComfort cured and suppressed until leaving {GetRegionLogName(s_DevSuppressedHomeComfortRegion)}.");
+        }
+
+        internal static void DevCureHomeSickness()
+        {
+            EnsureState();
+            Core.State.HomeSicknessHoursAway = 0f;
+            AfflictionLogic.CureAllAfflictionsOfType<HomeSickness.HomeSicknessAffliction>();
+            AfflictionLogic.ForceRefreshEffects();
+            Core.Instance?.MarkDirty();
+            AfflictionSaveHelper.QueueSurvivalSave();
+            Core.Log("DEV: HomeSickness cured and timer reset.");
+        }
+
+        internal static void DevCureRegionalDistress()
+        {
+            EnsureState();
+            Core.State.RegionalDistressHoursInRegion = 0f;
+            AfflictionLogic.CureAllAfflictionsOfType<RegionalDistress.RegionalDistressAffliction>();
+            AfflictionLogic.ForceRefreshEffects();
+            Core.Instance?.MarkDirty();
+            AfflictionSaveHelper.QueueSurvivalSave();
+            Core.Log("DEV: RegionalDistress cured and timer reset.");
         }
 
         internal static bool ShouldHomeSicknessBeActive()

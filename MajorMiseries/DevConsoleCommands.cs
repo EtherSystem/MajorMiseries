@@ -1,5 +1,4 @@
-﻿using AfflictionComponent.Components;
-using MajorMiseries.Managers;
+﻿using MajorMiseries.Managers;
 using MajorMiseries.Patches;
 using static MajorMiseries.Afflictions.AuroraExposureRisk;
 using static MajorMiseries.Afflictions.VoidSickness;
@@ -13,6 +12,9 @@ using static MajorMiseries.Afflictions.COPoisoning;
 using static MajorMiseries.Afflictions.CorpseSickness;
 using static MajorMiseries.Afflictions.CorpseSicknessRisk;
 using static MajorMiseries.Afflictions.HomeSickness;
+using static MajorMiseries.Afflictions.Necrosis;
+using static MajorMiseries.Afflictions.NecrosisRisk;
+using static MajorMiseries.Afflictions.DeepNecrosis;
 using static MajorMiseries.Afflictions.RegionalDistress;
 using static MajorMiseries.Afflictions.RequiemStagesAfflictions.Dirge;
 using static MajorMiseries.Afflictions.RequiemStagesAfflictions.Knell;
@@ -31,33 +33,211 @@ namespace MajorMiseries
 {
     internal class DevConsoleCommands
     {
+        private static void EnsureState()
+        {
+            Core.State ??= new Persistence.MMState();
+        }
+
+        private static void FinishCureCommand(string message)
+        {
+            Core.Instance?.MarkDirty();
+            AfflictionSaveHelper.QueueSurvivalSave();
+            Core.Log(message);
+        }
+
+        private static void CureOmen() => AfflictionLogic.DevSuppressAndCureStage(Persistence.RequiemStage.Omen);
+        private static void CureDirge() => AfflictionLogic.DevSuppressAndCureStage(Persistence.RequiemStage.Dirge);
+        private static void CureKnell() => AfflictionLogic.DevSuppressAndCureStage(Persistence.RequiemStage.Knell);
+        private static void CureRequiem() => AfflictionLogic.DevSuppressAndCureStage(Persistence.RequiemStage.Requiem);
+
+        private static void CureScarredFlesh()
+        {
+            EnsureState();
+            AfflictionLogic.SetScarredFleshStack(0);
+            AfflictionLogic.CureAllAfflictionsOfType<ScarredFleshAffliction>();
+            FinishCureCommand("DEV: ScarredFlesh cured and history reset.");
+        }
+
+        private static void CureSepsisRisk()
+        {
+            AfflictionLogic.ResetSepsisInfectionRiskRollTracking();
+            AfflictionLogic.CureAllAfflictionsOfType<SepsisRiskAffliction>();
+            FinishCureCommand("DEV: SepsisRisk cured and infection-risk roll tracking reset.");
+        }
+
+        private static void CureSepsis()
+        {
+            AfflictionLogic.CureAllAfflictionsOfType<SepsisAffliction>();
+            FinishCureCommand("DEV: Sepsis cured.");
+        }
+
+        private static void CureNecrosisRisk()
+        {
+            EnsureState();
+            NecrosisManager.DevResetRiskSystem();
+            AfflictionLogic.CureAllAfflictionsOfType<NecrosisRiskAffliction>();
+            FinishCureCommand("DEV: NecrosisRisk cured and all local threat state reset.");
+        }
+
+        private static void CureNecrosis()
+        {
+            AfflictionLogic.CureAllAfflictionsOfType<NecrosisAffliction>();
+            FinishCureCommand("DEV: Necrosis cured.");
+        }
+
+        private static void CureDeepNecrosis()
+        {
+            AfflictionLogic.CureAllAfflictionsOfType<DeepNecrosisAffliction>();
+            FinishCureCommand("DEV: DeepNecrosis cured.");
+        }
+
+        private static void CureBrokenArm()
+        {
+            AfflictionLogic.CureAllAfflictionsOfType<BrokenArmAffliction>();
+            FinishCureCommand("DEV: BrokenArm cured.");
+        }
+
+        private static void CureBrokenLeg()
+        {
+            AfflictionLogic.CureAllAfflictionsOfType<BrokenLegAffliction>();
+            FinishCureCommand("DEV: BrokenLeg cured.");
+        }
+
+        private static void CureAuroraExposure()
+        {
+            AuroraInfluenceManager.DevSetExposure(0f);
+            AfflictionLogic.CureAllAfflictionsOfType<AuroraExposureRiskAffliction>();
+            FinishCureCommand("DEV: AuroraExposure cured and exposure reset.");
+        }
+
+        private static void CureVoidSickness()
+        {
+            AuroraInfluenceManager.DevSetExposure(0f);
+            AfflictionLogic.CureAllAfflictionsOfType<VoidSicknessAffliction>();
+            FinishCureCommand("DEV: VoidSickness cured and Aurora Influence reset.");
+        }
+
+        private static void CureBlackLungRisk()
+        {
+            EnsureState();
+            Core.State.BlackLungExposure = 0f;
+            AfflictionLogic.CureAllAfflictionsOfType<BlackLungRiskAffliction>();
+            FinishCureCommand("DEV: BlackLungRisk cured and exposure reset.");
+        }
+
+        private static void CureBlackLung()
+        {
+            EnsureState();
+            Core.State.BlackLungExposure = 0f;
+            AfflictionLogic.CureAllAfflictionsOfType<BlackLungAffliction>();
+            FinishCureCommand("DEV: BlackLung cured and exposure reset.");
+        }
+
+        private static void CureCOExposure()
+        {
+            AfflictionLogic.DevResetCarbonMonoxideState();
+            AfflictionLogic.CureAllAfflictionsOfType<COExposureAffliction>();
+            FinishCureCommand("DEV: COExposure cured.");
+        }
+
+        private static void CureCOPoisoning()
+        {
+            AfflictionLogic.DevResetCarbonMonoxideState();
+            AfflictionLogic.CureAllAfflictionsOfType<COPoisoningAffliction>();
+            FinishCureCommand("DEV: COPoisoning cured.");
+        }
+
+        private static void CureCorpseSicknessRisk()
+        {
+            EnsureState();
+            Core.State.CorpseExposure = 0f;
+            AfflictionLogic.CureAllAfflictionsOfType<CorpseSicknessRiskAffliction>();
+            FinishCureCommand("DEV: CorpseSicknessRisk cured and exposure reset.");
+        }
+
+        private static void CureCorpseSickness()
+        {
+            EnsureState();
+            Core.State.CorpseExposure = 0f;
+            AfflictionLogic.CureAllAfflictionsOfType<CorpseSicknessAffliction>();
+            FinishCureCommand("DEV: CorpseSickness cured and exposure reset.");
+        }
+
+        private static void CureSevereWristSprainRisk() => SevereSprainManager.DevCureKind(SevereSprainKind.Wrist, cureSevereAffliction: false);
+        private static void CureSevereAnkleSprainRisk() => SevereSprainManager.DevCureKind(SevereSprainKind.Ankle, cureSevereAffliction: false);
+        private static void CureSevereWristSprain() => SevereSprainManager.DevCureKind(SevereSprainKind.Wrist, cureSevereAffliction: true);
+        private static void CureSevereAnkleSprain() => SevereSprainManager.DevCureKind(SevereSprainKind.Ankle, cureSevereAffliction: true);
+        private static void CureHomeSickness() => RegionalAfflictionManager.DevCureHomeSickness();
+        private static void CureRegionalDistress() => RegionalAfflictionManager.DevCureRegionalDistress();
+
+        private static void CureAll()
+        {
+            EnsureState();
+            CureOmen();
+            CureDirge();
+            CureKnell();
+            CureRequiem();
+            CureScarredFlesh();
+            CureSepsisRisk();
+            CureSepsis();
+            CureNecrosisRisk();
+            CureNecrosis();
+            CureDeepNecrosis();
+            CureBrokenArm();
+            CureBrokenLeg();
+            CureAuroraExposure();
+            CureVoidSickness();
+            CureBlackLungRisk();
+            CureBlackLung();
+            CureCOExposure();
+            CureCOPoisoning();
+            CureCorpseSicknessRisk();
+            CureCorpseSickness();
+            CureSevereWristSprainRisk();
+            CureSevereAnkleSprainRisk();
+            CureSevereWristSprain();
+            CureSevereAnkleSprain();
+            CureHomeSickness();
+            CureRegionalDistress();
+            FinishCureCommand("DEV: All MajorMiseries afflictions cured and backing systems reset.");
+        }
+
         internal static void Register()
         {
             // -------------------- Requiem Stages --------------------
 
             uConsole.RegisterCommand("omen", new Action(() =>
             {
+                AfflictionLogic.DevUnsuppressStage(Persistence.RequiemStage.Omen);
                 new OmenAffliction(AfflictionBodyArea.Head).Start();
                 DisplayStagePopup.ShowStagePopup(1, "GAMEPLAY_Stage1Name");
             }));
 
             uConsole.RegisterCommand("dirge", new Action(() =>
             {
+                AfflictionLogic.DevUnsuppressStage(Persistence.RequiemStage.Dirge);
                 new DirgeAffliction(AfflictionBodyArea.Head).Start();
                 DisplayStagePopup.ShowStagePopup(2, "GAMEPLAY_Stage2Name");
             }));
 
             uConsole.RegisterCommand("knell", new Action(() =>
             {
+                AfflictionLogic.DevUnsuppressStage(Persistence.RequiemStage.Knell);
                 new KnellAffliction(AfflictionBodyArea.Head).Start();
                 DisplayStagePopup.ShowStagePopup(3, "GAMEPLAY_Stage3Name");
             }));
 
             uConsole.RegisterCommand("requiem", new Action(() =>
             {
+                AfflictionLogic.DevUnsuppressStage(Persistence.RequiemStage.Requiem);
                 new RequiemAffliction(AfflictionBodyArea.Head).Start();
                 DisplayStagePopup.ShowStagePopup(4, "GAMEPLAY_Stage4Name");
             }));
+
+            uConsole.RegisterCommand("omen_cure", new Action(CureOmen));
+            uConsole.RegisterCommand("dirge_cure", new Action(CureDirge));
+            uConsole.RegisterCommand("knell_cure", new Action(CureKnell));
+            uConsole.RegisterCommand("requiem_cure", new Action(CureRequiem));
 
 
             // -------------------- Scarred Flesh --------------------
@@ -80,6 +260,41 @@ namespace MajorMiseries
             uConsole.RegisterCommand("sepsis", new Action(() =>
             {
                 new SepsisAffliction(AfflictionBodyArea.Chest).Start();
+            }));
+
+
+            // -------------------- Necrosis --------------------
+
+            uConsole.RegisterCommand("necrosisrisk", new Action(() =>
+            {
+                new NecrosisRiskAffliction(AfflictionBodyArea.HandLeft)
+                {
+                    DebugForced = true,
+                    DebugRiskValue = 50f
+                }.Start();
+            }));
+
+            uConsole.RegisterCommand("necrosisrisk_live", new Action(() =>
+            {
+                new NecrosisRiskAffliction(AfflictionBodyArea.HandLeft)
+                {
+                    RiskValue = 50f
+                }.Start();
+            }));
+
+            uConsole.RegisterCommand("necrosis", new Action(() =>
+            {
+                new NecrosisAffliction(AfflictionBodyArea.HandLeft).Start();
+            }));
+
+            uConsole.RegisterCommand("deepnecrosis", new Action(() =>
+            {
+                new DeepNecrosisAffliction(AfflictionBodyArea.HandLeft).Start();
+            }));
+
+            uConsole.RegisterCommand("necrosis_status", new Action(() =>
+            {
+                NecrosisManager.LogCurrentAssessments();
             }));
 
 
@@ -214,27 +429,36 @@ namespace MajorMiseries
                 new HomeComfortBuff(AfflictionBodyArea.Head).Start();
             }));
 
-            uConsole.RegisterCommand("homecomfort_cure", new Action(() =>
-            {
-                var mgr = AfflictionManager.GetAfflictionManagerInstance();
-                if (mgr?.m_Afflictions == null) return;
-
-                for (int i = mgr.m_Afflictions.Count - 1; i >= 0; i--)
-                {
-                    var a = mgr.m_Afflictions[i];
-                    if (a == null) continue;
-
-                    if (a is HomeComfortBuff)
-                    {
-                        a.Cure();
-                    }
-                }
-            }));
-
             uConsole.RegisterCommand("reset_HR_timer", new Action(() =>
             {
                 RegionalAfflictionManager.DevResetHomeRegionRelocationCooldown();
             }));
+
+
+            // -------------------- Individual Cure Commands --------------------
+
+            uConsole.RegisterCommand("scarredflesh_cure", new Action(CureScarredFlesh));
+            uConsole.RegisterCommand("sepsisrisk_cure", new Action(CureSepsisRisk));
+            uConsole.RegisterCommand("sepsis_cure", new Action(CureSepsis));
+            uConsole.RegisterCommand("necrosisrisk_cure", new Action(CureNecrosisRisk));
+            uConsole.RegisterCommand("necrosis_cure", new Action(CureNecrosis));
+            uConsole.RegisterCommand("deepnecrosis_cure", new Action(CureDeepNecrosis));
+            uConsole.RegisterCommand("brokenarm_cure", new Action(CureBrokenArm));
+            uConsole.RegisterCommand("brokenleg_cure", new Action(CureBrokenLeg));
+            uConsole.RegisterCommand("auroraexposure_cure", new Action(CureAuroraExposure));
+            uConsole.RegisterCommand("voidsickness_cure", new Action(CureVoidSickness));
+            uConsole.RegisterCommand("blacklungrisk_cure", new Action(CureBlackLungRisk));
+            uConsole.RegisterCommand("blacklung_cure", new Action(CureBlackLung));
+            uConsole.RegisterCommand("coexposure_cure", new Action(CureCOExposure));
+            uConsole.RegisterCommand("copoisoning_cure", new Action(CureCOPoisoning));
+            uConsole.RegisterCommand("corpsesicknessrisk_cure", new Action(CureCorpseSicknessRisk));
+            uConsole.RegisterCommand("corpsesickness_cure", new Action(CureCorpseSickness));
+            uConsole.RegisterCommand("mm_sprain_risk_wrist_cure", new Action(CureSevereWristSprainRisk));
+            uConsole.RegisterCommand("mm_sprain_risk_ankle_cure", new Action(CureSevereAnkleSprainRisk));
+            uConsole.RegisterCommand("mm_severe_sprain_wrist_cure", new Action(CureSevereWristSprain));
+            uConsole.RegisterCommand("mm_severe_sprain_ankle_cure", new Action(CureSevereAnkleSprain));
+            uConsole.RegisterCommand("homesickness_cure", new Action(CureHomeSickness));
+            uConsole.RegisterCommand("regionaldistress_cure", new Action(CureRegionalDistress));
 
 
             // -------------------- Batch Risk Afflictions --------------------
@@ -248,6 +472,12 @@ namespace MajorMiseries
                 }.Start();
 
                 new BlackLungRiskAffliction(AfflictionBodyArea.Chest)
+                {
+                    DebugForced = true,
+                    DebugRiskValue = 50f
+                }.Start();
+
+                new NecrosisRiskAffliction(AfflictionBodyArea.HandLeft)
                 {
                     DebugForced = true,
                     DebugRiskValue = 50f
@@ -305,6 +535,8 @@ namespace MajorMiseries
 
                 new SepsisAffliction(AfflictionBodyArea.Chest).Start();
 
+                new NecrosisAffliction(AfflictionBodyArea.HandLeft).Start();
+
                 new BlackLungAffliction(
                     AfflictionBodyArea.Chest,
                     Settings.options.BlackLungDurationMode == 1 ? 360f : 3600f
@@ -339,47 +571,7 @@ namespace MajorMiseries
                 uConsole.Log("MajorMiseries afflictions applied in debug mode.");
             }));
 
-            uConsole.RegisterCommand("maj_afflictions_cure", new Action(() =>
-            {
-                var mgr = AfflictionManager.GetAfflictionManagerInstance();
-                if (mgr?.m_Afflictions == null) return;
-
-                for (int i = mgr.m_Afflictions.Count - 1; i >= 0; i--)
-                {
-                    var a = mgr.m_Afflictions[i];
-                    if (a == null) continue;
-
-                    if (a is OmenAffliction
-                        || a is DirgeAffliction
-                        || a is KnellAffliction
-                        || a is RequiemAffliction
-                        || a is ScarredFleshAffliction
-                        || a is BrokenLegAffliction
-                        || a is BrokenArmAffliction
-                        || a is SepsisRiskAffliction
-                        || a is SepsisAffliction
-                        || a is BlackLungRiskAffliction
-                        || a is BlackLungAffliction
-                        || a is COExposureAffliction
-                        || a is COPoisoningAffliction
-                        || a is CorpseSicknessRiskAffliction
-                        || a is CorpseSicknessAffliction
-                        || a is AuroraExposureRiskAffliction
-                        || a is VoidSicknessAffliction
-                        || a is SevereWristSprainRiskAffliction
-                        || a is SevereAnkleSprainRiskAffliction
-                        || a is SevereWristSprainAffliction
-                        || a is SevereAnkleSprainAffliction
-                        || a is HomeSicknessAffliction
-                        || a is RegionalDistressAffliction
-                        || a is HomeComfortBuff)
-                    {
-                        a.Cure();
-                    }
-                }
-
-                AfflictionLogic.SetScarredFleshStack(0);
-            }));
+            uConsole.RegisterCommand("maj_afflictions_cure", new Action(CureAll));
 
 
             // -------------------- Vanilla debug Affliction --------------------

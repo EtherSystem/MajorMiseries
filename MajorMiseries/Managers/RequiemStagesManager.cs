@@ -1,4 +1,4 @@
-using AfflictionComponent.Components;
+﻿using AfflictionComponent.Components;
 using MajorMiseries.Persistence;
 using static MajorMiseries.Afflictions.RequiemStagesAfflictions.Dirge;
 using static MajorMiseries.Afflictions.RequiemStagesAfflictions.Knell;
@@ -12,6 +12,26 @@ namespace MajorMiseries
         // ============================================================================
         //                              Requiem stages
         // ============================================================================
+
+        private static readonly HashSet<RequiemStage> s_DevSuppressedStages = [];
+
+        internal static void ResetRequiemDevSuppressions()
+        {
+            s_DevSuppressedStages.Clear();
+        }
+
+        internal static void DevUnsuppressStage(RequiemStage stage)
+        {
+            s_DevSuppressedStages.Remove(stage);
+        }
+
+        internal static void DevSuppressAndCureStage(RequiemStage stage)
+        {
+            s_DevSuppressedStages.Add(stage);
+            ApplyCurrentStageFromGame();
+            AfflictionSaveHelper.QueueSurvivalSave();
+            Core.Log($"DEV: Requiem stage cured and suppressed for the current runtime -> {stage}.");
+        }
 
         internal static RequiemStage GetCurrentStage()
         {
@@ -31,10 +51,10 @@ namespace MajorMiseries
 
             GetConfiguredStageThresholds(out float omenThreshold, out float dirgeThreshold, out float knellThreshold, out float requiemThreshold);
 
-            if (daysAlive >= requiemThreshold) return RequiemStage.Requiem;
-            if (daysAlive >= knellThreshold) return RequiemStage.Knell;
-            if (daysAlive >= dirgeThreshold) return RequiemStage.Dirge;
-            if (daysAlive >= omenThreshold) return RequiemStage.Omen;
+            if (daysAlive >= requiemThreshold && !s_DevSuppressedStages.Contains(RequiemStage.Requiem)) return RequiemStage.Requiem;
+            if (daysAlive >= knellThreshold && !s_DevSuppressedStages.Contains(RequiemStage.Knell)) return RequiemStage.Knell;
+            if (daysAlive >= dirgeThreshold && !s_DevSuppressedStages.Contains(RequiemStage.Dirge)) return RequiemStage.Dirge;
+            if (daysAlive >= omenThreshold && !s_DevSuppressedStages.Contains(RequiemStage.Omen)) return RequiemStage.Omen;
 
             return RequiemStage.None;
         }

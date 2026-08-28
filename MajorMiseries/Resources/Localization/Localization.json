@@ -1,4 +1,4 @@
-{
+﻿{
     "GAMEPLAY_OmenName": {
         "English": "Omen",
         "French (France)": "Présage",
@@ -165,12 +165,12 @@
         "Russian": "Нападение лося"
     },
     "GAMEPLAY_BrokenLegDescription": {
-        "English": "Your leg is broken. You can no longer sprint or climb ropes. Movement is slower and more tiring, and carrying heavy loads is more difficult until it heals.",
-        "French (France)": "Votre jambe est cassée. Vous ne pouvez plus ni sprinter ni grimper aux cordes. Vos déplacements sont plus lents et plus fatigants, et porter des charges lourdes devient plus difficile jusqu'à guérison.",
-        "Spanish (Spain)": "Tienes una pierna rota. Ya no puedes esprintar ni trepar cuerdas. Te mueves más despacio y te cansas más, y cargar peso se vuelve más difícil hasta que sane.",
-        "German": "Dein Bein ist gebrochen. Du kannst nicht mehr sprinten oder an Seilen klettern. Deine Bewegung ist langsamer und anstrengender, und schwer zu tragen fällt dir bis zur Heilung deutlich schwerer.",
-        "Turkish": "Bacağın kırıldı. Artık ne koşabilir ne de iplere tırmanabilirsin. Hareketlerin daha yavaş ve daha yorucu, ayrıca iyileşene kadar ağır yük taşımak çok daha zor.",
-        "Russian": "У вас сломана нога. Вы больше не можете бегать или взбираться по верёвкам. Передвижение стало медленнее и требует больше сил, а переносить тяжёлые грузы теперь сложнее, пока нога не срастётся."
+        "English": "Your leg is broken. You can no longer sprint or climb ropes. Movement is slower and more tiring, and carrying heavy loads is more difficult until it heals. With both legs broken, you cannot use the Travois.",
+        "French (France)": "Votre jambe est cassée. Vous ne pouvez plus ni sprinter ni grimper aux cordes. Vos déplacements sont plus lents et plus fatigants, et porter des charges lourdes devient plus difficile jusqu’à guérison. Avec les deux jambes cassées, vous ne pouvez pas utiliser le Travois.",
+        "Spanish (Spain)": "Tienes una pierna rota. Ya no puedes esprintar ni trepar cuerdas. Te mueves más despacio y te cansas más, y cargar peso se vuelve más difícil hasta que sane. Con ambas piernas rotas, no puedes usar el Travois.",
+        "German": "Dein Bein ist gebrochen. Du kannst nicht mehr sprinten oder an Seilen klettern. Deine Bewegung ist langsamer und anstrengender, und schwere Lasten zu tragen fällt dir bis zur Heilung deutlich schwerer. Mit beiden gebrochenen Beinen kannst du den Travois nicht benutzen.",
+        "Turkish": "Bacağın kırıldı. Artık ne koşabilir ne de iplere tırmanabilirsin. Hareketlerin daha yavaş ve daha yorucu, ayrıca iyileşene kadar ağır yük taşımak çok daha zor. İki bacağın da kırıkken Travois kullanamazsın.",
+        "Russian": "У вас сломана нога. Вы больше не можете бегать или взбираться по верёвкам. Передвижение стало медленнее и требует больше сил, а переносить тяжёлые грузы теперь сложнее, пока нога не срастётся. С обеими сломанными ногами вы не можете использовать волокушу."
     },
 
     "GAMEPLAY_BrokenArmName": {
@@ -190,12 +190,12 @@
         "Russian": "Нападение хищника"
     },
     "GAMEPLAY_BrokenArmDescription": {
-        "English": "Your arm is broken. You can no longer climb ropes. Crafting takes longer, and aiming weapons is more difficult until it heals.",
-        "French (France)": "Votre bras est cassé. Vous ne pouvez plus grimper aux cordes. L'artisanat prend plus de temps, et viser avec une arme devient plus difficile jusqu'à guérison.",
-        "Spanish (Spain)": "Tienes un brazo roto. Ya no puedes trepar cuerdas. Fabricar lleva más tiempo y apuntar con armas es más difícil hasta que sane.",
-        "German": "Dein Arm ist gebrochen. Du kannst nicht mehr an Seilen klettern. Das Herstellen von Gegenständen dauert länger, und mit Waffen zu zielen ist bis zur Heilung deutlich schwieriger.",
-        "Turkish": "Kolun kırıldı. Artık iplere tırmanamazsın. Üretim daha uzun sürer ve iyileşene kadar silahla nişan almak daha zordur.",
-        "Russian": "У вас сломана рука. Вы больше не можете взбираться по верёвкам. Изготовление предметов занимает больше времени, а прицеливаться из оружия становится труднее, пока рука не срастётся."
+        "English": "Your arm is broken. You can no longer climb ropes or use the Travois. Crafting takes longer, and you cannot use two-handed weapons. With both arms broken, you cannot use any weapon. Recovery only begins after the fracture has been fully treated.",
+        "French (France)": "Votre bras est cassé. Vous ne pouvez plus grimper aux cordes ni utiliser le Travois. L’artisanat prend plus de temps et vous ne pouvez pas utiliser d’arme à deux mains. Avec les deux bras cassés, vous ne pouvez utiliser aucune arme. La guérison ne commence qu’une fois la fracture entièrement traitée.",
+        "Spanish (Spain)": "Tienes un brazo roto. Ya no puedes trepar cuerdas ni usar el Travois. Fabricar lleva más tiempo y no puedes usar armas a dos manos. Con ambos brazos rotos, no puedes usar ningún arma. La recuperación solo comienza cuando la fractura ha sido tratada por completo.",
+        "German": "Dein Arm ist gebrochen. Du kannst nicht mehr an Seilen klettern oder den Travois benutzen. Das Herstellen von Gegenständen dauert länger und du kannst keine Zweihandwaffen benutzen. Mit beiden gebrochenen Armen kannst du keine Waffe benutzen. Die Heilung beginnt erst, wenn der Bruch vollständig behandelt wurde.",
+        "Turkish": "Kolun kırıldı. Artık iplere tırmanamaz veya Travois kullanamazsın. Üretim daha uzun sürer ve iki elle kullanılan silahları kullanamazsın. İki kolun da kırıkken hiçbir silah kullanamazsın. İyileşme ancak kırık tamamen tedavi edildikten sonra başlar.",
+        "Russian": "У вас сломана рука. Вы больше не можете взбираться по верёвкам или использовать волокушу. Изготовление предметов занимает больше времени, и вы не можете использовать двуручное оружие. С обеими сломанными руками вы не можете использовать никакое оружие. Восстановление начинается только после полного лечения перелома."
     },
 
     "GAMEPLAY_SepsisRiskName": {
@@ -519,7 +519,22 @@
         "Turkish": "Ciddi bir burkulmayla iplere tırmanamazsın.",
         "Russian": "С серьёзным растяжением вы не можете взбираться по верёвкам."
     },
-
+    "GAMEPLAY_BrokenArmNoWeaponEquipTwoHanded": {
+        "English": "Your broken arm prevents you from using a two-handed weapon.",
+        "French (France)": "Votre bras cassé vous empêche d'utiliser une arme à deux mains.",
+        "Spanish (Spain)": "Tu brazo roto te impide usar un arma a dos manos.",
+        "German": "Mit deinem gebrochenen Arm kannst du keine Zweihandwaffe benutzen.",
+        "Turkish": "Kırık kolun iki elle kullanılan bir silahı kullanmanı engelliyor.",
+        "Russian": "Из-за сломанной руки вы не можете использовать двуручное оружие."
+    },
+    "GAMEPLAY_BrokenArmNoWeaponEquipAny": {
+        "English": "With both arms broken, you cannot use a weapon.",
+        "French (France)": "Avec les deux bras cassés, vous ne pouvez utiliser aucune arme.",
+        "Spanish (Spain)": "Con ambos brazos rotos, no puedes usar ningún arma.",
+        "German": "Mit beiden gebrochenen Armen kannst du keine Waffe benutzen.",
+        "Turkish": "İki kolun da kırıkken hiçbir silah kullanamazsın.",
+        "Russian": "С обеими сломанными руками вы не можете использовать оружие."
+    },
     "GAMEPLAY_SevereWristNoWeaponEquipTwoHanded": {
         "English": "Your wrist is too badly injured to equip a two-handed weapon.",
         "French (France)": "Votre poignet est trop gravement blessé pour équiper une arme à deux mains.",
@@ -814,5 +829,109 @@
         "German": "Deine Nerven beruhigen sich. Du kannst wieder schlafen.",
         "Turkish": "Sinirlerin yatışıyor. Yeniden uyuyabilirsin.",
         "Russian": "Нервы успокоились. Вы снова можете спать."
+    },
+    "GAMEPLAY_NecrosisRiskName": {
+        "English": "Necrosis Risk",
+        "French (France)": "Risque de nécrose",
+        "Spanish (Spain)": "Riesgo de necrosis",
+        "German": "Nekroserisiko",
+        "Turkish": "Nekroz Riski",
+        "Russian": "Риск некроза"
+    },
+    "GAMEPLAY_NecrosisRiskCause": {
+        "English": "Compromised Tissue",
+        "French (France)": "Tissus fragilisés",
+        "Spanish (Spain)": "Tejido comprometido",
+        "German": "Geschädigtes Gewebe",
+        "Turkish": "Hasarlı Doku",
+        "Russian": "Повреждённые ткани"
+    },
+    "GAMEPLAY_NecrosisRiskDescription": {
+        "English": "Cold, poor circulation, or local injuries threaten the tissues of this extremity. Protect it, restore your body heat, and keep injuries under control until the risk disappears.",
+        "French (France)": "Le froid, une mauvaise circulation ou des blessures locales menacent les tissus de cette extrémité. Protégez-la, restaurez votre chaleur corporelle et gardez les blessures sous contrôle jusqu’à disparition du risque.",
+        "Spanish (Spain)": "El frío, la mala circulación o las heridas locales amenazan los tejidos de esta extremidad. Protégela, recupera tu calor corporal y mantén las heridas bajo control hasta que el riesgo desaparezca.",
+        "German": "Kälte, eine schlechte Durchblutung oder lokale Verletzungen bedrohen das Gewebe dieser Extremität. Schütze sie, stelle deine Körperwärme wieder her und halte Verletzungen unter Kontrolle, bis das Risiko verschwunden ist.",
+        "Turkish": "Soğuk, zayıf kan dolaşımı veya bölgesel yaralanmalar bu uzvun uç kısmındaki dokuları tehdit ediyor. Risk ortadan kalkana kadar bölgeyi koru, vücut ısını geri kazan ve yaraları kontrol altında tut.",
+        "Russian": "Холод, плохое кровообращение или локальные травмы угрожают тканям этой конечности. Защитите её, восстановите температуру тела и держите травмы под контролем, пока риск полностью не исчезнет."
+    },
+    "GAMEPLAY_NecrosisName": {
+        "English": "Necrosis",
+        "French (France)": "Nécrose",
+        "Spanish (Spain)": "Necrosis",
+        "German": "Nekrose",
+        "Turkish": "Nekroz",
+        "Russian": "Некроз"
+    },
+    "GAMEPLAY_NecrosisCause": {
+        "English": "Dead Tissue",
+        "French (France)": "Tissus morts",
+        "Spanish (Spain)": "Tejido muerto",
+        "German": "Abgestorbenes Gewebe",
+        "Turkish": "Ölü Doku",
+        "Russian": "Отмершая ткань"
+    },
+    "GAMEPLAY_NecrosisDescription": {
+        "English": "The tissues of this extremity are permanently dead. This affliction is incurable, but it can still worsen. Take two doses of antibiotics to slowly reduce the propagation for seven days.",
+        "French (France)": "Les tissus de cette extrémité sont définitivement morts. Cette affliction est incurable, mais peut encore empirer. Prenez deux doses d’antibiotiques afin de faire lentement régresser la propagation pendant sept jours.",
+        "Spanish (Spain)": "Los tejidos de esta extremidad han muerto de forma permanente. Esta aflicción es incurable, pero todavía puede empeorar. Toma dos dosis de antibióticos para reducir lentamente la propagación durante siete días.",
+        "German": "Das Gewebe dieser Extremität ist dauerhaft abgestorben. Diese Affliction ist unheilbar, kann sich jedoch weiter verschlimmern. Nimm zwei Dosen Antibiotika ein, um die Ausbreitung sieben Tage lang langsam zurückzudrängen.",
+        "Turkish": "Bu uzvun uç kısmındaki dokular kalıcı olarak ölmüştür. Bu affliction tedavi edilemez, ancak daha da kötüleşebilir. Yayılmayı yedi gün boyunca yavaşça geriletmek için iki doz antibiyotik al.",
+        "Russian": "Ткани этой конечности окончательно отмерли. Эта affliction неизлечима, но всё ещё может усугубиться. Примите две дозы антибиотиков, чтобы в течение семи дней медленно уменьшать распространение некроза."
+    },
+    "GAMEPLAY_NecrosisTreatmentApplied": {
+        "English": "Necrosis treatment applied for seven days.",
+        "French (France)": "Traitement de la nécrose actif pendant sept jours.",
+        "Spanish (Spain)": "Tratamiento de la necrosis activo durante siete días.",
+        "German": "Nekrosebehandlung für sieben Tage aktiv.",
+        "Turkish": "Nekroz tedavisi yedi gün boyunca aktif.",
+        "Russian": "Лечение некроза действует семь дней."
+    },
+    "GAMEPLAY_NecrosisTreatmentExpired": {
+        "English": "Necrosis treatment has expired. Propagation is increasing again.",
+        "French (France)": "Le traitement de la nécrose a expiré. La propagation augmente de nouveau.",
+        "Spanish (Spain)": "El tratamiento de la necrosis ha terminado. La propagación vuelve a aumentar.",
+        "German": "Die Nekrosebehandlung ist abgelaufen. Die Ausbreitung nimmt wieder zu.",
+        "Turkish": "Nekroz tedavisinin etkisi sona erdi. Yayılma yeniden artıyor.",
+        "Russian": "Действие лечения некроза закончилось. Распространение снова усиливается."
+    },
+    "GAMEPLAY_DeepNecrosisName": {
+        "English": "Deep Necrosis",
+        "French (France)": "Nécrose profonde",
+        "Spanish (Spain)": "Necrosis profunda",
+        "German": "Tiefe Nekrose",
+        "Turkish": "Derin Nekroz",
+        "Russian": "Глубокий некроз"
+    },
+    "GAMEPLAY_DeepNecrosisCause": {
+        "English": "Uncontrolled Necrosis",
+        "French (France)": "Nécrose incontrôlée",
+        "Spanish (Spain)": "Necrosis descontrolada",
+        "German": "Unkontrollierte Nekrose",
+        "Turkish": "Kontrolsüz Nekroz",
+        "Russian": "Неконтролируемый некроз"
+    },
+    "GAMEPLAY_DeepNecrosisDescription": {
+        "English": "Necrosis has spread to the deep tissues of this limb and has now become uncontrollable. Your health deteriorates faster with every passing hour, you can feel your time drawing near...",
+        "French (France)": "La nécrose s'est propagée aux tissus profonds de ce membre et est désormais devenue incontrôlable. Votre état se détériore plus rapidement à chaque heure, vous sentez votre heure arriver...",
+        "Spanish (Spain)": "La necrosis se ha propagado a los tejidos profundos de este miembro y ahora se ha vuelto incontrolable. Tu estado se deteriora más rápidamente con cada hora que pasa, y sientes que tu final se acerca...",
+        "German": "Die Nekrose hat sich auf das tiefe Gewebe dieser Gliedmaße ausgebreitet und ist nun unkontrollierbar geworden. Dein Zustand verschlechtert sich mit jeder Stunde schneller, und du spürst, dass deine Zeit gekommen ist...",
+        "Turkish": "Nekroz bu uzvun derin dokularına yayılmış ve artık kontrol edilemez hâle gelmiştir. Durumun her geçen saat daha hızlı kötüleşiyor ve sonunun yaklaştığını hissediyorsun...",
+        "Russian": "Некроз распространился на глубокие ткани этой конечности и теперь стал неконтролируемым. С каждым часом ваше состояние ухудшается всё быстрее, и вы чувствуете приближение своего конца..."
+    },
+    "GAMEPLAY_BrokenArmNoTravois": {
+        "English": "Your broken arm prevents you from using the Travois.",
+        "French (France)": "Votre bras cassé vous empêche d’utiliser le Travois.",
+        "Spanish (Spain)": "Tu brazo roto te impide usar el Travois.",
+        "German": "Mit deinem gebrochenen Arm kannst du den Travois nicht benutzen.",
+        "Turkish": "Kırık kolun Travois kullanmanı engelliyor.",
+        "Russian": "Из-за сломанной руки вы не можете использовать волокушу."
+    },
+    "GAMEPLAY_BrokenLegsNoTravois": {
+        "English": "With both legs broken, you cannot use the Travois.",
+        "French (France)": "Avec les deux jambes cassées, vous ne pouvez pas utiliser le Travois.",
+        "Spanish (Spain)": "Con ambas piernas rotas, no puedes usar el Travois.",
+        "German": "Mit beiden gebrochenen Beinen kannst du den Travois nicht benutzen.",
+        "Turkish": "İki bacağın da kırıkken Travois kullanamazsın.",
+        "Russian": "С обеими сломанными ногами вы не можете использовать волокушу."
     }
 }

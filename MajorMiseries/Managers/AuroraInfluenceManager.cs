@@ -648,18 +648,22 @@ namespace MajorMiseries.Managers
             float vitaminCAmount = 500f;
             float vitaminCMultiplier = 1f;
             float partialProtectionMultiplier = inVehicle || partialShelter ? Mathf.Clamp01(Settings.options.AuroraInfluenceVehicleMultiplier) : 1f;
+            bool homeComfortProtectionActive = Settings.options.HomeComfortReducesAuroraExposure && MajorMiseries.Afflictions.Buffs.HomeComfort.HomeComfortBuff.IsActive;
+            float homeComfortMultiplier = 1f;
 
             if (auroraActive && !sheltered)
             {
                 float baseRate = outdoor ? Settings.options.AuroraInfluenceOutdoorExposurePerHour : Settings.options.AuroraInfluenceIndoorExposurePerHour;
                 vitaminCMultiplier = GetVitaminCExposureMultiplier(out vitaminCAmount);
-                float modifiedAwakeRate = baseRate * regionExposure.Multiplier * vitaminCMultiplier * partialProtectionMultiplier;
+                homeComfortMultiplier = homeComfortProtectionActive ? 0.95f : 1f;
+                float modifiedAwakeRate = baseRate * regionExposure.Multiplier * vitaminCMultiplier * partialProtectionMultiplier * homeComfortMultiplier;
                 appliedRate = sleeping ? modifiedAwakeRate * 1.5f : modifiedAwakeRate;
                 Core.State.AuroraInfluenceExposure = Mathf.Clamp(Core.State.AuroraInfluenceExposure + appliedRate * gameHoursPassed, 0f, EXPOSURE_MAX);
             }
             else if (Core.State.AuroraInfluenceExposure > 0f)
             {
-                appliedRate = -1f / 24f;
+                homeComfortMultiplier = homeComfortProtectionActive ? 1.05f : 1f;
+                appliedRate = (-1f / 24f) * homeComfortMultiplier;
                 Core.State.AuroraInfluenceExposure = Mathf.Clamp(Core.State.AuroraInfluenceExposure + appliedRate * gameHoursPassed, 0f, EXPOSURE_MAX);
             }
 
@@ -668,7 +672,7 @@ namespace MajorMiseries.Managers
             if (!Mathf.Approximately(before, Core.State.AuroraInfluenceExposure))
             {
                 Core.Instance?.MarkDirty();
-                LogExposureBucketIfNeeded(auroraActive, sheltered, inVehicle, partialShelter, vitaminCAmount, vitaminCMultiplier, partialProtectionMultiplier, sceneName, logicalRegion, regionExposure);
+                LogExposureBucketIfNeeded(auroraActive, sheltered, inVehicle, partialShelter, vitaminCAmount, vitaminCMultiplier, partialProtectionMultiplier, homeComfortMultiplier, sceneName, logicalRegion, regionExposure);
             }
         }
 
@@ -863,19 +867,22 @@ namespace MajorMiseries.Managers
             bool partialShelter = IsAuroraPartialShelterScene(sceneName);
             float vitaminCMultiplier = GetVitaminCExposureMultiplier(out float vitaminCAmount);
             float partialProtectionMultiplier = inVehicle || partialShelter ? Mathf.Clamp01(Settings.options.AuroraInfluenceVehicleMultiplier) : 1f;
+            bool homeComfortProtectionActive = Settings.options.HomeComfortReducesAuroraExposure && MajorMiseries.Afflictions.Buffs.HomeComfort.HomeComfortBuff.IsActive;
+            float homeComfortGainMultiplier = homeComfortProtectionActive ? 0.95f : 1f;
+            float homeComfortRecoveryMultiplier = homeComfortProtectionActive ? 1.05f : 1f;
 
-            string context = $"Scene:{sceneName} | LastOutdoor:{lastOutdoorScene} | LogicalRegion:{RegionalAfflictionManager.GetRegionLogName(logicalRegion)} | Tier:{regionExposure.Tier} | Multiplier:x{regionExposure.Multiplier:0.###} | Aurora:{auroraActive} ({stage}) | Outdoor:{outdoor} | Sheltered:{sheltered} | Sleeping:{sleeping} | InVehicle:{inVehicle} | PartialShelter:{partialShelter} | VitaminC:{vitaminCAmount:0.###} | VitaminCMultiplier:x{vitaminCMultiplier:0.###} | PartialProtectionMultiplier:x{partialProtectionMultiplier:0.###} | Exposure:{Core.State.AuroraInfluenceExposure:0.##}/100";
+            string context = $"Scene:{sceneName} | LastOutdoor:{lastOutdoorScene} | LogicalRegion:{RegionalAfflictionManager.GetRegionLogName(logicalRegion)} | Tier:{regionExposure.Tier} | Multiplier:x{regionExposure.Multiplier:0.###} | Aurora:{auroraActive} ({stage}) | Outdoor:{outdoor} | Sheltered:{sheltered} | Sleeping:{sleeping} | InVehicle:{inVehicle} | PartialShelter:{partialShelter} | VitaminC:{vitaminCAmount:0.###} | VitaminCMultiplier:x{vitaminCMultiplier:0.###} | PartialProtectionMultiplier:x{partialProtectionMultiplier:0.###} | HomeComfortGainMultiplier:x{homeComfortGainMultiplier:0.###} | HomeComfortRecoveryMultiplier:x{homeComfortRecoveryMultiplier:0.###} | Exposure:{Core.State.AuroraInfluenceExposure:0.##}/100";
             Core.Log($"[Aurora][Context] {context}", false);
             return context;
         }
 
-        private static void LogExposureBucketIfNeeded(bool auroraActive, bool sheltered, bool inVehicle, bool partialShelter, float vitaminCAmount, float vitaminCMultiplier, float partialProtectionMultiplier, string sceneName, string logicalRegion, AuroraRegionExposureInfo regionExposure)
+        private static void LogExposureBucketIfNeeded(bool auroraActive, bool sheltered, bool inVehicle, bool partialShelter, float vitaminCAmount, float vitaminCMultiplier, float partialProtectionMultiplier, float homeComfortMultiplier, string sceneName, string logicalRegion, AuroraRegionExposureInfo regionExposure)
         {
             int bucket = Mathf.FloorToInt(Core.State.AuroraInfluenceExposure / 5f) * 5;
             if (bucket == s_LastExposureLogBucket) return;
 
             s_LastExposureLogBucket = bucket;
-            Core.Log($"Aurora Influence -> {Core.State.AuroraInfluenceExposure:0.#}/100 | Aurora:{auroraActive} | Sheltered:{sheltered} | InVehicle:{inVehicle} | PartialShelter:{partialShelter} | VitaminC:{vitaminCAmount:0.###} | VitaminCMultiplier:x{vitaminCMultiplier:0.###} | PartialProtectionMultiplier:x{partialProtectionMultiplier:0.###} | Scene:{sceneName} | LogicalRegion:{RegionalAfflictionManager.GetRegionLogName(logicalRegion)} | Tier:{regionExposure.Tier} | RegionMultiplier:x{regionExposure.Multiplier:0.###}");
+            Core.Log($"Aurora Influence -> {Core.State.AuroraInfluenceExposure:0.#}/100 | Aurora:{auroraActive} | Sheltered:{sheltered} | InVehicle:{inVehicle} | PartialShelter:{partialShelter} | VitaminC:{vitaminCAmount:0.###} | VitaminCMultiplier:x{vitaminCMultiplier:0.###} | PartialProtectionMultiplier:x{partialProtectionMultiplier:0.###} | HomeComfortMultiplier:x{homeComfortMultiplier:0.###} | Scene:{sceneName} | LogicalRegion:{RegionalAfflictionManager.GetRegionLogName(logicalRegion)} | Tier:{regionExposure.Tier} | RegionMultiplier:x{regionExposure.Multiplier:0.###}");
         }
 
         internal static void SyncAfflictionDisplayFromState()

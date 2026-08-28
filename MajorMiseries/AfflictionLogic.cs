@@ -12,6 +12,9 @@ using static MajorMiseries.Afflictions.COPoisoning;
 using static MajorMiseries.Afflictions.CorpseSickness;
 using static MajorMiseries.Afflictions.CorpseSicknessRisk;
 using static MajorMiseries.Afflictions.HomeSickness;
+using static MajorMiseries.Afflictions.Necrosis;
+using static MajorMiseries.Afflictions.NecrosisRisk;
+using static MajorMiseries.Afflictions.DeepNecrosis;
 using static MajorMiseries.Afflictions.RegionalDistress;
 using static MajorMiseries.Afflictions.RequiemStagesAfflictions.Dirge;
 using static MajorMiseries.Afflictions.RequiemStagesAfflictions.Knell;
@@ -42,6 +45,7 @@ namespace MajorMiseries
             _lastRefreshUnscaledTime = -999f;
             _coSceneStates.Clear();
             ResetSepsisInfectionRiskRollTracking();
+            ResetRequiemDevSuppressions();
 
             s_BlackLungExposureSceneActive = false;
             s_BlackLungExposureSceneName = string.Empty;
@@ -227,6 +231,7 @@ namespace MajorMiseries
             public bool HomeComfort;
             public bool HomeSickness;
             public bool RegionalDistress;
+            public bool DeepNecrosis;
 
             public void Reset()
             {
@@ -292,6 +297,10 @@ namespace MajorMiseries
 
                     case RegionalDistressAffliction:
                         _cache.RegionalDistress = true;
+                        break;
+
+                    case DeepNecrosisAffliction:
+                        _cache.DeepNecrosis = true;
                         break;
 
                     case BrokenArmAffliction brokenArm:
@@ -377,6 +386,12 @@ namespace MajorMiseries
             return condition != null && condition.HasSpecificAffliction(AfflictionType.WeakJoints);
         }
 
+        internal static bool HasDeepNecrosis()
+        {
+            RefreshEffectsIfNeeded();
+            return _cache.DeepNecrosis;
+        }
+
         internal static bool HasSevereAnkleSprain()
         {
             RefreshEffectsIfNeeded();
@@ -402,13 +417,25 @@ namespace MajorMiseries
             RefreshEffectsIfNeeded();
 
             int wristCount = _cache.SevereWristSprainCount;
-            if (wristCount <= 0) return false;
+            int brokenArmCount = _cache.BrokenArmCount;
 
+            if (wristCount <= 0 && brokenArmCount <= 0) return false;
             if (!IsWeapon(gearItem)) return false;
 
-            if (wristCount >= 2) return true;
+            if (wristCount >= 2 || brokenArmCount >= 2) return true;
 
             return IsTwoHandedWeapon(gearItem);
+        }
+
+        internal static string GetWeaponEquipBlockedMessageKey()
+        {
+            RefreshEffectsIfNeeded();
+
+            if (_cache.BrokenArmCount >= 2) return "GAMEPLAY_BrokenArmNoWeaponEquipAny";
+            if (_cache.SevereWristSprainCount >= 2) return "GAMEPLAY_SevereWristNoWeaponEquipAny";
+            if (_cache.BrokenArmCount > 0) return "GAMEPLAY_BrokenArmNoWeaponEquipTwoHanded";
+
+            return "GAMEPLAY_SevereWristNoWeaponEquipTwoHanded";
         }
 
         private static readonly HashSet<string> s_OneHandedWeaponGearNames = new(StringComparer.OrdinalIgnoreCase)
@@ -491,6 +518,7 @@ namespace MajorMiseries
 
             SyncScarredFleshFromHistory();
             SyncSepsisSystem();
+            SyncNecrosisSystem();
             SyncCarbonMonoxideSystem();
             SyncBlackLungSystem();
             SyncCorpseSicknessSystem();
@@ -511,6 +539,15 @@ namespace MajorMiseries
             ResetSepsisInfectionRiskRollTracking();
             CureAllAfflictionsOfType<Afflictions.SepsisRisk.SepsisRiskAffliction>();
             CureAllAfflictionsOfType<Afflictions.Sepsis.SepsisAffliction>();
+        }
+
+        private static void SyncNecrosisSystem()
+        {
+            if (Settings.options.EnableNecrosis) return;
+
+            CureAllAfflictionsOfType<NecrosisRiskAffliction>();
+            CureAllAfflictionsOfType<NecrosisAffliction>();
+            CureAllAfflictionsOfType<DeepNecrosisAffliction>();
         }
 
         private static void SyncCarbonMonoxideSystem()
