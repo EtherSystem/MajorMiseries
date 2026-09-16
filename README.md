@@ -28,6 +28,7 @@ Instead of only punishing one bad moment, many systems track what the survivor h
 - Killing predators can make the world more hostile.
 - Remaining away from home, or trapped in a hated region, can wear you down.
 - Repeated severe lacerations will permanently scar your body.
+- Severe cold damage, poor circulation, and local injuries can build Tissue Threat and eventually cause irreversible Necrosis.
 
 Major Miseries aims to make each game more demanding and complex, so this mod is not recommended for beginner players.
 
@@ -43,6 +44,7 @@ Major Miseries currently includes:
 - [Predator Blood Loss conversion](#predator-blood-loss-to-severe-lacerations)
 - [Scarred Flesh](#scarred-flesh)
 - [Sepsis](#sepsis)
+- [Necrosis](#necrosis)
 - [Immunity Shield](#immunity-shield)
 - [Body Temperature](#body-temperature-and-fever)
 - [Fever Response](#fever-response)
@@ -316,16 +318,21 @@ Broken Arm duration:
 
 Keep in mind that Broken Arm is designed to use the Realistic preset.
 
+Each Broken Arm must be fully treated with 4 Heavy Bandages and 2 Painkillers before its recovery duration begins. The recovery countdown is tracked separately for each arm. Refreshing the same fracture resets its treatment state and recovery countdown.
+
 Effects:
 
 | Effect | One broken arm | Two broken arms |
 |---|---:|---:|
 | Rope climbing | Blocked | Blocked |
 | Crafting time | 1.5x | 2.0x |
-| Aim sway increase speed | 2.0x | 3.0x |
-| Aim sway decrease/recovery speed | 0.65x | 0.45x |
+| Two-handed weapons | Blocked | Blocked |
+| One-handed weapons | Allowed | Blocked |
+| Travois | Blocked | Blocked |
 
-A broken arm does not just reduce condition. It changes what the player can safely do afterward. Rope routes become unusable, crafting becomes more expensive in time, and combat becomes less reliable.
+Broken Arm no longer uses the old aim-sway penalties like in v1.2.3. Its combat penalty is now based on which weapons can physically be used: one broken arm prevents two-handed weapons, while two broken arms prevent weapon use entirely.
+
+A broken arm does not just reduce condition. It changes what the player can safely do afterward. Rope routes and the Travois become unusable, crafting becomes more expensive in time, and weapon choice becomes much more limited.
 
 ## Broken Leg
 
@@ -360,6 +367,8 @@ Broken Leg duration:
 
 Keep in mind that Broken Leg is designed to use the Realistic preset.
 
+Each Broken Leg requires 4 Heavy Bandages and 2 Painkillers for treatment.
+
 Effects:
 
 | Effect | One broken leg | Two broken legs |
@@ -369,8 +378,9 @@ Effects:
 | Movement speed | 0.65x | 0.45x |
 | Movement fatigue | 1.5x | 2.0x |
 | Carry capacity and encumbrance thresholds | 0.75x | 0.50x |
+| Travois | Allowed | Blocked |
 
-Broken Leg is designed to make bad movement decisions matter. A survivor with a broken leg may still live, but travel, escape, hauling, and shelter decisions become much more dangerous.
+Broken Leg is designed to make bad movement decisions matter. A survivor with a broken leg may still live, but travel, escape, hauling, and shelter decisions become much more dangerous. With both legs broken, the Travois can no longer be used.
 
 ## Predator Blood Loss to Severe Lacerations
 
@@ -488,6 +498,240 @@ Standard keeps the original rhythm: 4 antibiotics every 5 days.
 
 Higher presets do not make Sepsis directly deal more damage. They make it harder to keep suppressed over time.
 
+## Necrosis
+
+Necrosis is a location-based tissue damage system affecting the head, hands and feets.
+
+The full progression is:
+
+```text
+Hidden Tissue Threat -> Necrosis Risk -> Necrosis -> Deep Necrosis
+```
+
+Necrosis is not caused by ordinary wet clothing or a single brief cold event. It requires combinations of local frozen clothes, poor circulation, Frostbite / Frostbite risk, Broken arm / Broken leg, Blood Loss, Infection / Infection risk.
+
+### Necrosis Preset
+
+The Necrosis Preset controls almost the entire progression chain. Standard is the default.
+
+Progression and recovery multipliers:
+
+| Preset | Tissue Threat gain | Tissue Threat recovery | Necrosis Risk progression | Necrosis Risk recovery | Necrosis Risk reaches Necrosis in | Untreated Necrosis reaches Deep Necrosis in |
+|---|---:|---:|---:|---:|---:|---:|
+| Forgiving | 0.5x | 1.5x | 0.5x | 1.5x | Slow: 399.6h / Grave: 199.8h / Catastrophic: 99.9h | 672 hours / 28 days |
+| Standard | 1.0x | 1.0x | 1.0x | 1.0x | Slow: 199.8h / Grave: 99.9h / Catastrophic: 49.95h | 336 hours / 14 days |
+| Harsh | 1.5x | 0.75x | 1.5x | 0.75x | Slow: 133.2h / Grave: 66.6h / Catastrophic: 33.3h | 240 hours / 10 days |
+| Brutal | 2.0x | 0.50x | 2.0x | 0.50x | Slow: 99.9h / Grave: 49.95h / Catastrophic: 24.975h | 168 hours / 7 days |
+| Who Wants to Play Like This? | 3.0x | 0.25x | 3.0x | 0.25x | Slow: 66.6h / Grave: 33.3h / Catastrophic: 16.65h | 96 hours / 4 days |
+
+Treatment and local Infection Risk complications:
+
+| Preset | Treatment window | Required antibiotics | Hand Infection Risk after harvest, untreated | Hand Infection Risk after harvest, treated | Foot Infection Risk schedule |
+|---|---:|---:|---:|---:|---:|
+| Forgiving | 168 hours / 7 days | 1 dose | 30% | 0% | 10% every 168 hours / 7 days |
+| Standard | 168 hours / 7 days | 2 doses | 60% | 20% | 20% every 120 hours / 5 days |
+| Harsh | 120 hours / 5 days | 2 doses | 70% | 30% | 30% every 96 hours / 4 days |
+| Brutal | 72 hours / 3 days | 2 doses | 80% | 40% | 40% every 72 hours / 3 days |
+| Who Wants to Play Like This? | 48 hours / 2 days | 2 doses | 100% | 50% | 50% every 48 hours / 2 days |
+
+While treatment is active, propagation always decreases by 0.1 per hour regardless of preset. The preset changes how quickly untreated Necrosis propagates, how long treatment remains active, how many antibiotics are required, and the frequency or chance of local Infection Risk complications.
+
+### Tissue Threat
+
+Before Necrosis Risk becomes visible, each supported extremity tracks hidden Tissue Threat from 0 to 100. The rates below are Standard base values before the Necrosis Preset and vanilla Misery modifiers are applied.
+
+For local wound tracking, Head and Neck injuries feed the Head state, Arm and Hand injuries feed the matching Hand state, and Leg and Foot injuries feed the matching Foot state.
+
+| Current threat | Tissue Threat change | Time from 0 to 100 |
+|---|---:|---:|
+| No valid threat | -25 per hour | 4 hours to recover from 100 |
+| Slow | +10 per hour | 10 hours |
+| Grave | +20 per hour | 5 hours |
+| Catastrophic | +35 per hour | ~2.9 hours |
+
+Wetness by itself never creates Tissue Threat and never blocks recovery. Frozen clothing does matter.
+
+Blood Loss and Infection Risk also leave 12 hours of local wound memory after they disappear. This memory does nothing by itself, but can contribute when the same extremity is still under severe cold pressure.
+
+Slow Tissue Threat can be caused by:
+
+- Functional local clothing frozen to at least 75% while Body Temperature is between 35°C and 36°C.
+- An unprotected extremity with 75% to less than 90% Frostbite Risk.
+- Local Blood Loss together with local Infection Risk.
+- Local Blood Loss while Body Temperature is between 35°C and 36°C.
+- A proximal Broken Arm or Broken Leg together with local Blood Loss or Infection Risk.
+- Recent local wound memory together with severely frozen clothing or at least 75% Frostbite Risk.
+
+Grave Tissue Threat can be caused by:
+
+- Functional local clothing frozen to at least 75% while Body Temperature is below 35°C.
+- An unprotected extremity with at least 90% Frostbite Risk.
+- Existing Frostbite together with local Blood Loss or Infection Risk.
+- Local Infection together with a proximal fracture or local Blood Loss.
+- At least 75% Frostbite Risk together with Hypothermia.
+
+Catastrophic Tissue Threat can be caused by:
+
+- Body Temperature at or below 34°C together with local clothing frozen to at least 75%.
+- Body Temperature at or below 34°C together with an unprotected extremity and at least 75% Frostbite Risk.
+- Existing Frostbite together with local Infection.
+- Existing Frostbite together with local Blood Loss while Body Temperature is below 35°C.
+
+#### Vanilla Misery modifiers
+
+Vanilla Misery afflictions can make Tissue Threat and Necrosis Risk progress faster and recover more slowly.
+
+| Vanilla Misery | Affected locations | Threat / Risk progression | Threat / Risk recovery |
+|---|---|---:|---:|
+| Weak Constitution | All supported locations | 1.25x | 0.75x |
+| Weak Joints | Hands and feet | 1.25x | 0.75x |
+| Poor Circulation | Hands and feet | 1.50x | 0.50x |
+| Broken Body | All supported locations | 2.00x | 0.25x |
+
+These modifiers stack multiplicatively with each other and with the Necrosis Preset. Necrosis Risk then also applies the Immunity Shield multiplier shown below.
+
+When Tissue Threat reaches 100, Necrosis Risk can appear at 0.1%.
+
+### Necrosis Risk
+
+Necrosis Risk is still reversible.
+
+Its base progression depends on the current Tissue Threat severity:
+
+| Current threat | Base Necrosis Risk change |
+|---|---:|
+| No active threat | No progression |
+| Slow | +0.5 risk per hour |
+| Grave | +1 risk per hour |
+| Catastrophic | +2 risk per hour |
+
+#### Paired hand and foot escalation
+
+The Head is independent, but the two Hands and the two Feet use paired escalation rules.
+
+If both sides of a pair reach 100 Tissue Threat while neither side already has a Necrosis stage, only one Necrosis Risk starts first. The side with the more severe active Tissue Threat is chosen; if both are equally severe, one side is selected randomly.
+
+The second side can start its own Necrosis Risk after reaching 100 Tissue Threat only when at least one of these is true:
+
+- Its current Tissue Threat is Catastrophic.
+- The first side already has at least 50% Necrosis Risk.
+- The first side has already reached permanent Necrosis or Deep Necrosis.
+
+This prevents two matching extremities from immediately entering Necrosis Risk at the same time under ordinary conditions, while still allowing bilateral tissue damage to escalate when the situation becomes severe enough.
+
+Immunity Shield modifies both progression and recovery:
+
+| Immunity Shield | Risk progression | Risk recovery |
+|---:|---:|---:|
+| 75 to 100 | 0.85x | 1.25x |
+| 50 to less than 75 | 1.0x | 1.0x |
+| 25 to less than 50 | 1.25x | 0.75x |
+| Above 0 to less than 25 | 1.5x | 0.5x |
+| 0 | 1.75x | 0.25x |
+
+Necrosis Risk can recover only when:
+
+- The extremity has functional clothing.
+- Local clothing is less than 50% frozen.
+- Body Temperature is at least 36°C.
+- Hypothermia is not active.
+- Frostbite Risk is below 75%.
+- No local Blood Loss, Infection Risk, or Infection is active.
+
+Default recovery speed:
+
+| Situation | Base recovery |
+|---|---:|
+| Local wound memory remains, or Body Temperature is below 37°C | -0.5 risk per hour |
+| Body Temperature is at least 37°C without active warming | -1.5 risk per hour |
+| Body Temperature is at least 37°C and the survivor is actively warming | -2 risk per hour |
+
+At 0%, Necrosis Risk disappears.
+
+At 100%, it becomes permanent Necrosis.
+
+### Necrosis
+
+Necrosis means the tissue of that extremity is permanently dead.
+
+It cannot be cured through normal gameplay, but its propagation can still be controlled.
+
+**Standard** propagation behavior:
+
+| State | Propagation change |
+|---|---:|
+| Untreated | Reaches 100% in 336 hours / 14 days |
+| Treated | -0.1 propagation per hour |
+| Treatment duration | 168 hours / 7 days |
+| Required treatment | 4 antibiotics |
+
+When treatment expires, propagation immediately starts increasing again and another treatment can be applied.
+
+Treatment does not restore the dead tissue. Even at 0% propagation, Necrosis remains permanently active. So yes, this entails lifelong antibiotic treatment. This is the wanted design.
+
+Untreated Necrosis also affects Immunity Shield and Fever:
+
+| Propagation | Immunity Shield drain | Fever target |
+|---:|---:|---:|
+| 0 to less than 25 | -0.10 per hour | None |
+| 25 to less than 50 | -0.25 per hour | 38°C |
+| 50 to less than 75 | -0.50 per hour | 39°C |
+| 75 to less than 100 | -0.75 per hour | 41°C |
+
+While the Necrosis treatment is active, that Necrosis causes no Immunity Shield drain and no Fever response.
+
+Multiple untreated Necrosis afflictions add their Immunity Shield drains together.
+
+#### Local Necrosis effects
+
+Necrosis also has location-specific consequences.
+
+| Location | Effect |
+|---|---|
+| Untreated hand | Each affected hand has a 60% chance to receive local Infection Risk after a successfully completed carcass harvest |
+| Treated hand | Each affected hand still has a 20% chance to receive local Infection Risk after a successfully completed carcass harvest |
+| Foot | Each affected foot permanently rolls a 20% chance of local Infection Risk every 120 in-game hours / 5 days |
+| Head | No additional local effect before Deep Necrosis |
+
+If both hands have Necrosis, each hand rolls separately after the harvest.
+
+Foot rolls are not reduced by active Necrosis treatment. Their chance and interval come from the selected Necrosis Preset; on Standard, each foot keeps a persistent 20% roll every five days.
+
+A roll is skipped when Infection Risk or Infection is already active on the same body location.
+
+At 100% propagation, Necrosis becomes Deep Necrosis.
+
+### Deep Necrosis
+
+Deep Necrosis means the damage has spread into the deeper tissues of the limb or head. This is a death sentance, if you get this affliction, you **will** die. There's no way to survive to a necrosis who spread into deep tissues and your bloodstream.
+
+Propagation moves as follows:
+
+| Original Necrosis | Deep Necrosis location |
+|---|---|
+| Left hand | Left arm |
+| Right hand | Right arm |
+| Left foot | Left leg |
+| Right foot | Right leg |
+| Head | Head |
+
+Deep Necrosis is incurable and has no treatment.
+
+Effects:
+
+| Effect | Value |
+|---|---:|
+| Fatigue increase | 1.5x while at least one Deep Necrosis is active |
+| Immunity Shield drain | -2 per hour for each Deep Necrosis |
+| Fever target | 43°C |
+| Initial condition loss | -0.1 condition per hour |
+| Limb condition-loss increase | +0.1 condition per hour |
+| Head condition-loss increase | +0.2 condition per hour |
+
+Condition recovery is not disabled. Sleep, food, buffs, or stimulants may temporarily compensate for part of the damage, but the hourly condition loss continues increasing without a limit.
+
+Multiple Deep Necrosis afflictions apply their own condition loss and Immunity Shield drain. The fatigue multiplier remains 1.5x rather than stacking repeatedly.
+
 ## Immunity Shield
 
 The Immunity Shield is a hidden long-term resistance system displayed in the First Aid panel when enabled.
@@ -526,8 +770,10 @@ Biological threats also drain the shield:
 | Sepsis | -2.00 / hour |
 | Corpse Sickness Risk | -0.40 / hour |
 | Corpse Sickness | -0.80 / hour |
+| Untreated Necrosis | -0.10 to -0.75 / hour for each affected extremity, based on propagation |
+| Deep Necrosis | -2.00 / hour for each active Deep Necrosis |
 
-If multiple biological threats are present, the system only considers the highest threat.  
+Biological threat drains are additive when several valid threats are active. Necrosis-related drains are calculated separately for every affected location and add together with the other biological drains. A Necrosis under active antibiotic treatment contributes no Immunity Shield drain.
 
 If the survivor is both physically depleted and biologically threatened, the shield drains faster.
 
@@ -598,9 +844,23 @@ Movement heat only helps while the survivor is not already deeply freezing, and 
 
 Cold ambient conditions increase cooling. If the warmth meter is very low, cooling becomes much stronger.
 
+### Body Temperature and Hypothermia
+
+When Body Temperature is enabled, Internal Body Temperature directly interacts with the vanilla Hypothermia system.
+
+| Internal Body Temperature | Behavior |
+|---|---|
+| 34.5°C or lower | Body Heat becomes an active Hypothermia source |
+| Below 35°C while Hypothermia Risk or Hypothermia is active | Vanilla warming/recovery is blocked |
+| 35°C or higher | The Body Heat Hypothermia source clears and recovery is allowed again |
+
+While the Body Heat Hypothermia source is active, the vanilla Hypothermia update is temporarily evaluated as if the survivor were fully freezing and not warming. The normal Freezing values are restored immediately afterward, so this does not permanently overwrite the visible Freezing meter.
+
+The separate 34.5°C trigger and 35°C recovery thresholds create a small hysteresis window so the source does not constantly switch on and off around one exact temperature.
+
 ### Sweating, hydration, and overheating
 
-When internal body temperature rises above normal (precisely above 37.2°C), you will begin sweating.
+When internal body temperature rises above normal (precisely above 37.5°C), you will begin sweating.
 
 Sweating slowly adds wetness to worn clothing. The hotter the survivor gets, the stronger the sweating becomes.
 
@@ -639,11 +899,17 @@ Fever severity is based on the fever target temperature caused by the current bi
 | Food Poisoning | 40°C | Severe Fever | 2.5x |
 | Infection | 41°C | Severe Fever | 2.5x |
 | Dysentery | 41°C | Severe Fever | 2.5x |
+| Necrosis at 25 to less than 50 propagation | 38°C | Moderate Fever | 2.0x |
+| Necrosis at 50 to less than 75 propagation | 39°C | Moderate Fever | 2.0x |
+| Necrosis at 75 to less than 100 propagation | 41°C | Severe Fever | 2.5x |
 | Sepsis | 43°C | Critical Fever | 3.0x |
+| Deep Necrosis | 43°C | Critical Fever | 3.0x |
 
 In practical terms, Moderate Fever means the body is responding to an early or lighter biological problem, Severe Fever means the survivor is fighting a serious active illness, and Critical Fever is reserved for Sepsis-level danger.
 
 Lingering Fever can remain for up to 3 in-game hours after the active fever source stops being valid. During this fading period, fatigue pressure is 1.25x.
+
+A Necrosis under active antibiotic treatment does not contribute to Fever. Deep Necrosis continues requesting Critical Fever while the Immunity Shield can support the response.
 
 Active fever slightly helps resist infection-style risk progression. With a very strong Immunity Shield, fever can sometimes contain vanilla Infection Risk.
 
@@ -677,7 +943,9 @@ Default exposure behavior:
 | Vitamin C at 500 | 1.0x exposure gain |
 | Vitamin C at 0 | Up to 2.0x exposure gain |
 | Vehicle or The Riken partial shielding | 0.25x exposure gain |
+| Home Comfort, if the option is enabled | 0.95x exposure gain |
 | Exposure decay when not exposed | -1 exposure per day |
+| Exposure recovery with Home Comfort, if the option is enabled | 1.05x recovery speed |
 
 Yes, the exposure decay is intentionally slow.
 
@@ -1024,6 +1292,8 @@ The "Who Wants to Play Like This?" preset skips the risk step entirely. Any vani
 
 Severe Wrist Sprain affects weapon handling, crafting, and rope climbing.
 
+Each Severe Wrist Sprain requires 2 Heavy Bandages and 1 Painkiller for treatment.
+
 Default effects:
 
 | Effect | One severe wrist sprain | Two severe wrist sprains |
@@ -1039,13 +1309,14 @@ Default effects:
 Two-handed weapons include:
 
 - Rifles
-- Revolvers
 - Bows
 - Shotgun
 
 ### Severe Ankle Sprain
 
 Severe Ankle Sprain affects movement.
+
+Each Severe Ankle Sprain requires 2 Heavy Bandages and 1 Painkiller for treatment.
 
 Default effects:
 
@@ -1077,8 +1348,12 @@ Default effects:
 | Sleep recovery multiplier | 1.05x |
 | Feels-like temperature | +1°C |
 | Immunity Shield recovery | 1.05x, if Immunity Shield is enabled |
+| Aurora Influence exposure gain | 0.95x, if the Aurora protection option is enabled |
+| Aurora Influence recovery | 1.05x, if the Aurora protection option is enabled |
 
 This means the survivor uses about 5% less movement fatigue, recovers about 5% more fatigue from sleep, feels slightly warmer, and recovers Immunity Shield a little faster while in their home region.
+
+The optional Aurora effect slightly slows exposure gain while the aurora is active and slightly accelerates recovery while the survivor is no longer exposed.
 
 It is meant to make a chosen home region feel slightly more familiar and easier to endure.  
 *(Like... Mystery Lake, for example. Again its just an example... hrm anyway)*.
@@ -1146,6 +1421,9 @@ There may be overlap and strange behavior with other mods that modify:
 - Hunger, thirst, fatigue, freezing, or body temperature behavior.
 - Clothing wetness or overheating behavior.
 - Rope climbing.
+- Weapon equip restrictions.
+- Travois carrying behavior.
+- Vanilla Hypothermia and Hypothermia Risk behavior.
 - Vanilla infection and infection risk.
 - Vanilla intestinal parasites risk.
 - Vanilla sprains.
@@ -1156,6 +1434,8 @@ There may be overlap and strange behavior with other mods that modify:
 - Fire behavior.
 - Aurora, weather, rest, sleep, pass-time, or time-skip behavior.
 - Crafting, repair, research, breakdown, or other action duration behavior.
+- Carcass harvesting completion behavior.
+- Custom systems that add or replace Infection Risk on specific hands or feet.
 
 This doesn't mean these mods are doomed to malfunction.  
 It simply means these are the areas most likely to overlap and cause strange, unexpected behavior. However, in all the tests performed on this mod, no real incompatibilities with other mods were found.
@@ -1187,6 +1467,18 @@ Applies Knell.
 **requiem**  
 Applies Requiem.
 
+**omen_cure**  
+Cures and temporarily suppresses Omen for the current runtime.
+
+**dirge_cure**  
+Cures and temporarily suppresses Dirge for the current runtime.
+
+**knell_cure**  
+Cures and temporarily suppresses Knell for the current runtime.
+
+**requiem_cure**  
+Cures and temporarily suppresses Requiem for the current runtime.
+
 ---
 
 ### Scarred Flesh Commands
@@ -1200,6 +1492,9 @@ Resets Scarred Flesh history to 0.
 **set_SFhistory [value]**  
 Sets Scarred Flesh history to the provided value.
 
+**scarredflesh_cure**  
+Cures Scarred Flesh and resets its saved history to 0.
+
 ---
 
 ### Sepsis Commands
@@ -1210,6 +1505,40 @@ Applies Sepsis Risk.
 **sepsis**  
 Applies Sepsis.
 
+**sepsisrisk_cure**  
+Cures Sepsis Risk and resets its Infection Risk roll tracking.
+
+**sepsis_cure**  
+Cures Sepsis.
+
+---
+
+### Necrosis Commands
+
+**necrosisrisk**  
+Applies a debug-forced Necrosis Risk at 50% to the left hand.
+
+**necrosisrisk_live**  
+Applies a live Necrosis Risk to the left hand so it continues using the real progression and recovery rules.
+
+**necrosis**  
+Applies Necrosis to the left hand.
+
+**deepnecrosis**  
+Applies Deep Necrosis sourced from the left hand.
+
+**necrosis_status**  
+Logs the current Tissue Threat, risk state, conditions, blockers, and progression rate for all five supported extremities.
+
+**necrosisrisk_cure**  
+Cures all Necrosis Risk afflictions and resets all saved local Tissue Threat and wound-memory values.
+
+**necrosis_cure**  
+Cures all Necrosis afflictions.
+
+**deepnecrosis_cure**  
+Cures all Deep Necrosis afflictions.
+
 ---
 
 ### Broken Limb Commands
@@ -1219,6 +1548,12 @@ Applies Broken Leg to a random leg. Uses 2016h in Realistic mode or 201.6h in Un
 
 **brokenarm**  
 Applies Broken Arm to a random arm. Uses 1344h in Realistic mode or 134.4h in Unrealistic mode.
+
+**brokenleg_cure**  
+Cures all Broken Leg afflictions.
+
+**brokenarm_cure**  
+Cures all Broken Arm afflictions.
 
 ---
 
@@ -1246,7 +1581,13 @@ Forces the next valid sleep event, or clears the forced event. Useful for testin
 Immediately triggers a specific Aurora sleep event for testing.
 
 **debug_AE_context**  
-Logs the current Aurora Influence context, including scene, logical region, exposure tier, aurora state, shelter state, Vitamin C multiplier, and current exposure.
+Logs the current Aurora Influence context, including scene, logical region, exposure tier, aurora state, shelter state, Vitamin C multiplier, Home Comfort multipliers, and current exposure.
+
+**auroraexposure_cure**  
+Cures Aurora Exposure and resets hidden Aurora Influence Exposure to 0.
+
+**voidsickness_cure**  
+Cures Void Sickness and resets hidden Aurora Influence Exposure to 0.
 
 ---
 
@@ -1258,6 +1599,12 @@ Applies Black Lung Risk.
 **blacklung**  
 Applies Black Lung. Uses 3600h in Realistic mode or 360h in Unrealistic mode.
 
+**blacklungrisk_cure**  
+Cures Black Lung Risk and resets hidden Black Lung Exposure to 0.
+
+**blacklung_cure**  
+Cures Black Lung and resets hidden Black Lung Exposure to 0.
+
 ---
 
 ### Carbon Monoxide Commands
@@ -1267,6 +1614,12 @@ Applies Carbon Monoxide Exposure.
 
 **copoisoning**  
 Applies Carbon Monoxide Poisoning for a random 6h to 24h duration.
+
+**coexposure_cure**  
+Cures Carbon Monoxide Exposure and resets its backing contamination state.
+
+**copoisoning_cure**  
+Cures Carbon Monoxide Poisoning and resets its backing contamination state.
 
 ---
 
@@ -1284,6 +1637,12 @@ Resets hidden Corpse Exposure to 0.
 **set_CE [value]**  
 Sets hidden Corpse Exposure to the provided value.
 
+**corpsesicknessrisk_cure**  
+Cures Corpse Sickness Risk and resets hidden Corpse Exposure to 0.
+
+**corpsesickness_cure**  
+Cures Corpse Sickness and resets hidden Corpse Exposure to 0.
+
 ---
 
 ### Severe Sprain Risk Commands
@@ -1299,6 +1658,12 @@ Applies Severe Ankle Sprain Risk to the left ankle.
 
 **mm_sprain_risk_ankle_right**  
 Applies Severe Ankle Sprain Risk to the right ankle.
+
+**mm_sprain_risk_wrist_cure**  
+Cures Severe Wrist Sprain Risk on both wrists and resets the wrist tracking state.
+
+**mm_sprain_risk_ankle_cure**  
+Cures Severe Ankle Sprain Risk on both ankles and resets the ankle tracking state.
 
 ---
 
@@ -1316,6 +1681,12 @@ Applies Severe Ankle Sprain to the left ankle.
 **mm_severe_sprain_ankle_right**  
 Applies Severe Ankle Sprain to the right ankle.
 
+**mm_severe_sprain_wrist_cure**  
+Cures Severe Wrist Sprain on both wrists and resets the wrist tracking state.
+
+**mm_severe_sprain_ankle_cure**  
+Cures Severe Ankle Sprain on both ankles and resets the ankle tracking state.
+
 ---
 
 ### Regional Affliction Commands
@@ -1329,8 +1700,11 @@ Applies Regional Distress.
 **homecomfort**  
 Applies Home Comfort.
 
-**homecomfort_cure**  
-Cures Home Comfort.
+**homesickness_cure**  
+Cures Home Sickness and resets its backing timer.
+
+**regionaldistress_cure**  
+Cures Regional Distress and resets its backing timer.
 
 **reset_HR_timer**  
 Resets the Home Region relocation cooldown.
@@ -1360,13 +1734,13 @@ Sets internal Body Temperature to the provided value, clamped from 34°C to 43°
 ### Batch Commands
 
 **maj_afflictionsrisk**  
-Applies the main Major Miseries risk afflictions in debug mode at 50% risk.
+Applies the main Major Miseries risk afflictions in debug mode at 50% risk, including Necrosis Risk on the left hand.
 
 **maj_afflictions**  
-Applies the main Major Miseries afflictions.
+Applies the main Major Miseries afflictions, including Necrosis on the left hand.
 
 **maj_afflictions_cure**  
-Cures all Major Miseries afflictions and buffs currently active.
+Cures the Major Miseries afflictions supported by the batch cure command and resets their backing systems. Fever and Home Comfort are intentionally not cured by this command.
 
 ---
 
