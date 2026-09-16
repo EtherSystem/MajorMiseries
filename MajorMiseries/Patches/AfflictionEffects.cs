@@ -29,6 +29,7 @@ namespace MajorMiseries.Patches
         private const float BLACK_LUNG_MAX_SLEEP_HOURS_BEFORE_COUGH = 4f;
 
         private static float _respiratoryEffectTickTimer = 0f;
+        private static int _cookingRecipePreparationDepth;
 
         private static float _lastWeaponEquipBlockedMessageTime = -999f;
 
@@ -393,6 +394,35 @@ namespace MajorMiseries.Patches
                         $"Duration modified -> {before} * affliction x{afflictionMultiplier:0.###} * aurora x{auroraMultiplier:0.###} = {__result}"
                     );
                 }
+            }
+        }
+
+        [HarmonyPatch(typeof(Panel_Cooking), nameof(Panel_Cooking.OnCookRecipe))]
+        internal static class CookingRecipePreparationScopePatch
+        {
+            private static void Prefix()
+            {
+                _cookingRecipePreparationDepth++;
+            }
+
+            private static Exception Finalizer(Exception __exception)
+            {
+                if (_cookingRecipePreparationDepth > 0) _cookingRecipePreparationDepth--;
+                return __exception;
+            }
+        }
+
+        [HarmonyPatch(typeof(Il2CppTLD.Gear.CraftingOperation), nameof(Il2CppTLD.Gear.CraftingOperation.StartCrafting))]
+        internal static class CookingRecipePreparationDurationPatch
+        {
+            private static void Prefix(ref float hoursToSpendCrafting)
+            {
+                if (_cookingRecipePreparationDepth <= 0 || hoursToSpendCrafting <= 0f) return;
+
+                float multiplier = GetCraftingDurationMultiplier();
+                if (multiplier <= 0f || Mathf.Approximately(multiplier, 1f)) return;
+
+                hoursToSpendCrafting *= multiplier;
             }
         }
 

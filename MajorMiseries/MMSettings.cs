@@ -335,7 +335,7 @@ namespace MajorMiseries
         public float AuroraInfluenceVitaminCMaxMultiplier = 2f;
 
         [Name("Partial Shelter Exposure Multiplier")]
-        [Description("Default: x0.25 - Aurora exposure multiplier while the player is inside a vehicle or inside The Riken, treating these as partial Faraday shielding.")]
+        [Description("Default: x0.25 - Aurora exposure multiplier while the player is inside a vehicle or inside The Riken, treating these as partial electromagnetic shielding.")]
         [Slider(0f, 1f, 101, NumberFormat = "x{0:0.00}")]
         public float AuroraInfluenceVehicleMultiplier = 0.25f;
 
@@ -357,6 +357,10 @@ namespace MajorMiseries
         [Name("Waking Blackout During Long Actions")]
         [Description("Default: Enabled - If disabled, waking blackout rolls are blocked during a long action such as crafting, reading, fishing, etc.")]
         public bool AuroraWakingBlackoutDuringLongActions = true;
+
+        [Name("Simulate Lost Time")]
+        [Description("Default: Disabled - When enabled, time lost to Aurora Influence is simulated during a 3-second blackout instead of being skipped instantly. Needs, temperature, fires, cooking, weather, afflictions and wildlife continue to progress while you are unconscious.")]
+        public bool AuroraSimulateLostTime = false;
 
         [Section("Advanced")]
 

@@ -34,6 +34,14 @@ namespace MajorMiseries.Managers
         private const float WAKING_BLACKOUT_MIN_TIME_HOURS = 0.2f;
         private const float WAKING_BLACKOUT_MAX_TIME_HOURS = 3f;
         private const float WAKING_BLACKOUT_FATIGUE_LOSS_PER_HOUR = 10f;
+        private const float LOST_TIME_SIMULATION_REAL_SECONDS = 3f;
+        private const float LOST_TIME_REAL_SECONDS_PER_GAME_HOUR_AT_1X = 300f;
+        private const float LOST_TIME_SIMULATION_MIN_SCALE = 1f;
+        private const float LOST_TIME_SIMULATION_MAX_SCALE = 2000f;
+        private const float LOST_TIME_PREDATOR_CONTACT_BUFFER_METERS = 0.75f;
+        private const float LOST_TIME_PREDATOR_CONTACT_MIN_METERS = 3.5f;
+        private const float LOST_TIME_PREDATOR_CONTACT_MAX_METERS = 8f;
+        private const float LOST_TIME_PREDATOR_FAILED_CONTACT_METERS = 1.5f;
 
         private const float DEBUG_ASTAR_PATH_DEFAULT_DURATION_SECONDS = 20f;
         private static GameObject? s_DebugAStarPathObject;
@@ -44,6 +52,10 @@ namespace MajorMiseries.Managers
         private static float s_BlackoutAlpha = 0f;
         private static object? s_BlackoutRoutine;
         private static bool s_BlackoutMovementLocked = false;
+        private static bool s_LostTimeSimulationActive = false;
+        private static bool s_LostTimeSimulationInterrupted = false;
+        private static float s_LostTimeSimulationOriginalTimeScale = 1f;
+        private static float s_LostTimeSimulationRequestedTimeScale = 1f;
         private static bool s_SleepwalkingPendingTeleport = false;
         private static Vector3 s_PendingSleepwalkingWakePosition = Vector3.zero;
         private static float s_PendingSleepwalkingCameraPitch = 0f;
@@ -317,6 +329,12 @@ namespace MajorMiseries.Managers
             s_DebugForcedNextSleepEvent = SleepEventKind.None;
             s_BlackoutMovementLocked = false;
             s_BlackoutAlpha = 0f;
+            if (s_LostTimeSimulationActive)
+            {
+                Time.timeScale = Mathf.Max(0.01f, s_LostTimeSimulationOriginalTimeScale);
+                s_LostTimeSimulationActive = false;
+                s_LostTimeSimulationRequestedTimeScale = 1f;
+            }
             if (s_BlackoutRoutine != null)
             {
                 try { MelonCoroutines.Stop(s_BlackoutRoutine); }
@@ -452,9 +470,11 @@ namespace MajorMiseries.Managers
 
                 case SleepEventKind.LostTimeAfterSleep:
                     float lostHours = Random.Range(0.5f, 2f);
-                    SkipTimeDry(lostHours, "ManualSleepLostTime");
+                    AdvanceStandaloneLostTime(lostHours, "ManualSleepLostTime");
                     ShowSleepEventHudMessage(SleepEventKind.LostTimeAfterSleep, "manual trigger");
-                    result = $"LostTimeAfterSleep triggered -> skipped {lostHours:0.##}h";
+                    result = Settings.options.AuroraSimulateLostTime
+                        ? $"LostTimeAfterSleep triggered -> simulating {lostHours:0.##}h"
+                        : $"LostTimeAfterSleep triggered -> skipped {lostHours:0.##}h";
                     return true;
 
                 case SleepEventKind.Sleepwalking:
@@ -573,8 +593,22 @@ namespace MajorMiseries.Managers
 
         internal static void UpdateRealtime()
         {
+            EnforceLostTimeSimulationTimeScale();
             VoidSicknessAffliction.UpdateAmbientAudio();
             UpdateDebugAStarPathLifetime();
+        }
+
+        private static void EnforceLostTimeSimulationTimeScale()
+        {
+            if (s_LostTimeSimulationActive) Time.timeScale = s_LostTimeSimulationRequestedTimeScale;
+        }
+
+        [HarmonyPatch(typeof(InterfaceManager), nameof(InterfaceManager.Update))]
+        private static class InterfaceManager_Update_LostTimeSimulation_Patch
+        {
+            [HarmonyPostfix]
+            [HarmonyPriority(Priority.Last)]
+            private static void Postfix() => EnforceLostTimeSimulationTimeScale();
         }
 
         internal static void OnSceneWasInitialized(int buildIndex, string sceneName)
@@ -1102,9 +1136,9 @@ namespace MajorMiseries.Managers
             else if (s_CurrentSleepEvent == SleepEventKind.LostTimeAfterSleep)
             {
                 float lostHours = Random.Range(0.5f, 2f);
-                SkipTimeDry(lostHours, "SleepLostTime");
+                AdvanceStandaloneLostTime(lostHours, "SleepLostTime");
                 ShowSleepEventHudMessage(SleepEventKind.LostTimeAfterSleep, "lost time applied");
-                LogSleepDebug($"applied LostTimeAfterSleep -> TimeLost:{lostHours:0.##}h");
+                LogSleepDebug($"applied LostTimeAfterSleep -> TimeLost:{lostHours:0.##}h | Simulated:{Settings.options.AuroraSimulateLostTime}");
             }
             else if (s_CurrentSleepEvent == SleepEventKind.Sleepwalking)
             {
@@ -1456,8 +1490,9 @@ namespace MajorMiseries.Managers
             else
             {
                 RefreshBlackoutOverlayTopmost();
-                yield return FadeBlackout(0f, 1f, 0.75f);
-                yield return WaitUnscaledSeconds(0.5f);
+                bool simulateLostTime = Settings.options.AuroraSimulateLostTime;
+                yield return FadeBlackout(0f, 1f, simulateLostTime ? 0.35f : 0.75f);
+                if (!simulateLostTime) yield return WaitUnscaledSeconds(0.5f);
             }
 
             Vector3 finalWakePosition = target.WakePosition;
@@ -1563,6 +1598,9 @@ namespace MajorMiseries.Managers
 
             RefreshBlackoutOverlayTopmost();
 
+            float lostHours = Random.Range(0.5f, 3f);
+            bool snapped = false;
+
             try
             {
                 if (player == null && GameManager.GetPlayerObject() == null)
@@ -1571,29 +1609,49 @@ namespace MajorMiseries.Managers
                 }
                 else
                 {
-                    bool snapped = SnapPlayerTo(wakePosition, cameraPitch, cameraYaw);
+                    snapped = SnapPlayerTo(wakePosition, cameraPitch, cameraYaw);
                     if (!snapped) LogSleepwalkingDebug("player snap failed -> continuing wakeup cleanup");
-
-                    float lostHours = Random.Range(0.5f, 3f);
-                    SkipTimeDry(lostHours, "Sleepwalking");
-
-                    HUDMessage.AddMessage(Localization.Get("GAMEPLAY_AuroraInfluenceSleepwalking"), AURORA_INFLUENCE_HUD_DISPLAY_SECONDS, false);
-                    Core.Log($"Aurora sleepwalking -> Source:{triggerSource} | Scene:{targetScene} | LogicalRegion:{RegionalAfflictionManager.GetRegionLogName(logicalRegion)} | WakePoint:{wakePosition} | WakeSource:{wakePointSource} | CameraPitch:{cameraPitch:0.##} | CameraYaw:{cameraYaw:0.##} | TimeLost:{lostHours:0.##}h | Exposure:{Core.State.AuroraInfluenceExposure:0.#}", false);
-                    Core.Instance?.MarkDirty();
-                    NormalizeSceneTransitionDataAfterSleepwalkingArrival(targetScene, wakePosition);
                 }
             }
             catch (Exception e)
             {
-                LogSleepwalkingDebug($"teleport apply failed -> fading back in anyway | {e.Message}");
+                LogSleepwalkingDebug($"teleport apply failed -> continuing wakeup cleanup | {e.Message}");
             }
 
-            yield return WaitUnscaledSeconds(holdSeconds);
-            RefreshBlackoutOverlayTopmost();
-            yield return FadeBlackout(1f, 0f, fadeInSeconds);
+            s_LostTimeSimulationInterrupted = false;
+            if (Settings.options.AuroraSimulateLostTime)
+            {
+                yield return SimulateLostTime(lostHours, "Sleepwalking");
+            }
+            else
+            {
+                SkipTimeDry(lostHours, "Sleepwalking");
+            }
 
-            ForceBlackoutClear("sleepwalking complete");
-            SetBlackoutMovementLocked(false, "sleepwalking complete");
+            bool interruptedByDanger = s_LostTimeSimulationInterrupted;
+
+            try
+            {
+                HUDMessage.AddMessage(Localization.Get("GAMEPLAY_AuroraInfluenceSleepwalking"), AURORA_INFLUENCE_HUD_DISPLAY_SECONDS, false);
+                Core.Log($"Aurora sleepwalking -> Source:{triggerSource} | Scene:{targetScene} | LogicalRegion:{RegionalAfflictionManager.GetRegionLogName(logicalRegion)} | WakePoint:{wakePosition} | WakeSource:{wakePointSource} | CameraPitch:{cameraPitch:0.##} | CameraYaw:{cameraYaw:0.##} | TimeLost:{lostHours:0.##}h | Simulated:{Settings.options.AuroraSimulateLostTime} | Interrupted:{interruptedByDanger} | Exposure:{Core.State.AuroraInfluenceExposure:0.#}", false);
+                Core.Instance?.MarkDirty();
+                if (snapped) NormalizeSceneTransitionDataAfterSleepwalkingArrival(targetScene, wakePosition);
+            }
+            catch (Exception e)
+            {
+                LogSleepwalkingDebug($"sleepwalking completion failed -> fading back in anyway | {e.Message}");
+            }
+
+            bool simulateLostTime = Settings.options.AuroraSimulateLostTime;
+            if (!interruptedByDanger && !simulateLostTime) yield return WaitUnscaledSeconds(holdSeconds);
+            if (!interruptedByDanger)
+            {
+                RefreshBlackoutOverlayTopmost();
+                yield return FadeBlackout(1f, 0f, simulateLostTime ? 0.35f : fadeInSeconds);
+            }
+
+            ForceBlackoutClear(interruptedByDanger ? "sleepwalking danger interruption" : "sleepwalking complete");
+            SetBlackoutMovementLocked(false, interruptedByDanger ? "sleepwalking danger interruption" : "sleepwalking complete");
             s_BlackoutRoutine = null;
         }
 
@@ -1906,12 +1964,14 @@ namespace MajorMiseries.Managers
 
         private static IEnumerator WakingBlackoutRoutine(PlayerManager player, Vector3 origin, Quaternion rotation, string triggerSource)
         {
-            yield return FadeBlackout(0f, 1f, 2f);
-            yield return WaitUnscaledSeconds(0.75f);
+            bool simulateLostTime = Settings.options.AuroraSimulateLostTime;
+            yield return FadeBlackout(0f, 1f, simulateLostTime ? 0.35f : 2f);
+            if (!simulateLostTime) yield return WaitUnscaledSeconds(0.75f);
 
             Vector3 safePos = origin;
             bool moved = false;
             float pathDistanceMeters = 0f;
+            float lostHours = 0f;
 
             try
             {
@@ -1926,11 +1986,32 @@ namespace MajorMiseries.Managers
                     }
                 }
 
-                float lostHours = CalculateWakingBlackoutLostHours(pathDistanceMeters, moved);
+                lostHours = CalculateWakingBlackoutLostHours(pathDistanceMeters, moved);
                 LogWakingBlackoutDebug($"safe position result -> Source:{triggerSource} | Origin:{origin} | SafeFound:{moved} | Target:{safePos} | PathDistance:{pathDistanceMeters:0.##}m | TimeLost:{lostHours:0.##}h | Exposure:{Core.State.AuroraInfluenceExposure:0.#}");
+            }
+            catch (Exception e)
+            {
+                LogWakingBlackoutDebug($"safe position preparation failed -> using time-only blackout | {e.Message}");
+                safePos = origin;
+                moved = false;
+                pathDistanceMeters = 0f;
+                lostHours = CalculateWakingBlackoutLostHours(0f, false);
+            }
 
+            s_LostTimeSimulationInterrupted = false;
+            if (Settings.options.AuroraSimulateLostTime)
+            {
+                yield return SimulateLostTime(lostHours, "WakingBlackout");
+            }
+            else
+            {
                 SkipTimeDry(lostHours, "WakingBlackout");
+            }
 
+            bool interruptedByDanger = s_LostTimeSimulationInterrupted;
+
+            try
+            {
                 Fatigue fatigue = GameManager.GetFatigueComponent();
                 if (fatigue != null)
                 {
@@ -1944,18 +2025,22 @@ namespace MajorMiseries.Managers
                     LogWakingBlackoutDebug("fatigue loss skipped -> missing fatigue component");
                 }
 
-                if (moved)
+                if (!interruptedByDanger && moved)
                 {
                     player.TeleportPlayer(safePos, rotation);
                     LogWakingBlackoutDebug($"teleported -> {origin} => {safePos} | PathDistance:{pathDistanceMeters:0.##}m");
+                }
+                else if (interruptedByDanger)
+                {
+                    LogWakingBlackoutDebug("wake position teleport cancelled -> accelerated lost time interrupted by danger");
                 }
                 else
                 {
                     LogWakingBlackoutDebug("no safe nearby position found -> time-only blackout");
                 }
 
-                HUDMessage.AddMessage(Localization.Get(moved ? "GAMEPLAY_AuroraInfluenceWakingBlackout" : "GAMEPLAY_AuroraInfluenceWakingBlackoutTimeOnly"), AURORA_INFLUENCE_HUD_DISPLAY_SECONDS, false);
-                Core.Log($"Aurora waking blackout -> Source:{triggerSource} | PathDistance:{pathDistanceMeters:0.##}m | TimeLost:{lostHours:0.##}h | Moved:{moved} | Exposure:{Core.State.AuroraInfluenceExposure:0.#}", false);
+                HUDMessage.AddMessage(Localization.Get(moved && !interruptedByDanger ? "GAMEPLAY_AuroraInfluenceWakingBlackout" : "GAMEPLAY_AuroraInfluenceWakingBlackoutTimeOnly"), AURORA_INFLUENCE_HUD_DISPLAY_SECONDS, false);
+                Core.Log($"Aurora waking blackout -> Source:{triggerSource} | PathDistance:{pathDistanceMeters:0.##}m | TimeLost:{lostHours:0.##}h | Moved:{moved && !interruptedByDanger} | Simulated:{Settings.options.AuroraSimulateLostTime} | Interrupted:{interruptedByDanger} | Exposure:{Core.State.AuroraInfluenceExposure:0.#}", false);
                 Core.Instance?.MarkDirty();
             }
             catch (Exception e)
@@ -1963,10 +2048,10 @@ namespace MajorMiseries.Managers
                 LogWakingBlackoutDebug($"effect apply failed -> fading back in anyway | {e.Message}");
             }
 
-            yield return WaitUnscaledSeconds(0.75f);
-            yield return FadeBlackout(1f, 0f, 2f);
-            ForceBlackoutClear("waking blackout complete");
-            SetBlackoutMovementLocked(false, "waking blackout complete");
+            if (!interruptedByDanger && !simulateLostTime) yield return WaitUnscaledSeconds(0.75f);
+            if (!interruptedByDanger) yield return FadeBlackout(1f, 0f, simulateLostTime ? 0.35f : 2f);
+            ForceBlackoutClear(interruptedByDanger ? "waking blackout danger interruption" : "waking blackout complete");
+            SetBlackoutMovementLocked(false, interruptedByDanger ? "waking blackout danger interruption" : "waking blackout complete");
             s_BlackoutRoutine = null;
         }
 
@@ -1986,6 +2071,202 @@ namespace MajorMiseries.Managers
         private static float CalculateWakingBlackoutFatigueLoss(float lostHours)
         {
             return Mathf.Max(0f, lostHours) * WAKING_BLACKOUT_FATIGUE_LOSS_PER_HOUR;
+        }
+
+        private static void AdvanceStandaloneLostTime(float hours, string reason)
+        {
+            if (hours <= 0f) return;
+
+            if (!Settings.options.AuroraSimulateLostTime)
+            {
+                SkipTimeDry(hours, reason);
+                return;
+            }
+
+            if (s_BlackoutRoutine != null || s_LostTimeSimulationActive)
+            {
+                Core.Log($"[Aurora][TimeSimulation] {reason} -> another blackout/time simulation is active, using dry fallback");
+                SkipTimeDry(hours, reason + "Fallback");
+                return;
+            }
+
+            SetBlackoutMovementLocked(true, reason + " simulation start");
+            s_BlackoutRoutine = MelonCoroutines.Start(StandaloneLostTimeSimulationRoutine(hours, reason));
+        }
+
+        private static IEnumerator StandaloneLostTimeSimulationRoutine(float hours, string reason)
+        {
+            yield return FadeBlackout(0f, 1f, 0.35f);
+            yield return SimulateLostTime(hours, reason);
+
+            bool interruptedByDanger = s_LostTimeSimulationInterrupted;
+            if (!interruptedByDanger) yield return FadeBlackout(1f, 0f, 0.35f);
+
+            ForceBlackoutClear(reason + (interruptedByDanger ? " danger interruption" : " simulation complete"));
+            SetBlackoutMovementLocked(false, reason + (interruptedByDanger ? " danger interruption" : " simulation complete"));
+            s_BlackoutRoutine = null;
+        }
+
+        private static IEnumerator SimulateLostTime(float hours, string reason)
+        {
+            s_LostTimeSimulationInterrupted = false;
+
+            TimeOfDay tod = GameManager.GetTimeOfDayComponent();
+            if (tod == null || hours <= 0f) yield break;
+
+            float originalTimeScale = Time.timeScale;
+            if (originalTimeScale <= 0.001f) originalTimeScale = 1f;
+
+            float startHours = tod.GetHoursPlayedNotPaused();
+            float targetHours = startHours + hours;
+            float realElapsed = 0f;
+            float estimatedHoursPerRealSecondAtOneX = 1f / LOST_TIME_REAL_SECONDS_PER_GAME_HOUR_AT_1X;
+            float previousHours = startHours;
+            float previousAppliedScale = originalTimeScale;
+
+            s_LostTimeSimulationOriginalTimeScale = originalTimeScale;
+            s_LostTimeSimulationRequestedTimeScale = originalTimeScale;
+            s_LostTimeSimulationActive = true;
+
+            Core.Log($"[Aurora][TimeSimulation] {reason} -> start {startHours:0.##}h, target {targetHours:0.##}h, duration:{LOST_TIME_SIMULATION_REAL_SECONDS:0.#}s real");
+
+            try
+            {
+                while (realElapsed < LOST_TIME_SIMULATION_REAL_SECONDS)
+                {
+                    PlayerStruggle struggle = GameManager.GetPlayerStruggleComponent();
+                    Condition condition = GameManager.GetConditionComponent();
+                    string dangerReason = string.Empty;
+
+                    if (struggle != null && struggle.InStruggle())
+                    {
+                        dangerReason = "player struggle started";
+                    }
+                    else if (condition != null && condition.m_CurrentHP <= 0f)
+                    {
+                        dangerReason = "player died";
+                    }
+                    else if (TryGetLostTimePredatorContactDanger(out string predatorDanger))
+                    {
+                        dangerReason = predatorDanger;
+                    }
+
+                    if (!string.IsNullOrEmpty(dangerReason))
+                    {
+                        s_LostTimeSimulationInterrupted = true;
+                        s_LostTimeSimulationRequestedTimeScale = originalTimeScale;
+                        Time.timeScale = originalTimeScale;
+                        SetBlackoutMovementLocked(false, "lost-time danger interruption");
+                        ForceBlackoutClear("lost-time danger interruption");
+                        Core.Log($"[Aurora][TimeSimulation] {reason} -> interrupted by danger ({dangerReason}) at {tod.GetHoursPlayedNotPaused():0.##}/{targetHours:0.##}h after {realElapsed:0.##}s real; restored x{originalTimeScale:0.###} and released blackout immediately");
+                        break;
+                    }
+
+                    tod = GameManager.GetTimeOfDayComponent();
+                    if (tod == null) break;
+
+                    float currentHours = tod.GetHoursPlayedNotPaused();
+                    float remainingHours = targetHours - currentHours;
+                    if (remainingHours <= 0.0001f)
+                    {
+                        s_LostTimeSimulationRequestedTimeScale = 0f;
+                        Time.timeScale = 0f;
+                        yield return null;
+                        realElapsed += Mathf.Max(Time.unscaledDeltaTime, 0.001f);
+                        continue;
+                    }
+
+                    float remainingRealSeconds = Mathf.Max(0.025f, LOST_TIME_SIMULATION_REAL_SECONDS - realElapsed);
+                    float requiredScale = remainingHours / Mathf.Max(0.000001f, estimatedHoursPerRealSecondAtOneX * remainingRealSeconds);
+                    s_LostTimeSimulationRequestedTimeScale = Mathf.Clamp(requiredScale, Mathf.Max(LOST_TIME_SIMULATION_MIN_SCALE, originalTimeScale), LOST_TIME_SIMULATION_MAX_SCALE);
+                    Time.timeScale = s_LostTimeSimulationRequestedTimeScale;
+
+                    previousHours = currentHours;
+                    previousAppliedScale = s_LostTimeSimulationRequestedTimeScale;
+
+                    yield return null;
+
+                    float frameRealSeconds = Mathf.Max(Time.unscaledDeltaTime, 0.001f);
+                    realElapsed += frameRealSeconds;
+
+                    tod = GameManager.GetTimeOfDayComponent();
+                    if (tod != null && previousAppliedScale > 0.001f)
+                    {
+                        float advancedHours = Mathf.Max(0f, tod.GetHoursPlayedNotPaused() - previousHours);
+                        if (advancedHours > 0f)
+                        {
+                            float measuredRate = advancedHours / (frameRealSeconds * previousAppliedScale);
+                            if (measuredRate > 0.000001f) estimatedHoursPerRealSecondAtOneX = Mathf.Lerp(estimatedHoursPerRealSecondAtOneX, measuredRate, 0.65f);
+                        }
+                    }
+                }
+
+                tod = GameManager.GetTimeOfDayComponent();
+                if (!s_LostTimeSimulationInterrupted && tod != null)
+                {
+                    float remainingHours = targetHours - tod.GetHoursPlayedNotPaused();
+                    if (remainingHours > 0.0001f)
+                    {
+                        Core.Log($"[Aurora][TimeSimulation] {reason} -> final correction {remainingHours:0.####}h after {realElapsed:0.##}s real");
+                        SkipTimeDry(remainingHours, reason + "FinalCorrection");
+                    }
+                }
+            }
+            finally
+            {
+                Time.timeScale = originalTimeScale;
+                s_LostTimeSimulationRequestedTimeScale = originalTimeScale;
+                s_LostTimeSimulationActive = false;
+                float endHours = tod != null ? tod.GetHoursPlayedNotPaused() : startHours;
+                Core.Log($"[Aurora][TimeSimulation] {reason} -> end {endHours:0.##}h | Requested:{hours:0.##}h | Real:{realElapsed:0.##}s | Interrupted:{s_LostTimeSimulationInterrupted} | TimeScale restored:{originalTimeScale:0.###}");
+            }
+        }
+
+        private static bool TryGetLostTimePredatorContactDanger(out string reason)
+        {
+            reason = string.Empty;
+
+            try
+            {
+                Transform playerTransform = GameManager.GetPlayerTransform();
+                if (playerTransform == null || BaseAiManager.m_BaseAis == null) return false;
+
+                foreach (BaseAi animal in BaseAiManager.m_BaseAis)
+                {
+                    if (animal == null || animal.m_CurrentHP <= 0f) continue;
+
+                    switch (animal.m_AiSubType)
+                    {
+                        case AiSubType.Wolf:
+                        case AiSubType.Bear:
+                        case AiSubType.Moose:
+                        case AiSubType.Cougar:
+                            break;
+
+                        default:
+                            continue;
+                    }
+
+                    AiMode mode = animal.GetAiMode();
+                    float distance = Vector3.Distance(animal.transform.position, playerTransform.position);
+                    bool offensiveMode = mode == AiMode.Attack || mode == AiMode.PassingAttack || mode == AiMode.HoldGround;
+                    bool failedContactBounce = mode == AiMode.Flee && distance <= LOST_TIME_PREDATOR_FAILED_CONTACT_METERS;
+                    if (!offensiveMode && !failedContactBounce) continue;
+
+                    float nativeContactRange = Mathf.Max(animal.m_RangeMeleeAttack, animal.m_PassingAttackRange);
+                    float contactRange = Mathf.Clamp(nativeContactRange + LOST_TIME_PREDATOR_CONTACT_BUFFER_METERS, LOST_TIME_PREDATOR_CONTACT_MIN_METERS, LOST_TIME_PREDATOR_CONTACT_MAX_METERS);
+                    if (distance > contactRange && !failedContactBounce) continue;
+
+                    reason = $"{animal.m_AiSubType} {mode} at {distance:0.0}m (contact threshold {contactRange:0.0}m)";
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                Core.Warn($"[Aurora][TimeSimulation] predator contact check failed -> {e.Message}", false);
+            }
+
+            return false;
         }
 
         private static void SkipTimeDry(float hours, string reason)
