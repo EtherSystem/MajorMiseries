@@ -10,13 +10,12 @@ namespace MajorMiseries
         internal const float GaugeLockPercent = 0.25f;
         internal const float GaugeAvailablePercent = 1f - GaugeLockPercent;
 
-        private const int PreferredVitaminCIndex = 0;
         private const float MinVitaminCTrackedDelta = 0.000001f;
 
         private static bool s_HasLastVitaminCDrainState;
         private static bool s_LastVitaminCDrainActive;
         private static int s_LastVitaminCIndex = -1;
-        private static int s_LastVitaminCLossPerDay = -1;
+        private static float s_LastVitaminCLossPerDay = -1f;
         private static float s_LastVitaminCDrainMultiplier = 1f;
         private static RequiemStage s_LastVitaminCDrainStage = RequiemStage.None;
 
@@ -25,7 +24,7 @@ namespace MajorMiseries
             s_HasLastVitaminCDrainState = false;
             s_LastVitaminCDrainActive = false;
             s_LastVitaminCIndex = -1;
-            s_LastVitaminCLossPerDay = -1;
+            s_LastVitaminCLossPerDay = -1f;
             s_LastVitaminCDrainMultiplier = 1f;
             s_LastVitaminCDrainStage = RequiemStage.None;
         }
@@ -64,18 +63,18 @@ namespace MajorMiseries
 
             Nutrition nutrition = Nutrition.Instance;
             if (nutrition == null) return false;
-            if (!Nutrition_Update_VitaminCDrainPatch.TryGetVitaminCIndex(nutrition, out int vitaminCIndex)) return false;
+            if (!Nutrition_Update_VitaminCDrainPatch.TryGetVitaminCIndex(nutrition, out _, out NutrientDefinition vitaminC)) return false;
 
-            amount = Mathf.Max(0f, nutrition.m_Amounts[vitaminCIndex]);
+            amount = Mathf.Max(0f, nutrition.GetValue(vitaminC));
             return true;
         }
 
-        private static void LogVitaminCDrainStateIfChanged(RequiemStage stage, bool active, float multiplier, int vitaminCIndex, int lossPerDay, float amount)
+        private static void LogVitaminCDrainStateIfChanged(RequiemStage stage, bool active, float multiplier, int vitaminCIndex, float lossPerDay, float amount)
         {
             if (s_HasLastVitaminCDrainState &&
                 active == s_LastVitaminCDrainActive &&
                 vitaminCIndex == s_LastVitaminCIndex &&
-                lossPerDay == s_LastVitaminCLossPerDay &&
+                Mathf.Approximately(lossPerDay, s_LastVitaminCLossPerDay) &&
                 Mathf.Approximately(multiplier, s_LastVitaminCDrainMultiplier) &&
                 stage == s_LastVitaminCDrainStage) return;
 
@@ -88,7 +87,7 @@ namespace MajorMiseries
 
             float modifiedLossPerDay = active ? lossPerDay * multiplier : lossPerDay;
 
-            Core.Log($"Vitamin C drain acceleration active:{active} | stage:{stage} | multiplier:x{multiplier:0.#} | index:{vitaminCIndex} | vanillaLossPerDay:{lossPerDay:0.###} | modifiedLossPerDay:{modifiedLossPerDay:0.###} | m_Amounts:{amount:0.######}");
+            Core.Log($"Vitamin C drain acceleration active:{active} | stage:{stage} | multiplier:x{multiplier:0.#} | index:{vitaminCIndex} | vanillaLossPerDay:{lossPerDay:0.###} | modifiedLossPerDay:{modifiedLossPerDay:0.###} | amount:{amount:0.######}");
         }
 
         internal readonly struct StageProfile(float maxHpPenalty, int basePredatorThreat, bool convertPredatorBloodLossToSevere, bool predatorHostilityEnabled, bool lockHunger, bool lockThirst, bool lockFatigue, bool lockFreezing)
@@ -377,7 +376,6 @@ namespace MajorMiseries
             private static void Postfix(Freezing __instance) => ClampFreezing(__instance);
         }
 
-        //scurvy stuff
         [HarmonyPatch(typeof(Nutrition), nameof(Nutrition.Update))]
         internal static class Nutrition_Update_VitaminCDrainPatch
         {
@@ -392,26 +390,25 @@ namespace MajorMiseries
             {
                 __state = default;
 
-                if (!TryGetVitaminCIndex(__instance, out int vitaminCIndex)) return;
+                if (!TryGetVitaminCIndex(__instance, out int vitaminCIndex, out NutrientDefinition vitaminC)) return;
 
                 __state.IsValid = true;
                 __state.VitaminCIndex = vitaminCIndex;
-                __state.VitaminCBefore = __instance.m_Amounts[vitaminCIndex];
+                __state.VitaminCBefore = __instance.GetValue(vitaminC);
             }
 
             private static void Postfix(Nutrition __instance, NutritionUpdateState __state)
             {
                 if (!__state.IsValid) return;
-                if (!TryGetVitaminCIndex(__instance, out int vitaminCIndex)) return;
+                if (!TryGetVitaminCIndex(__instance, out int vitaminCIndex, out NutrientDefinition vitaminC)) return;
                 if (vitaminCIndex != __state.VitaminCIndex) return;
 
                 RequiemStage stage = AfflictionLogic.GetCurrentStage();
                 float multiplier = GetVitaminCDrainMultiplier(stage);
                 bool active = multiplier > 1f;
 
-                int lossPerDay = GetVitaminCLossPerDay(__instance, vitaminCIndex);
-
-                float vitaminCAfterVanilla = __instance.m_Amounts[vitaminCIndex];
+                float lossPerDay = GetVitaminCLossPerDay(__instance, vitaminCIndex);
+                float vitaminCAfterVanilla = __instance.GetValue(vitaminC);
 
                 LogVitaminCDrainStateIfChanged(stage, active, multiplier, vitaminCIndex, lossPerDay, vitaminCAfterVanilla);
 
@@ -426,40 +423,30 @@ namespace MajorMiseries
 
                 if (modifiedVitaminC >= vitaminCAfterVanilla) return;
 
-                __instance.m_Amounts[vitaminCIndex] = modifiedVitaminC;
+                __instance.SetValue(vitaminC, modifiedVitaminC);
             }
 
-            internal static bool TryGetVitaminCIndex(Nutrition nutrition, out int vitaminCIndex)
+            internal static bool TryGetVitaminCIndex(Nutrition nutrition, out int vitaminCIndex, out NutrientDefinition vitaminC)
             {
                 vitaminCIndex = -1;
+                vitaminC = null;
 
-                if (nutrition == null) return false;
-                if (!nutrition.IsInitialized) return false;
-                if (!nutrition.HasNutritionSettings()) return false;
-                if (nutrition.m_Nutrients == null || nutrition.m_Amounts == null) return false;
+                if (nutrition == null || !nutrition.IsInitialized || !nutrition.TracksNutrition) return false;
+                if (nutrition.m_TrackedNutritions == null) return false;
 
                 ScurvyManager scurvy = GameManager.GetScurvyComponent();
-                if (scurvy == null) return false;
-
-                NutrientDefinition vitaminC = scurvy.m_NutrientDefinition;
-                if (vitaminC == null) return false;
-
-                if (IsVitaminCAtIndex(nutrition, vitaminC, PreferredVitaminCIndex))
-                {
-                    vitaminCIndex = PreferredVitaminCIndex;
-                    return true;
-                }
+                if (scurvy == null || !scurvy.TryGetVitaminCDefinition(out vitaminC) || vitaminC == null) return false;
 
                 IntPtr vitaminCPtr = IL2CPP.Il2CppObjectBaseToPtr(vitaminC);
-                int count = Mathf.Min(nutrition.m_Nutrients.Count, nutrition.m_Amounts.Count);
 
-                for (int i = 0; i < count; i++)
+                for (int i = 0; i < nutrition.m_TrackedNutritions.Count; i++)
                 {
-                    NutrientDefinition nutrient = nutrition.m_Nutrients[i];
-                    if (nutrient == null) continue;
+                    var tracked = nutrition.m_TrackedNutritions[i];
+                    if (tracked == null) continue;
 
-                    IntPtr nutrientPtr = IL2CPP.Il2CppObjectBaseToPtr(nutrient);
-                    if (nutrientPtr != vitaminCPtr) continue;
+                    NutrientDefinition nutrient = tracked.Nutrient;
+                    if (nutrient == null) continue;
+                    if (IL2CPP.Il2CppObjectBaseToPtr(nutrient) != vitaminCPtr) continue;
 
                     vitaminCIndex = i;
                     return true;
@@ -468,24 +455,12 @@ namespace MajorMiseries
                 return false;
             }
 
-            private static bool IsVitaminCAtIndex(Nutrition nutrition, NutrientDefinition vitaminC, int index)
+            private static float GetVitaminCLossPerDay(Nutrition nutrition, int vitaminCIndex)
             {
-                if (index < 0) return false;
-                if (nutrition.m_Nutrients == null || nutrition.m_Amounts == null) return false;
-                if (index >= nutrition.m_Nutrients.Count || index >= nutrition.m_Amounts.Count) return false;
+                if (nutrition == null || nutrition.m_TrackedNutritions == null || vitaminCIndex < 0 || vitaminCIndex >= nutrition.m_TrackedNutritions.Count) return 0f;
 
-                NutrientDefinition nutrient = nutrition.m_Nutrients[index];
-                if (nutrient == null) return false;
-
-                return IL2CPP.Il2CppObjectBaseToPtr(nutrient) == IL2CPP.Il2CppObjectBaseToPtr(vitaminC);
-            }
-
-            private static int GetVitaminCLossPerDay(Nutrition nutrition, int vitaminCIndex)
-            {
-                if (nutrition == null || vitaminCIndex < 0) return 0;
-                if (nutrition.m_LossPerDay == null || vitaminCIndex >= nutrition.m_LossPerDay.Count) return 0;
-
-                return nutrition.m_LossPerDay[vitaminCIndex];
+                var tracked = nutrition.m_TrackedNutritions[vitaminCIndex];
+                return tracked == null ? 0f : Mathf.Max(0f, tracked.m_LossPerSecond * 86400f);
             }
         }
     }

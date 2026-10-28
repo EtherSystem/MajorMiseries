@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -171,8 +171,37 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="STBlade.Modding.TLD.ModSettings" Version="1.9.0" />
-		<PackageReference Include="Waltz.Modding.TLD.Il2CppAssemblies.Windows" Version="2.52.0" />
+		<Reference Include="MelonLoader">
+			<HintPath>$(TheLongDarkPath)\MelonLoader\net6\MelonLoader.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="0Harmony">
+			<HintPath>$(TheLongDarkPath)\MelonLoader\net6\0Harmony.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="Il2CppInterop.Runtime">
+			<HintPath>$(TheLongDarkPath)\MelonLoader\net6\Il2CppInterop.Runtime.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="Il2CppInterop.Common">
+			<HintPath>$(TheLongDarkPath)\MelonLoader\net6\Il2CppInterop.Common.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="Newtonsoft.Json">
+			<HintPath>$(TheLongDarkPath)\MelonLoader\net6\Newtonsoft.Json.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="$(TheLongDarkPath)\MelonLoader\Il2CppAssemblies\*.dll" Exclude="$(TheLongDarkPath)\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll;$(TheLongDarkPath)\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule_Funky.dll">
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="UnityEngine.CoreModule">
+			<HintPath>$(TheLongDarkPath)\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule_Funky.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="LocalizationUtilities" Condition="Exists('$(TheLongDarkPath)\Mods\LocalizationUtilities.dll')">
+			<HintPath>$(TheLongDarkPath)\Mods\LocalizationUtilities.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
 	</ItemGroup>
 
 	<ItemGroup>

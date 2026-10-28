@@ -104,7 +104,7 @@ namespace MajorMiseries.Patches
             if (panel == null) return false;
             if (panel.m_RepairInProgress) return true;
             if (panel.m_RepairPanel != null && panel.m_RepairPanel.activeInHierarchy) return true;
-            if (panel.m_SafehouseCustomizationRepairPanel != null && panel.m_SafehouseCustomizationRepairPanel.activeInHierarchy) return true;
+            if (panel.m_GenericRepairPanel != null && panel.m_GenericRepairPanel.activeInHierarchy) return true;
 
             return false;
         }
