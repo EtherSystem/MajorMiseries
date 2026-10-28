@@ -26,7 +26,7 @@ namespace MajorMiseries.Patches
         private const float BLACK_LUNG_SPRINT_RECOVERY_DELAY_MULT = 1.5f;
 
         private const float BLACK_LUNG_MIN_SLEEP_HOURS_BEFORE_COUGH = 2f;
-        private const float BLACK_LUNG_MAX_SLEEP_HOURS_BEFORE_COUGH = 4f;
+        private const float BLACK_LUNG_MAX_SLEEP_HOURS_BEFORE_COUGH = 3f;
 
         private static float _respiratoryEffectTickTimer = 0f;
         private static int _cookingRecipePreparationDepth;
